@@ -1,0 +1,6 @@
+# Word lock files & macOS cruft
+~$*
+.DS_Store
+
+# Written and removed again by tests/run.sh
+_smoke.html

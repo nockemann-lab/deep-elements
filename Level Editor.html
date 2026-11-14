@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Elements - Level Editor</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0c12;--panel:#12151f;--border:rgba(255,255,255,0.07);--text:#d4d8e0;--gold:#e8b84b;--red:#e85454;--green:#4ae87a;--cyan:#4ae8d4;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:10px;overflow-x:hidden}
+.header{text-align:center;padding:8px 0 12px;max-width:1200px;margin:0 auto}
+.header h1{font-family:'Press Start 2P',monospace;font-size:clamp(.6em,2vw,1em);background:linear-gradient(90deg,var(--gold),#f0d078,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header p{font-size:.75em;color:#8a90a0;margin-top:3px}
+.header p strong,.header p em{color:#c8ccd8;font-style:normal;font-weight:600}
+.prop-help{font-size:.66em;line-height:1.4;color:#8a90a0;margin-top:4px}
+.editor-layout{display:flex;gap:10px;max-width:1200px;margin:0 auto;align-items:flex-start}
+.toolbox{flex:0 0 216px;display:flex;flex-direction:column;gap:6px;position:sticky;top:10px}
+.tool-section{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px}
+.tool-section h3{font-family:'Press Start 2P',monospace;font-size:.42em;color:var(--gold);margin-bottom:8px;letter-spacing:.04em}
+.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.tool-grid.two-col{grid-template-columns:1fr 1fr}
+.tool-btn{background:rgba(255,255,255,0.03);border:2px solid var(--border);border-radius:6px;padding:6px 4px;cursor:pointer;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tool-btn:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.05)}
+.tool-btn.active{border-color:var(--gold);background:rgba(232,184,75,0.12);box-shadow:0 0 8px rgba(232,184,75,0.15)}
+.tool-btn .t-icon{font-size:1.6em;line-height:1.2;margin-bottom:2px}
+.tool-btn .t-icon-cv{width:28px;height:28px;border-radius:3px;image-rendering:pixelated;image-rendering:crisp-edges;margin-bottom:2px}
+.tool-btn .t-label{font-family:'Press Start 2P',monospace;font-size:.38em;color:#8a90a0;line-height:1.4}
+.tool-btn.active .t-label{color:var(--gold)}
+.tool-btn.span2{grid-column:span 2}
+.canvas-area{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;overflow:hidden}
+.canvas-wrap{position:relative;border:2px solid #2a2e3a;border-radius:6px;overflow:auto;cursor:crosshair;max-width:100%;max-height:75vh}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+#editor-canvas{touch-action:none}
+.grid-coords{position:absolute;top:4px;left:4px;font-family:'Press Start 2P',monospace;font-size:.4em;color:rgba(255,255,255,0.8);background:rgba(0,0,0,0.5);padding:2px 4px;border-radius:3px;pointer-events:none;z-index:2}
+.canvas-toolbar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+.canvas-toolbar button,.canvas-toolbar select,.canvas-toolbar input{font-family:'Press Start 2P',monospace;font-size:.45em;background:var(--panel);border:1px solid #333;color:#aab;padding:6px 12px;border-radius:5px;cursor:pointer;transition:all .15s}
+.canvas-toolbar button:hover{border-color:var(--gold);color:var(--gold)}
+.canvas-toolbar select{color:var(--text);padding:6px 8px}
+.canvas-toolbar select option{background:#1a1e28}
+.bundle-status{margin-top:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:space-between;gap:8px;width:min(100%,720px);font-size:.68em;color:#9aa2b2}
+.bundle-status[data-state="ok"]{border-color:rgba(74,232,122,0.4);background:rgba(74,232,122,0.08);color:#baf5cb}
+.bundle-status[data-state="warn"]{border-color:rgba(232,184,75,0.4);background:rgba(232,184,75,0.08);color:#f0dca0}
+.bundle-status[data-state="error"]{border-color:rgba(232,84,84,0.45);background:rgba(232,84,84,0.08);color:#f2b1b1}
+.bundle-status button{font-family:'Press Start 2P',monospace;font-size:.9em;padding:6px 8px;background:#161922;border:1px solid #333;border-radius:5px;color:#b7bfd0;cursor:pointer;flex:0 0 auto}
+.bundle-status button:hover{border-color:var(--gold);color:var(--gold)}
+.bundle-status-text{line-height:1.45;flex:1 1 auto}
+.btn-danger{color:var(--red)!important}.btn-danger:hover{border-color:var(--red)!important}
+.btn-primary{background:var(--gold)!important;color:#111!important;border-color:var(--gold)!important}
+.btn-primary:hover{background:#f0d078!important}
+.props-panel{flex:0 0 240px;display:flex;flex-direction:column;gap:6px;position:sticky;top:10px}
+.prop-box{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px}
+.prop-box h3{font-family:'Press Start 2P',monospace;font-size:.42em;color:var(--gold);margin-bottom:8px;letter-spacing:.04em}
+.prop-input{background:#1a1e28;border:1px solid #3a3a4a;color:#fff;padding:6px;border-radius:4px;width:100%;}
+.prop-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:.72em;color:#8a90a0}
+.prop-row .pval{font-family:'Press Start 2P',monospace;font-size:.7em;color:var(--cyan)}
+.json-area{width:100%;min-height:80px;max-height:200px;background:#0e1018;border:1px solid #2a2e3a;border-radius:6px;color:var(--cyan);font-family:'DM Sans',monospace;font-size:.65em;padding:8px;resize:vertical;line-height:1.4}
+.elem-picker,.pu-picker{display:none;position:absolute;background:#1a1e28;border:2px solid var(--gold);border-radius:8px;padding:8px;z-index:100;max-height:250px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+.elem-picker.visible,.pu-picker.visible{display:block}
+.elem-picker-title{font-family:'Press Start 2P',monospace;font-size:.4em;color:var(--gold);margin-bottom:6px}
+.elem-choice{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;margin:2px;border-radius:4px;cursor:pointer;font-size:.72em;border:1px solid var(--border);transition:all .15s}
+.elem-choice:hover{border-color:var(--gold);background:rgba(232,184,75,0.1)}
+.elem-choice .ec-sym{font-family:'Press Start 2P',monospace;font-size:.8em;font-weight:bold}
+.pu-choice{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:4px;cursor:pointer;font-size:.72em;transition:all .15s}
+.pu-choice:hover{background:rgba(74,232,212,0.1)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gold);color:#111;font-family:'Press Start 2P',monospace;font-size:.5em;padding:10px 20px;border-radius:6px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200}
+.toast.show{opacity:1}
+.preview-overlay{position:fixed;inset:0;z-index:300;background:rgba(6,8,16,.94);display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:20px}
+.preview-overlay.visible{display:flex}
+.preview-overlay canvas{max-width:92vw;max-height:78vh;object-fit:contain;border:2px solid #2a2e3a;border-radius:6px;background:#0a0c12}
+.preview-meta{font-size:.8em;color:#8a90a0}
+.preview-bar button{margin:0 4px}
+.validate-results{margin-top:8px;border:1px solid #2a2e3a;border-radius:6px;background:#12151f;padding:8px 10px;max-height:180px;overflow-y:auto;font-size:.78em;line-height:1.5}
+.validate-results .vr-ok{color:#4ae87a;font-weight:600}
+.validate-results .vr-err{color:#e85454;border-left:3px solid #e85454;padding-left:7px;margin:3px 0}
+.validate-results .vr-warn{color:#e8b84b;border-left:3px solid #e8b84b;padding-left:7px;margin:3px 0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⛏️ DEEP ELEMENTS - LEVEL EDITOR ⛏️</h1>
+  <p>Pick a tile on the left, then click or drag on the mine. Right-click clears a cell; Ctrl/Cmd+Z undoes.</p>
+  <p>To play a level: <strong>Validate</strong>, then <strong>Copy JSON</strong> and paste it into <em>Play a shared level</em> on the game's main menu.</p>
+</div>
+
+<div class="editor-layout">
+  <div class="toolbox">
+    <div class="tool-section">
+      <h3>🎨 TERRAIN</h3>
+      <div class="tool-grid">
+        <button class="tool-btn active" data-tool="earth" title="Earth (diggable)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Earth</span></button>
+        <button class="tool-btn" data-tool="earth_rich" title="Rich earth (digs like earth, looks different)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Rich</span></button>
+        <button class="tool-btn" data-tool="rock" title="Rock"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Rock</span></button>
+        <button class="tool-btn" data-tool="boulder" title="Boulder"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Boulder</span></button>
+        <button class="tool-btn" data-tool="empty" title="Empty space"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Empty</span></button>
+        <button class="tool-btn" data-tool="wall" title="Wall (nothing breaks it)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Wall</span></button>
+        <button class="tool-btn" data-tool="key" title="Key (K)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Key</span></button>
+        <button class="tool-btn" data-tool="door" title="Locked Door (D)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Door</span></button>
+        <button class="tool-btn" data-tool="ice" title="Ice (a pickaxe will not mark it: it takes a blast)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Ice</span></button>
+      </div>
+    </div>
+
+    <div class="tool-section">
+      <h3>⚠️ HAZARDS</h3>
+      <div class="tool-grid">
+        <button class="tool-btn" data-tool="water" title="Water tile"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Water</span></button>
+        <button class="tool-btn" data-tool="water_src" title="Water Source (spreads water)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">W.Src</span></button>
+        <button class="tool-btn" data-tool="lava" title="Lava tile"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Lava</span></button>
+        <button class="tool-btn" data-tool="lava_src" title="Lava Source (spreads lava)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">L.Src</span></button>
+        <button class="tool-btn" data-tool="hazard" title="Toxic waste barrel (explodes on impact)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Toxic</span></button>
+        <button class="tool-btn" data-tool="roll_barrel" title="Rolling toxic barrel (player-pushed)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Roll Brl</span></button>
+        <button class="tool-btn" data-tool="web" title="Spider web (costs one step to slash through)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Web</span></button>
+        <button class="tool-btn" data-tool="spider_nest" title="Spider Nest (spawns spiders periodically)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">S.Nest</span></button>
+        <button class="tool-btn" data-tool="basalt" title="Basalt (harder rock, crumbles over time)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Basalt</span></button>
+        <button class="tool-btn" data-tool="cart" title="Pushable Minecart"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Cart</span></button>
+        <button class="tool-btn" data-tool="cart_bounce" title="Rogue Bouncing Cart (auto-moves, kills on contact)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Bounce</span></button>
+        <button class="tool-btn" data-tool="shaft_lift" title="Mining Shaft Lift (auto-moves vertically, kills on contact)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Lift</span></button>
+        <button class="tool-btn" data-tool="tbm" title="Tunnel Boring Machine - 3×2, patrols horizontally, grinds rock/earth/ice/enemies, deadly on contact. Place the TOP-LEFT of its 3×2 footprint."><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Borer</span></button>
+        <button class="tool-btn" data-tool="refuge" title="Refuge Chamber - 3×3 safe room with checkpoint (respawn point). Place the TOP-LEFT of its 3×3 footprint."><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Refuge</span></button>
+        <button class="tool-btn" data-tool="gas" title="Gas cloud - suffocates without a gas mask; ignites explosively near blasts. Spreads up + sideways from sources."><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Gas</span></button>
+        <button class="tool-btn" data-tool="gas_src" title="Ruptured gas pipe - continuously leaks gas (up + sideways). Solid; destroyed by dynamite (seals the leak)."><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Pipe</span></button>
+      </div>
+    </div>
+
+    <div class="tool-section">
+      <h3>🎯 LOGIC & ITEMS</h3>
+      <div class="tool-grid">
+        <button class="tool-btn" data-tool="player" title="Player start position"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Player</span></button>
+        <button class="tool-btn" data-tool="exit" title="Exit (opens when every element is collected)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Exit</span></button>
+        <button class="tool-btn" data-tool="eraser" title="Eraser: removes the miner, exit, element, tool, pad or creature in a cell"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Eraser</span></button>
+        <button class="tool-btn" data-tool="element" title="Collectible element"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Element</span></button>
+        <button class="tool-btn" data-tool="hidden_elem" title="Hidden bonus element (shown by the Geiger counter)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Hidden</span></button>
+        <button class="tool-btn" data-tool="powerup" title="Tool: dynamite, helmet lamp, Geiger counter, gas mask or water pump"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Tool</span></button>
+        <button class="tool-btn" data-tool="pad" title="Answer pad for the quiz (the right one opens the logic doors)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Pad</span></button>
+        <button class="tool-btn" data-tool="logic_door" title="Logic door (opened by the right answer pad)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Logic Dr</span></button>
+        <button class="tool-btn" data-tool="trivia_pos" title="Where the quiz question is written on the cave wall"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Q-Pos</span></button>
+      </div>
+    </div>
+
+    <div class="tool-section">
+      <h3>🐍 CREATURES</h3>
+      <div class="tool-grid two-col">
+        <button class="tool-btn" data-tool="bat" title="Bat - flies, wide vision, fast patrol"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Bat</span></button>
+        <button class="tool-btn" data-tool="snake" title="Snake - ambush hunter: ignores you until you come within 3 tiles (up to 6 at high difficulty), then strikes fast; swims"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Snake</span></button>
+        <button class="tool-btn" data-tool="crab" title="Crab - slow, eats earth; falling boulders bounce off its shell"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Crab</span></button>
+        <button class="tool-btn" data-tool="spider" title="Spider - triggered by explosions/vibrations"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Spider</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-area">
+    <div class="canvas-wrap" id="scroll-wrap">
+      <canvas id="editor-canvas"></canvas>
+      <div class="grid-coords" id="coords">0, 0</div>
+    </div>
+    
+    <div class="canvas-toolbar">
+      <select id="scenario-select" title="The device this level builds: it sets the nine elements to collect"></select>
+      <button onclick="fillBorders()">🧱 Borders</button>
+      <button onclick="fillAll('earth')">🟫 Earth</button>
+      <button onclick="clearAll()" class="btn-danger">🗑️ Clear</button>
+      <button onclick="doUndo()">↩ Undo</button>
+      <button onclick="toggleGridLines()">⊞ Grid</button>
+    </div>
+    
+    <div class="canvas-toolbar">
+      <button onclick="exportJSON()" class="btn-primary">📋 Copy JSON</button>
+      <button onclick="saveJSON()">💾 Save JSON</button>
+      <button onclick="loadJSONFile()">📂 Load JSON</button>
+      <button onclick="validateLevel()">✅ Validate</button>
+      <button onclick="showPreview()">🖼️ Preview</button>
+    </div>
+
+    <div class="validate-results" id="validate-results" style="display:none"></div>
+
+    <div class="preview-overlay" id="preview-overlay">
+      <div class="preview-meta" id="preview-meta"></div>
+      <canvas id="preview-canvas"></canvas>
+      <div class="preview-bar">
+        <button class="btn-primary" onclick="downloadPreview()">⬇️ Download PNG</button>
+        <button onclick="hidePreview()">✕ Close (Esc)</button>
+      </div>
+    </div>
+
+    <div class="bundle-status" id="bundle-sync-status" data-state="warn">
+      <div class="bundle-status-text" id="bundle-sync-status-text">Inline bundle status: checking...</div>
+      <button type="button" onclick="refreshBundleSyncStatus()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="props-panel">
+    <div class="prop-box">
+      <h3>📏 GRID SIZE</h3>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <input class="prop-input" type="number" id="grid-cols" value="20" min="10" max="100">
+        <span style="color:#888;font-size:1.2em">×</span>
+        <input class="prop-input" type="number" id="grid-rows" value="15" min="10" max="100">
+        <button class="btn-primary" style="padding:6px;border-radius:4px" onclick="applyResize()">Apply</button>
+      </div>
+    </div>
+
+    <div class="prop-box">
+      <h3>🏷️ LEVEL NAME</h3>
+      <input type="text" class="prop-input" id="p-level-name" placeholder="Optional" maxlength="40">
+      <div class="prop-help">Shown at the top of the screen during play.</div>
+      <h3 style="margin-top:10px">⏰ TIMER (SECONDS)</h3>
+      <input type="number" class="prop-input" id="p-timer" min="30" max="3600" placeholder="Automatic">
+      <div class="prop-help">30 to 3600. Leave blank and the game sets the clock from the size of the level.</div>
+      <h3 style="margin-top:10px">👁️ SIGHT RADIUS</h3>
+      <input type="number" class="prop-input" id="p-sight" min="3" max="14" placeholder="8.4">
+      <div class="prop-help">How many cells the lamp lights, 3 to 14. Hard missions use 5.</div>
+      <h3 style="margin-top:10px">💀 CREATURE DIFFICULTY</h3>
+      <input type="number" class="prop-input" id="p-difficulty" min="0" max="7" placeholder="Automatic">
+      <div class="prop-help">0 is gentle, 7 the fastest and sharpest. Leave blank for automatic.</div>
+    </div>
+
+    <div class="prop-box">
+      <h3>❓ QUIZ</h3>
+      <label style="font-size:0.65em;color:#8a90a0;display:block;margin-bottom:4px">Question (written on the cave wall)</label>
+      <textarea class="prop-input" id="p-trivia-q" rows="3" style="font-family:inherit;font-size:0.8em;resize:none" placeholder="e.g. Which element is used in..."></textarea>
+      
+      <label style="font-size:0.65em;color:#4ae87a;display:block;margin:6px 0 4px">Right answer (an element symbol)</label>
+      <input type="text" class="prop-input" id="p-trivia-ans" placeholder="e.g. Au">
+      <input type="hidden" id="p-trivia-trap">
+      <div class="prop-help">Give one pad this symbol and the others wrong ones. The right pad opens the logic doors; a wrong pad costs 30 seconds. The game deals the answers onto the pads afresh each time the level loads.</div>
+    </div>
+  
+    <div class="prop-box">
+      <h3>📊 LEVEL STATS</h3>
+      <div class="prop-row" id="stat-elements"><span>Elements</span><span class="pval">0 / 9</span></div>
+      <div class="prop-row" id="stat-bonus"><span>Hidden bonus</span><span class="pval">0</span></div>
+      <div class="prop-row" id="stat-powerups"><span>Tools</span><span class="pval">0</span></div>
+      <div class="prop-row" id="stat-enemies"><span>Creatures</span><span class="pval">0</span></div>
+    </div>
+
+    <div class="prop-box">
+      <h3>📋 JSON OUTPUT</h3>
+      <textarea class="json-area" id="json-output" readonly placeholder="The level as JSON"></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="elem-picker" id="elem-picker">
+  <div class="elem-picker-title">Choose Element</div>
+  <div id="elem-choices"></div>
+</div>
+
+<div class="pu-picker" id="pu-picker">
+  <div class="elem-picker-title" style="border-color:var(--cyan)">Choose a tool</div>
+  <div id="pu-choices"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="json-file-input" accept=".json,application/json" style="display:none">
+
+<canvas id="game" style="display:none"></canvas>
+<div style="display:none"><span id="comp-tracker-title"></span><div id="comp-tracker"></div></div>
+<script src="levels-inline.js"></script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="state.js"></script>
+<script src="camera.js"></script>
+<script src="enemies.js"></script>
+<script src="level-gen.js"></script>
+<script src="render-core.js"></script>
+<script src="render-tiles.js"></script>
+<script src="render-creatures.js"></script>
+<script src="render-player.js"></script>
+<script src="render.js"></script>
+<script>
+(function(){
+"use strict";
+
+var T = { EMPTY:0, EARTH:1, ROCK:2, BOULDER:3, PLAYER:4, EXIT:5, ELEMENT:6, WALL:7, HAZARD:8, EARTH_RICH:9, POWERUP:10, HIDDEN_ELEM:11, WATER:12, FUSE:13, WATER_SRC:14, KEY:15, DOOR:16, PAD:17, LOGIC_DOOR:18, WEB:19, CART:20, CART_BOUNCE:21, ROLL_BARREL:22, ICE:23, LAVA:24, LAVA_SRC:25, SPIDER_NEST:26, BASALT:27, SHAFT_LIFT:28, TBM:29, REFUGE:30, GAS:31, GAS_SRC:32, REFUGE_POST:33 };
+
+
+var EDITOR_PU_INFO = [
+  {id:0, name:"Dynamite", icon:"🧨", color:"#e85454"}, {id:1, name:"Helmet Lamp", icon:"🔦", color:"#e8b84b"},
+  {id:2, name:"Geiger Counter", icon:"📲", color:"#4ae8d4"}, {id:3, name:"Gas Mask", icon:"🤿", color:"#7ae87a"},
+  {id:4, name:"Water Pump", icon:"🚰", color:"#4a9ee8"}
+];
+
+var ALL_ELEMS = {
+  // Period 1
+  H:{n:"Hydrogen",c:"#d8d8d8"},He:{n:"Helium",c:"#f0d0e0"},
+  // Period 2
+  Li:{n:"Lithium",c:"#e85454"},Be:{n:"Beryllium",c:"#d8b878"},B:{n:"Boron",c:"#e8c890"},
+  C:{n:"Carbon",c:"#555"},N:{n:"Nitrogen",c:"#a0c8e0"},O:{n:"Oxygen",c:"#78aadc"},
+  F:{n:"Fluorine",c:"#a0e8a0"},Ne:{n:"Neon",c:"#c8b0e0"},
+  // Period 3
+  Na:{n:"Sodium",c:"#e8a854"},Mg:{n:"Magnesium",c:"#98d898"},Al:{n:"Aluminium",c:"#4a9ee8"},
+  Si:{n:"Silicon",c:"#7888c8"},P:{n:"Phosphorus",c:"#e8d454"},S:{n:"Sulfur",c:"#e8cc30"},
+  Cl:{n:"Chlorine",c:"#b8e050"},Ar:{n:"Argon",c:"#c0a8e0"},
+  // Period 4
+  K:{n:"Potassium",c:"#d888c8"},Ca:{n:"Calcium",c:"#e8d0a8"},Sc:{n:"Scandium",c:"#a8c8b8"},
+  Ti:{n:"Titanium",c:"#88aad8"},V:{n:"Vanadium",c:"#8898c8"},Cr:{n:"Chromium",c:"#c0d0e0"},
+  Mn:{n:"Manganese",c:"#c87ae8"},Fe:{n:"Iron",c:"#a0785a"},Co:{n:"Cobalt",c:"#5a7ec8"},
+  Ni:{n:"Nickel",c:"#9ab8a0"},Cu:{n:"Copper",c:"#d4884a"},Zn:{n:"Zinc",c:"#a8b8c8"},
+  Ga:{n:"Gallium",c:"#a87ae8"},Ge:{n:"Germanium",c:"#88ccaa"},As:{n:"Arsenic",c:"#88a888"},
+  Se:{n:"Selenium",c:"#d87040"},Br:{n:"Bromine",c:"#c86040"},Kr:{n:"Krypton",c:"#e0b0c0"},
+  // Period 5
+  Rb:{n:"Rubidium",c:"#d87898"},Sr:{n:"Strontium",c:"#e8d888"},Y:{n:"Yttrium",c:"#aade88"},
+  Zr:{n:"Zirconium",c:"#c8d0c0"},Nb:{n:"Niobium",c:"#a8a0d8"},Mo:{n:"Molybdenum",c:"#b8a8a0"},
+  Ru:{n:"Ruthenium",c:"#8888a8"},Rh:{n:"Rhodium",c:"#c8c0d0"},Pd:{n:"Palladium",c:"#d0c8b8"},
+  Ag:{n:"Silver",c:"#c0c8d8"},Cd:{n:"Cadmium",c:"#d8a878"},In:{n:"Indium",c:"#e85454"},
+  Sn:{n:"Tin",c:"#c8c0b0"},Sb:{n:"Antimony",c:"#9090a0"},Te:{n:"Tellurium",c:"#d8c0a0"},
+  I:{n:"Iodine",c:"#9060a8"},Xe:{n:"Xenon",c:"#b8a8d8"},
+  // Period 6
+  Cs:{n:"Caesium",c:"#e8c080"},Ba:{n:"Barium",c:"#78c888"},
+  La:{n:"Lanthanum",c:"#a8d898"},Ce:{n:"Cerium",c:"#c8dc88"},Pr:{n:"Praseodymium",c:"#88e878"},
+  Nd:{n:"Neodymium",c:"#4ae87a"},Sm:{n:"Samarium",c:"#4ae8c0"},Eu:{n:"Europium",c:"#88e8a8"},
+  Gd:{n:"Gadolinium",c:"#90d8b0"},Tb:{n:"Terbium",c:"#60c8b0"},Dy:{n:"Dysprosium",c:"#6ae8c8"},
+  Ho:{n:"Holmium",c:"#e8a888"},Er:{n:"Erbium",c:"#e87aaa"},Tm:{n:"Thulium",c:"#78d8c8"},
+  Yb:{n:"Ytterbium",c:"#c8e898"},Lu:{n:"Lutetium",c:"#70c0c0"},
+  Hf:{n:"Hafnium",c:"#7898b8"},Ta:{n:"Tantalum",c:"#c87878"},W:{n:"Tungsten",c:"#8899bb"},
+  Re:{n:"Rhenium",c:"#9898a8"},Os:{n:"Osmium",c:"#7888a8"},Ir:{n:"Iridium",c:"#b0c8e8"},
+  Pt:{n:"Platinum",c:"#b0b0d0"},Au:{n:"Gold",c:"#e8b84b"},Hg:{n:"Mercury",c:"#b8b8c8"},
+  Tl:{n:"Thallium",c:"#98a898"},Pb:{n:"Lead",c:"#888"},Bi:{n:"Bismuth",c:"#b888a8"},
+  // Period 7
+  Ra:{n:"Radium",c:"#78d878"},Th:{n:"Thorium",c:"#c8c050"},U:{n:"Uranium",c:"#70c870"}
+};
+
+var FREE_SCENARIO = 15;
+
+var EDITOR_SCENARIOS = [
+  // indices 0–5 match data.js exactly
+  {name:"📱 Smartphone",   elements:["In","Sn","Ta","Ga","Li","Co","Nd","Au","Al"], bonus:["Pt","W","Ge","Y","Ag"]},
+  {name:"🔌 Circuit Board", elements:["Cu","Sn","Au","Ag","Pd","Ni","Br","Si","Fe"], bonus:["Ta","Ga","In","Pt","Ge"]},
+  {name:"⚡ EV Motor",      elements:["Nd","Dy","Pr","Cu","Fe","Co","Mn","Al","Ni"], bonus:["Y","Li","Si","Ti","W"]},
+  {name:"☀️ Solar Panel",   elements:["Si","Ag","Cd","Te","Ga","In","Cu","Sn","Al"], bonus:["Ge","Ni","Fe","P","Nd"]},
+  {name:"🌬️ Wind Turbine",  elements:["Nd","Dy","Cu","Fe","Mn","Cr","Ni","Mo","Zn"], bonus:["Pr","Co","Al","Si","Sn"]},
+  {name:"🏥 MRI Scanner",   elements:["Nb","Ti","He","Gd","Cu","Fe","Sn","Al","Cr"], bonus:["Nd","Ag","Au","Ni","Si"]},
+  // indices 6–9 were in data.js but missing from the editor
+  {name:"🛰️ Satellite",     elements:["Ge","Ga","Ti","Au","Pt","Ir","Ta","Al","Si"], bonus:["Cu","Ag","Nd","In","W"]},
+  {name:"🔋 Battery Pack",  elements:["Li","Co","Ni","Mn","C","Cu","Al","Fe","P"],   bonus:["Ga","Si","Sn","Ti","Ag"]},
+  {name:"🌐 Fibre Optic",   elements:["Si","Ge","Er","Zr","F","Al","Fe","Sn","Cu"],  bonus:["In","Ga","Au","Ag","Nd"]},
+  {name:"🧠 Quantum CPU",   elements:["Nb","Al","Si","Ta","In","He","Au","Cu","Ti"], bonus:["Ge","Ga","Sn","Ag","Er"]},
+  // indices 10–14 new
+  {name:"✈️ Jet Engine",    elements:["Ni","Co","Cr","Ti","Al","Mo","W","Nb","Ta"],  bonus:["Re","Hf","Ir","Pt","Y"]},
+  {name:"🦴 Med. Implant",  elements:["Ti","Zr","Nb","Ta","Co","Cr","Pt","Au","Fe"], bonus:["Mo","Pd","Si","Al","Cu"]},
+  {name:"⚡ Fuel Cell",     elements:["Pt","Pd","Ni","Fe","C","Ti","Au","Cr","Zr"],  bonus:["Mo","Co","Cu","Al","Si"]},
+  {name:"💡 LED Display",   elements:["Ga","In","Ge","Si","Al","Cu","Zn","Cd","Eu"], bonus:["Au","Ag","Nd","Dy","Sn"]},
+  {name:"🔭 Space Scope",   elements:["Si","Al","Ge","Ti","Mo","Cr","Nb","Zr","Ni"], bonus:["Au","Be","Ir","Pt","W"]},
+  // index 15 - Free Play (full periodic table)
+  {name:"🔬 Free Play",     elements:[], bonus:[]}
+];
+
+// The game's own tables (data.js, loaded above) are the source of truth: take
+// each scenario's element lists from them so the editor cannot drift out of
+// date, and make every element the game knows available to the pickers.
+if (typeof SCENARIOS !== "undefined") {
+  EDITOR_SCENARIOS.forEach(function(sc, i) {
+    if (SCENARIOS[i] && i !== FREE_SCENARIO) { sc.elements = SCENARIOS[i].elements.slice(); sc.bonus = SCENARIOS[i].bonus.slice(); }
+  });
+}
+if (typeof ALL_ELEMENTS !== "undefined") {
+  var syncedElems = {};
+  Object.keys(ALL_ELEMENTS).sort(function(a, b) { return ALL_ELEMENTS[a].z - ALL_ELEMENTS[b].z; }).forEach(function(k) {
+    syncedElems[k] = { n: ALL_ELEMENTS[k].name, c: ALL_ELEMENTS[k].color };
+  });
+  ALL_ELEMS = syncedElems;
+}
+
+var COLS=20, ROWS=15, TSIZE=32;
+var grid = [];           
+var entities = freshEntities();
+var currentTool = "earth";
+var currentScenario = 0;
+var showGrid = true;
+var undoStack = [];      
+var isDrawing = false, lastDrawX = -1, lastDrawY = -1;
+var pendingPickerTile = null; 
+
+var TOOL_TO_TILE = { empty: T.EMPTY, earth: T.EARTH, rock: T.ROCK, boulder: T.BOULDER, wall: T.WALL, hazard: T.HAZARD, roll_barrel: T.ROLL_BARREL, earth_rich: T.EARTH_RICH, water: T.WATER, water_src: T.WATER_SRC, key: T.KEY, door: T.DOOR, pad: T.PAD, logic_door: T.LOGIC_DOOR, web: T.WEB, cart: T.CART, cart_bounce: T.CART_BOUNCE, shaft_lift: T.SHAFT_LIFT, ice: T.ICE, lava: T.LAVA, lava_src: T.LAVA_SRC, spider_nest: T.SPIDER_NEST, basalt: T.BASALT, tbm: T.TBM, refuge: T.REFUGE, gas: T.GAS, gas_src: T.GAS_SRC };
+
+var ENEMY_META = {
+  bat:    {icon:"🦇", tint:"rgba(120,40,40,0.3)"},
+  snake:  {icon:"🐍", tint:"rgba(40,120,40,0.3)"},
+  crab:   {icon:"🦀", tint:"rgba(40,120,120,0.3)"},
+  spider: {icon:"🕷️", tint:"rgba(40,15,50,0.3)"}
+};
+
+var ENTITY_ARRAYS = ["elements", "hiddenElems", "powerups", "enemies", "pads"];
+
+var canvas = document.getElementById("editor-canvas"), ctx = canvas.getContext("2d");
+
+function freshEntities() {
+  return {player:null, exit:null, elements:[], hiddenElems:[], powerups:[], enemies:[], pads:[], triviaPos:null};
+}
+
+function initGrid() {
+  canvas.width = COLS * TSIZE; canvas.height = ROWS * TSIZE; grid = [];
+  for (var y = 0; y < ROWS; y++) { grid[y] = []; for (var x = 0; x < COLS; x++) grid[y][x] = (x === 0 || x === COLS-1 || y === 0 || y === ROWS-1) ? T.WALL : T.EARTH; }
+  entities = freshEntities();
+  undoStack = [];
+  importedHints = null; importedRun = {};
+  validationMarks = [];
+  var vbox = document.getElementById("validate-results");
+  if (vbox) { vbox.style.display = "none"; vbox.innerHTML = ""; }
+}
+
+window.applyResize = function() {
+  var newC = parseInt(document.getElementById("grid-cols").value), newR = parseInt(document.getElementById("grid-rows").value);
+  if (isNaN(newC) || newC < 10) newC = 10; if (isNaN(newR) || newR < 10) newR = 10;
+  saveUndo(); var oldGrid = grid; grid = [];
+  for (var y = 0; y < newR; y++) { grid[y] = []; for (var x = 0; x < newC; x++) grid[y][x] = (y < ROWS && x < COLS) ? oldGrid[y][x] : T.EARTH; }
+  for (var y = 0; y < newR; y++) { grid[y][0] = T.WALL; grid[y][newC - 1] = T.WALL; }
+  for (var x = 0; x < newC; x++) { grid[0][x] = T.WALL; grid[newR - 1][x] = T.WALL; }
+  entities.player = (entities.player && entities.player.x < newC && entities.player.y < newR) ? entities.player : null;
+  entities.exit = (entities.exit && entities.exit.x < newC && entities.exit.y < newR) ? entities.exit : null;
+  var inBounds = function(e) { return e.x < newC && e.y < newR; };
+  for (var i = 0; i < ENTITY_ARRAYS.length; i++) entities[ENTITY_ARRAYS[i]] = entities[ENTITY_ARRAYS[i]].filter(inBounds);
+  entities.triviaPos = (entities.triviaPos && entities.triviaPos.x < newC && entities.triviaPos.y < newR) ? entities.triviaPos : null;
+  COLS = newC; ROWS = newR; canvas.width = COLS * TSIZE; canvas.height = ROWS * TSIZE; render(); updateStats(); toast("Resized");
+};
+
+function initScenarioSelect() {
+  var sel = document.getElementById("scenario-select");
+  for (var i = 0; i < EDITOR_SCENARIOS.length; i++) { var opt = document.createElement("option"); opt.value = i; opt.textContent = EDITOR_SCENARIOS[i].name; sel.appendChild(opt); }
+  sel.addEventListener("change", function() { currentScenario = parseInt(this.value); render(); });
+}
+
+function saveUndo() {
+  undoStack.push({ grid: grid.map(function(row){ return row.slice(); }), entities: JSON.parse(JSON.stringify(entities)), c: COLS, r: ROWS });
+  if (undoStack.length > 30) undoStack.shift();
+}
+
+function doUndo() {
+  if (undoStack.length === 0) return;
+  var snap = undoStack.pop();
+  if(snap.c !== COLS || snap.r !== ROWS) { COLS = snap.c; ROWS = snap.r; document.getElementById("grid-cols").value = COLS; document.getElementById("grid-rows").value = ROWS; canvas.width = COLS * TSIZE; canvas.height = ROWS * TSIZE; }
+  grid = snap.grid; entities = snap.entities; render(); updateStats(); toast("Undo ↩");
+}
+window.doUndo = doUndo;
+
+function applyTool(x, y) {
+  if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return;
+  validationMarks = [];
+  if (currentTool === "trivia_pos") { entities.triviaPos = {x:x, y:y}; render(); updateStats(); return; }
+  if (TOOL_TO_TILE[currentTool] !== undefined && currentTool !== "pad") { grid[y][x] = TOOL_TO_TILE[currentTool]; removeEntitiesAt(x, y); render(); updateStats(); return; }
+  if (currentTool === "eraser") { removeEntitiesAt(x, y); var t = grid[y][x]; if (t === T.ELEMENT || t === T.HIDDEN_ELEM || t === T.POWERUP || t === T.PLAYER || t === T.EXIT || t === T.PAD || t === T.LOGIC_DOOR || t === T.WEB || t === T.CART || t === T.CART_BOUNCE || t === T.SHAFT_LIFT || t === T.TBM || t === T.REFUGE || t === T.GAS || t === T.GAS_SRC) grid[y][x] = T.EMPTY; render(); updateStats(); return; }
+  if (currentTool === "player") { if (entities.player && grid[entities.player.y][entities.player.x] === T.PLAYER) grid[entities.player.y][entities.player.x] = T.EMPTY; entities.player = {x:x, y:y}; grid[y][x] = T.PLAYER; render(); updateStats(); return; }
+  if (currentTool === "exit") { if (entities.exit && grid[entities.exit.y][entities.exit.x] === T.EXIT) grid[entities.exit.y][entities.exit.x] = T.EMPTY; entities.exit = {x:x, y:y}; grid[y][x] = T.EXIT; render(); updateStats(); return; }
+  if (currentTool === "element") { showElementPicker(x, y, "element"); return; }
+  if (currentTool === "hidden_elem") { showElementPicker(x, y, "hidden"); return; }
+  if (currentTool === "pad") { showElementPicker(x, y, "pad"); return; }
+  if (currentTool === "powerup") { showPowerupPicker(x, y); return; }
+  if (ENEMY_META[currentTool]) { if (grid[y][x] === T.WALL) return; removeEntitiesAt(x, y); entities.enemies.push({x:x, y:y, type:currentTool}); render(); updateStats(); return; }
+}
+
+function removeEntitiesAt(x, y) {
+  if (entities.player && entities.player.x === x && entities.player.y === y) entities.player = null;
+  if (entities.exit && entities.exit.x === x && entities.exit.y === y) entities.exit = null;
+  if (entities.triviaPos && entities.triviaPos.x === x && entities.triviaPos.y === y) entities.triviaPos = null;
+  var notAt = function(e) { return !(e.x === x && e.y === y); };
+  for (var i = 0; i < ENTITY_ARRAYS.length; i++) entities[ENTITY_ARRAYS[i]] = entities[ENTITY_ARRAYS[i]].filter(notAt);
+}
+
+function showElementPicker(x, y, type) {
+  pendingPickerTile = {x:x, y:y, type:type};
+  var picker = document.getElementById("elem-picker"), choices = document.getElementById("elem-choices"); choices.innerHTML = "";
+  var sc = EDITOR_SCENARIOS[currentScenario];
+  var isFree = (currentScenario === FREE_SCENARIO);
+  var isPad = type === "pad";
+  var pool = (isPad || isFree) ? Object.keys(ALL_ELEMS) : (type === "hidden" ? sc.bonus : sc.elements);
+  picker.querySelector(".elem-picker-title").textContent = isPad ? "Select Pad Element" : "Select Element";
+
+  for (var j = 0; j < pool.length; j++) {
+    var key = pool[j], el = ALL_ELEMS[key];
+    var btn = document.createElement("span"); btn.className = "elem-choice";
+    btn.innerHTML = '<span class="ec-sym" style="color:'+el.c+'">'+key+'</span> '+el.n;
+    btn.dataset.key = key; btn.onclick = function(){ pickElement(this.dataset.key); };
+    choices.appendChild(btn);
+  }
+  var rect = canvas.getBoundingClientRect();
+  picker.style.left = Math.min(rect.left + x * TSIZE + TSIZE, window.innerWidth - 300) + "px";
+  picker.style.top = Math.min(rect.top + y * TSIZE, window.innerHeight - 280) + "px";
+  picker.classList.add("visible");
+}
+
+function pickElement(key) {
+  if (!pendingPickerTile) return;
+  var x = pendingPickerTile.x, y = pendingPickerTile.y, type = pendingPickerTile.type;
+  saveUndo(); removeEntitiesAt(x, y);
+  if (type === "pad") { entities.pads.push({x:x, y:y, key:key}); grid[y][x] = T.PAD; }
+  else if (type === "hidden") { entities.hiddenElems.push({x:x, y:y, key:key}); grid[y][x] = T.HIDDEN_ELEM; }
+  else { entities.elements.push({x:x, y:y, key:key}); grid[y][x] = T.ELEMENT; }
+  closePickers(); render(); updateStats();
+}
+
+function showPowerupPicker(x, y) {
+  pendingPickerTile = {x:x, y:y};
+  var picker = document.getElementById("pu-picker"), choices = document.getElementById("pu-choices"); choices.innerHTML = "";
+  for (var i = 0; i < EDITOR_PU_INFO.length; i++) {
+    var pu = EDITOR_PU_INFO[i], btn = document.createElement("div"); btn.className = "pu-choice";
+    btn.innerHTML = '<span style="font-size:1.2em">'+pu.icon+'</span> <span style="color:'+pu.color+'">'+pu.name+'</span>';
+    btn.dataset.type = i; btn.onclick = function(){ pickPowerup(parseInt(this.dataset.type)); }; choices.appendChild(btn);
+  }
+  var rect = canvas.getBoundingClientRect(); picker.style.left = Math.min(rect.left + x * TSIZE + TSIZE, window.innerWidth - 220) + "px"; picker.style.top = Math.min(rect.top + y * TSIZE, window.innerHeight - 200) + "px"; picker.classList.add("visible");
+}
+
+function pickPowerup(type) { if (!pendingPickerTile) return; saveUndo(); removeEntitiesAt(pendingPickerTile.x, pendingPickerTile.y); entities.powerups.push({x:pendingPickerTile.x, y:pendingPickerTile.y, type:type}); grid[pendingPickerTile.y][pendingPickerTile.x] = T.POWERUP; closePickers(); render(); updateStats(); }
+function closePickers() { document.getElementById("elem-picker").classList.remove("visible"); document.getElementById("pu-picker").classList.remove("visible"); pendingPickerTile = null; }
+document.addEventListener("click", function(e) { if (!e.target.closest(".elem-picker") && !e.target.closest(".pu-picker") && !e.target.closest(".canvas-wrap") && !e.target.closest(".tool-btn")) closePickers(); });
+
+function renderScene() {
+  for (var y = 0; y < ROWS; y++) { for (var x = 0; x < COLS; x++) drawTile(x * TSIZE, y * TSIZE, grid[y][x], x, y); }
+  drawPlacedMarkers();
+  drawTBMs();
+  drawRefuges();
+  drawEntities();
+}
+
+// Level files list what is placed (start, exit, elements, tools, pads) beside
+// the grid rather than in it, so a loaded level has no marker tiles: draw them
+// from the lists.
+function drawPlacedMarkers() {
+  function mark(list, tile) {
+    for (var i = 0; i < list.length; i++) {
+      var e = list[i];
+      if (e.y >= 0 && e.y < ROWS && e.x >= 0 && e.x < COLS && grid[e.y][e.x] !== tile) drawTile(e.x * TSIZE, e.y * TSIZE, tile, e.x, e.y);
+    }
+  }
+  mark(entities.elements, T.ELEMENT);
+  mark(entities.hiddenElems, T.HIDDEN_ELEM);
+  mark(entities.powerups, T.POWERUP);
+  mark(entities.pads, T.PAD);
+  if (entities.exit) mark([entities.exit], T.EXIT);
+  if (entities.player) mark([entities.player], T.PLAYER);
+}
+
+function drawRefuges() {
+  for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
+    if (grid[y][x] !== T.REFUGE) continue;
+    ctx.strokeStyle = "rgba(63,174,90,0.55)"; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+    ctx.strokeRect(x * TSIZE + 1, y * TSIZE + 1, 3 * TSIZE - 2, 3 * TSIZE - 2);
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(255,200,120,0.06)";
+    ctx.fillRect(x * TSIZE, y * TSIZE, 3 * TSIZE, 3 * TSIZE);
+  }
+}
+
+var hoverGhost = null;
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  renderScene();
+  // 3×2 placement ghost while the Borer tool is hovering
+  if (hoverGhost && (currentTool === "tbm" || currentTool === "refuge")) {
+    var gw = 3, gh = currentTool === "tbm" ? 2 : 3;
+    var fits = hoverGhost.x >= 1 && hoverGhost.x + gw - 1 <= COLS - 2 && hoverGhost.y >= 1 && hoverGhost.y + gh - 1 <= ROWS - 2;
+    ctx.strokeStyle = fits ? "rgba(74,232,122,0.85)" : "rgba(232,84,84,0.9)";
+    ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    ctx.strokeRect(hoverGhost.x * TSIZE + 1, hoverGhost.y * TSIZE + 1, gw * TSIZE - 2, gh * TSIZE - 2);
+    ctx.setLineDash([]);
+    ctx.fillStyle = fits ? "rgba(74,232,122,0.12)" : "rgba(232,84,84,0.15)";
+    ctx.fillRect(hoverGhost.x * TSIZE, hoverGhost.y * TSIZE, gw * TSIZE, gh * TSIZE);
+  }
+  for (var mi = 0; mi < validationMarks.length; mi++) {
+    var mk = validationMarks[mi];
+    ctx.strokeStyle = mk.level === "error" ? "rgba(255,60,60,0.95)" : "rgba(255,170,40,0.95)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(mk.x * TSIZE + 2, mk.y * TSIZE + 2, TSIZE - 4, TSIZE - 4);
+  }
+  if (showGrid) {
+    ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (var gx = 0; gx <= COLS; gx++) { ctx.moveTo(gx*TSIZE+0.5, 0); ctx.lineTo(gx*TSIZE+0.5, ROWS*TSIZE); }
+    for (var gy = 0; gy <= ROWS; gy++) { ctx.moveTo(0, gy*TSIZE+0.5); ctx.lineTo(COLS*TSIZE, gy*TSIZE+0.5); }
+    ctx.stroke();
+  }
+}
+
+
+
+
+
+// ─── Tile drawing ───
+// The editing view uses the game's own sprites (Game.render.icon in full-tile
+// mode), drawn once per kind and then copied, so what you place looks like
+// what you play. Only what the editor adds on top is drawn here: the element
+// symbol and colour, the answer on a pad, and the footprint markers.
+var TILE_SPRITE = {};
+TILE_SPRITE[T.EMPTY] = "empty"; TILE_SPRITE[T.EARTH] = "earth"; TILE_SPRITE[T.EARTH_RICH] = "rich"; TILE_SPRITE[T.WALL] = "wall";
+TILE_SPRITE[T.ROCK] = "rock"; TILE_SPRITE[T.ICE] = "ice"; TILE_SPRITE[T.BASALT] = "basalt"; TILE_SPRITE[T.BOULDER] = "boulder";
+TILE_SPRITE[T.WATER] = "water"; TILE_SPRITE[T.WATER_SRC] = "watersrc"; TILE_SPRITE[T.LAVA] = "lava"; TILE_SPRITE[T.LAVA_SRC] = "lavasrc";
+TILE_SPRITE[T.HAZARD] = "barrel"; TILE_SPRITE[T.ROLL_BARREL] = "rollbarrel"; TILE_SPRITE[T.PLAYER] = "miner"; TILE_SPRITE[T.EXIT] = "exit";
+TILE_SPRITE[T.KEY] = "key"; TILE_SPRITE[T.DOOR] = "door"; TILE_SPRITE[T.LOGIC_DOOR] = "logicdoor"; TILE_SPRITE[T.WEB] = "web";
+TILE_SPRITE[T.SPIDER_NEST] = "nest"; TILE_SPRITE[T.CART] = "cart"; TILE_SPRITE[T.CART_BOUNCE] = "roguecart"; TILE_SPRITE[T.SHAFT_LIFT] = "lift";
+TILE_SPRITE[T.GAS] = "gas"; TILE_SPRITE[T.GAS_SRC] = "gaspipe";
+
+var spriteCache = {};
+function sprite(kind) {
+  if (spriteCache[kind]) return spriteCache[kind];
+  var cv = document.createElement("canvas");
+  cv.width = cv.height = TSIZE;
+  Game.render.icon(cv, kind, true);
+  // the miner is drawn from image files, which may still be loading: try again next time
+  if (kind !== "miner" || cv.getAttribute("data-drawn")) spriteCache[kind] = cv;
+  return cv;
+}
+function blit(kind, px, py) { ctx.drawImage(sprite(kind), px, py); }
+
+function drawTile(px, py, tile, gx, gy) {
+  switch(tile) {
+    case T.ELEMENT:
+      blit("empty", px, py);
+      var elemData = findEntityAt(entities.elements, gx, gy);
+      var eColor = elemData ? (ALL_ELEMS[elemData.key] ? ALL_ELEMS[elemData.key].c : "#e85454") : "#e85454";
+      var ecx = px + TSIZE / 2, ecy = py + TSIZE / 2;
+      // Ambient glow
+      ctx.fillStyle = eColor; ctx.globalAlpha = 0.15; ctx.fillRect(px,py,TSIZE,TSIZE); ctx.globalAlpha = 1;
+      // Crystal diamond - outer shape
+      var cTop = py + 3, cBot = py + TSIZE - 3, cLeft = px + 5, cRight = px + TSIZE - 5;
+      ctx.fillStyle = eColor;
+      ctx.beginPath(); ctx.moveTo(ecx, cTop); ctx.lineTo(cRight, ecy); ctx.lineTo(ecx, cBot); ctx.lineTo(cLeft, ecy); ctx.closePath(); ctx.fill();
+      // Top-left facet (lighter)
+      ctx.fillStyle = "rgba(255,255,255,0.3)";
+      ctx.beginPath(); ctx.moveTo(ecx, cTop); ctx.lineTo(cLeft, ecy); ctx.lineTo(ecx, ecy); ctx.closePath(); ctx.fill();
+      // Top-right facet
+      ctx.fillStyle = "rgba(255,255,255,0.15)";
+      ctx.beginPath(); ctx.moveTo(ecx, cTop); ctx.lineTo(cRight, ecy); ctx.lineTo(ecx, ecy); ctx.closePath(); ctx.fill();
+      // Bottom-left facet
+      ctx.fillStyle = "rgba(0,0,0,0.1)";
+      ctx.beginPath(); ctx.moveTo(cLeft, ecy); ctx.lineTo(ecx, cBot); ctx.lineTo(ecx, ecy); ctx.closePath(); ctx.fill();
+      // Bottom-right facet
+      ctx.fillStyle = "rgba(0,0,0,0.22)";
+      ctx.beginPath(); ctx.moveTo(ecx, ecy); ctx.lineTo(cRight, ecy); ctx.lineTo(ecx, cBot); ctx.closePath(); ctx.fill();
+      // Inner facet lines
+      ctx.strokeStyle = "rgba(255,255,255,0.15)"; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(ecx, cTop); ctx.lineTo(ecx, cBot); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cLeft, ecy); ctx.lineTo(cRight, ecy); ctx.stroke();
+      // Outline
+      ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(ecx, cTop); ctx.lineTo(cRight, ecy); ctx.lineTo(ecx, cBot); ctx.lineTo(cLeft, ecy); ctx.closePath(); ctx.stroke();
+      // Symbol
+      if (elemData) { ctx.fillStyle = "#fff"; ctx.font = "bold 10px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(elemData.key, ecx, ecy + 1); ctx.textBaseline = "alphabetic"; }
+      break;
+    case T.HIDDEN_ELEM: blit("earth", px, py); ctx.fillStyle = "rgba(155,80,255,0.12)"; ctx.fillRect(px,py,TSIZE,TSIZE); var hData = findEntityAt(entities.hiddenElems, gx, gy); ctx.fillStyle = "rgba(155,80,255,0.6)"; ctx.font = "bold 9px monospace"; ctx.textAlign = "center"; ctx.fillText(hData ? hData.key : "?", px+TSIZE/2, py+TSIZE/2+3); break;
+    case T.POWERUP:
+      var puData = findEntityAt(entities.powerups, gx, gy);
+      blit("earth", px, py);
+      ctx.drawImage(spriteIcon("tool" + (puData ? puData.type : 0)), px, py);
+      break;
+    case T.PAD: blit("earth", px, py); ctx.fillStyle="#111"; ctx.fillRect(px+4, py+4, TSIZE-8, TSIZE-8); ctx.fillStyle="#2a2a35"; ctx.fillRect(px+6, py+6, TSIZE-12, TSIZE-12); ctx.fillStyle="rgba(255,255,255,0.15)"; ctx.fillRect(px+6, py+6, TSIZE-12, 3); ctx.fillStyle="rgba(0,0,0,0.5)"; ctx.fillRect(px+6, py+TSIZE-9, TSIZE-12, 3); var padData = findEntityAt(entities.pads, gx, gy); if(padData) { ctx.fillStyle = ALL_ELEMS[padData.key] ? ALL_ELEMS[padData.key].c : "#fff"; ctx.font = "bold 11px monospace"; ctx.textAlign = "center"; ctx.fillText(padData.key, px+TSIZE/2, py+TSIZE/2+4); } break;
+    case T.TBM:
+      blit("empty", px, py);
+      ctx.fillStyle = "#4a505c"; ctx.fillRect(px+1, py+8, TSIZE*0.5, TSIZE-16);
+      ctx.fillStyle = "#e8b84b"; ctx.fillRect(px+1, py+TSIZE/2-2, TSIZE*0.5, 4);
+      ctx.fillStyle = "#565e6a";
+      ctx.beginPath(); ctx.arc(px+TSIZE*0.68, py+TSIZE/2, TSIZE*0.36, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = "#22262c"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(px+TSIZE*0.68-TSIZE*0.3, py+TSIZE/2); ctx.lineTo(px+TSIZE*0.68+TSIZE*0.3, py+TSIZE/2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px+TSIZE*0.68, py+TSIZE/2-TSIZE*0.3); ctx.lineTo(px+TSIZE*0.68, py+TSIZE/2+TSIZE*0.3); ctx.stroke();
+      ctx.fillStyle = "#e85454"; ctx.font = "bold 7px monospace"; ctx.fillText("3×2", px+2, py+7);
+      break;
+    case T.REFUGE:
+      ctx.fillStyle = "#232733"; ctx.fillRect(px, py, TSIZE, TSIZE);
+      ctx.fillStyle = "#454c58"; ctx.fillRect(px+2, py+2, 8, 8); ctx.fillRect(px+TSIZE-10, py+2, 8, 8);
+      ctx.fillRect(px+2, py+TSIZE-10, 8, 8); ctx.fillRect(px+TSIZE-10, py+TSIZE-10, 8, 8);
+      ctx.fillStyle = "#e8e8ec"; ctx.beginPath(); ctx.arc(px+TSIZE/2, py+TSIZE/2, 6, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#3fae5a"; ctx.fillRect(px+TSIZE/2-1.5, py+TSIZE/2-4.5, 3, 9); ctx.fillRect(px+TSIZE/2-4.5, py+TSIZE/2-1.5, 9, 3);
+      ctx.fillStyle = "#e8b84b"; ctx.font = "bold 7px monospace"; ctx.fillText("3×3", px+2, py+8);
+      break;
+    default:
+      blit(TILE_SPRITE[tile] || "empty", px, py);
+  }
+}
+
+// A sprite on a transparent background, for laying over another tile
+var iconCache = {};
+function spriteIcon(kind) {
+  if (iconCache[kind]) return iconCache[kind];
+  var cv = document.createElement("canvas");
+  cv.width = cv.height = Math.round(TSIZE / 0.7);       // icon mode draws at 70%: size it so the sprite is one tile
+  Game.render.icon(cv, kind, false);
+  var out = document.createElement("canvas"); out.width = out.height = TSIZE;
+  var off = Math.round((cv.width - TSIZE) / 2);
+  out.getContext("2d").drawImage(cv, -off, -off);
+  if (kind !== "miner" || cv.getAttribute("data-drawn")) iconCache[kind] = out;
+  return out;
+}
+
+// Full-size 3×2 tunnel borer sprites (static version of the in-game renderer)
+function drawTBMs() {
+  for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
+    if (grid[y][x] !== T.TBM) continue;
+    var mpx = x * TSIZE, mpy = y * TSIZE, mw = 3 * TSIZE, mh = 2 * TSIZE;
+    // tunnel background under the whole footprint
+    ctx.fillStyle = "#0e0e16"; ctx.fillRect(mpx, mpy, mw, mh);
+    // body
+    var grad = ctx.createLinearGradient(0, mpy, 0, mpy + mh);
+    grad.addColorStop(0, "#6a7280"); grad.addColorStop(0.5, "#4a505c"); grad.addColorStop(1, "#33383f");
+    ctx.fillStyle = grad; ctx.fillRect(mpx, mpy + 2, mw - TSIZE * 0.6, mh - 4);
+    ctx.strokeStyle = "#22262c"; ctx.lineWidth = 2; ctx.strokeRect(mpx, mpy + 2, mw - TSIZE * 0.6, mh - 4);
+    // hazard stripe band
+    ctx.fillStyle = "#e8b84b"; ctx.fillRect(mpx + 2, mpy + mh / 2 - 3, mw - TSIZE * 0.6 - 4, 6);
+    ctx.fillStyle = "#1a1c22";
+    for (var hz = 0; hz < 6; hz++) ctx.fillRect(mpx + 4 + hz * 14, mpy + mh / 2 - 3, 7, 6);
+    // cutter head (front = right; machines start moving right)
+    var hx = mpx + mw - TSIZE * 0.5, hy = mpy + mh / 2, hr = TSIZE * 0.92;
+    ctx.fillStyle = "#565e6a"; ctx.beginPath(); ctx.arc(hx, hy, hr, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#22262c"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(hx, hy, hr, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(hx - hr, hy); ctx.lineTo(hx + hr, hy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(hx, hy - hr); ctx.lineTo(hx, hy + hr); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(hx - hr * 0.71, hy - hr * 0.71); ctx.lineTo(hx + hr * 0.71, hy + hr * 0.71); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(hx + hr * 0.71, hy - hr * 0.71); ctx.lineTo(hx - hr * 0.71, hy + hr * 0.71); ctx.stroke();
+    ctx.fillStyle = "#2a2e36"; ctx.beginPath(); ctx.arc(hx, hy, hr * 0.28, 0, Math.PI * 2); ctx.fill();
+    // footprint outline (editor affordance drawn subtly even in preview-safe pass)
+    ctx.strokeStyle = "rgba(232,184,75,0.35)"; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+    ctx.strokeRect(mpx + 0.5, mpy + 0.5, mw - 1, mh - 1);
+    ctx.setLineDash([]);
+  }
+}
+
+// The trivia question rendered exactly as the game wraps it (width 5.5 tiles)
+function drawTriviaText() {
+  if (!entities.triviaPos) return;
+  var q = document.getElementById("p-trivia-q").value.trim();
+  if (!q) return;
+  var px = entities.triviaPos.x * TSIZE, py = entities.triviaPos.y * TSIZE;
+  ctx.save(); ctx.translate(px, py + TSIZE * 0.8); ctx.rotate(-0.06);
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.font = 'italic 700 10px "DM Sans", sans-serif';
+  ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+  var words = q.split(" "), line = "", ly = 0;
+  for (var n = 0; n < words.length; n++) {
+    var testLine = line + words[n] + " ";
+    if (ctx.measureText(testLine).width > TSIZE * 5.5 && n > 0) { ctx.fillText(line, 0, ly); line = words[n] + " "; ly += 16; }
+    else { line = testLine; }
+  }
+  ctx.fillText(line, 0, ly);
+  ctx.restore();
+}
+
+function drawEntities() {
+  if (entities.triviaPos) {
+    var px = entities.triviaPos.x * TSIZE, py = entities.triviaPos.y * TSIZE;
+    ctx.fillStyle = "rgba(255,255,255,0.15)"; ctx.fillRect(px, py, TSIZE, TSIZE);
+    ctx.fillStyle = "#fff"; ctx.font = "18px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("📝", px+TSIZE/2, py+TSIZE/2+6);
+  }
+  drawTriviaText();
+  for (var i = 0; i < entities.enemies.length; i++) {
+    var e = entities.enemies[i], px = e.x * TSIZE, py = e.y * TSIZE;
+    if (grid[e.y][e.x] === T.EARTH || grid[e.y][e.x] === T.EARTH_RICH) drawTile(px, py, grid[e.y][e.x], e.x, e.y);
+    ctx.fillStyle = ENEMY_META[e.type].tint; ctx.fillRect(px, py, TSIZE, TSIZE);
+    ctx.drawImage(spriteIcon(e.type), px, py);
+  }
+}
+
+function findEntityAt(arr, x, y) { for (var i = 0; i < arr.length; i++) if (arr[i].x === x && arr[i].y === y) return arr[i]; return null; }
+
+function updateStats() {
+  var _sc = EDITOR_SCENARIOS[currentScenario];
+  var _maxE = _sc.elements.length > 0 ? _sc.elements.length : "∞";
+  document.getElementById("stat-elements").querySelector(".pval").textContent = entities.elements.length + " / " + _maxE;
+  document.getElementById("stat-bonus").querySelector(".pval").textContent = entities.hiddenElems.length;
+  document.getElementById("stat-powerups").querySelector(".pval").textContent = entities.powerups.length;
+  document.getElementById("stat-enemies").querySelector(".pval").textContent = entities.enemies.length;
+  updateJSONPreview();
+}
+
+function buildLevelJSON() {
+  // Entity markers (player/exit/element/powerup/hidden/pad) live in the entity
+  // lists - export a clean grid so files match the canonical level format
+  var MARKER_TILES = {}; MARKER_TILES[T.PLAYER] = 1; MARKER_TILES[T.EXIT] = 1; MARKER_TILES[T.ELEMENT] = 1; MARKER_TILES[T.POWERUP] = 1; MARKER_TILES[T.HIDDEN_ELEM] = 1; MARKER_TILES[T.PAD] = 1;
+  var flatGrid = []; for (var y = 0; y < ROWS; y++) { for (var x = 0; x < COLS; x++) flatGrid.push(MARKER_TILES[grid[y][x]] ? T.EMPTY : grid[y][x]); }
+  var levelName = document.getElementById("p-level-name").value.trim();
+  var timerVal = parseInt(document.getElementById("p-timer").value, 10);
+  return JSON.stringify({
+    cols: COLS, rows: ROWS, scenario: currentScenario,
+    levelName: levelName || undefined,
+    timer: (timerVal > 0 ? timerVal : undefined),
+    sight: (function() { var sv = parseInt(document.getElementById("p-sight").value, 10); return sv >= 3 && sv <= 14 ? sv : undefined; })(),
+    difficulty: (function() { var dv = parseInt(document.getElementById("p-difficulty").value, 10); return dv >= 0 && dv <= 7 ? dv : undefined; })(),
+    hints: importedHints || undefined,
+    run: importedRun.run, gates: importedRun.gates, families: importedRun.families,
+    grid: flatGrid,
+    triviaQuestion: document.getElementById("p-trivia-q").value,
+    triviaAnswer: document.getElementById("p-trivia-ans").value,
+    triviaTrap: document.getElementById("p-trivia-trap").value,
+    triviaPos: entities.triviaPos,
+    player: entities.player, exit: entities.exit,
+    elements: entities.elements.map(e=>({x:e.x, y:e.y, key:e.key})),
+    hiddenElems: entities.hiddenElems.map(e=>({x:e.x, y:e.y, key:e.key})),
+    powerups: entities.powerups.map(e=>({x:e.x, y:e.y, type:e.type})),
+    enemies: entities.enemies.map(e=>e.wait ? {x:e.x, y:e.y, type:e.type, wait:true} : {x:e.x, y:e.y, type:e.type}),   // "wait": the editor cannot set it, but keeps it
+    pads: entities.pads.map(e=>({x:e.x, y:e.y, key:e.key}))
+  });
+}
+function updateJSONPreview() { document.getElementById("json-output").value = buildLevelJSON(); }
+function exportJSON() { navigator.clipboard.writeText(buildLevelJSON()).then(()=>toast("📋 JSON copied!")).catch(()=>toast("Copy failed")); }
+window.exportJSON = exportJSON;
+
+function hashString(input) {
+  var hash = 2166136261;
+  for (var i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16);
+}
+
+function buildProjectHash(manifest, levels) {
+  return hashString(JSON.stringify({ manifest: manifest, levels: levels }));
+}
+
+function setBundleSyncStatus(message, state) {
+  var box = document.getElementById("bundle-sync-status");
+  var text = document.getElementById("bundle-sync-status-text");
+  if (!box || !text) return;
+  box.setAttribute("data-state", state || "warn");
+  text.textContent = message;
+}
+
+function formatBundleTime(isoValue) {
+  if (!isoValue) return "unknown time";
+  var dt = new Date(isoValue);
+  if (isNaN(dt.getTime())) return isoValue;
+  return dt.toLocaleString();
+}
+
+function fetchJson(url) {
+  return fetch(url + (url.indexOf("?") >= 0 ? "&" : "?") + "ts=" + Date.now(), { cache:"no-store" })
+    .then(function(response) {
+      if (!response.ok) throw new Error("Request failed for " + url + " (" + response.status + ")");
+      return response.json();
+    });
+}
+
+function refreshBundleSyncStatus() {
+  var meta = window.__MISSION_BUNDLE_META__;
+  var manifest = window.__MISSION_MANIFEST__;
+  var levels = window.__MISSION_LEVELS__;
+
+  if (!meta || !Array.isArray(manifest) || !Array.isArray(levels)) {
+    setBundleSyncStatus("Inline bundle metadata is missing. Run Rebuild Mission Bundle.command.", "error");
+    return;
+  }
+
+  if (window.location.protocol === "file:") {
+    setBundleSyncStatus("Inline bundle loaded from disk. Built " + formatBundleTime(meta.generatedAt) + ". Live sync checks need HTTP; use Auto-Sync Mission Bundle.command while editing.", "warn");
+    return;
+  }
+
+  setBundleSyncStatus("Checking inline bundle against mission JSON files...", "warn");
+
+  fetchJson("Levels/manifest.json").then(function(liveManifest) {
+    if (!Array.isArray(liveManifest)) throw new Error("Manifest is not an array.");
+    return Promise.all(liveManifest.map(function(fileName) {
+      return fetchJson("Levels/" + encodeURIComponent(fileName));
+    })).then(function(liveLevels) {
+      return { manifest: liveManifest, levels: liveLevels };
+    });
+  }).then(function(liveData) {
+    var liveHash = buildProjectHash(liveData.manifest, liveData.levels);
+    if (liveHash === meta.projectHash) {
+      setBundleSyncStatus("Inline bundle is in sync with mission JSON files. Last built " + formatBundleTime(meta.generatedAt) + ".", "ok");
+    } else {
+      setBundleSyncStatus("Inline bundle is out of sync with mission JSON files. Run Rebuild Mission Bundle.command or Auto-Sync Mission Bundle.command.", "error");
+    }
+  }).catch(function(err) {
+    setBundleSyncStatus("Could not verify bundle sync: " + (err && err.message ? err.message : err), "error");
+  });
+}
+window.refreshBundleSyncStatus = refreshBundleSyncStatus;
+
+function sanitizeFileSegment(value) {
+  return String(value || "")
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "Mission";
+}
+
+function normaliseLevelNumber(value) {
+  var digits = String(value || "").replace(/[^0-9]/g, "");
+  if (!digits) return "";
+  if (digits.length < 2) return ("0" + digits).slice(-2);
+  return digits;
+}
+
+window.saveJSON = function() {
+  var levelNumberInput = prompt("Level number:", "01");
+  if (levelNumberInput === null) return;
+
+  var defaultName = document.getElementById("p-level-name").value.trim() || EDITOR_SCENARIOS[currentScenario].name || "Mission";
+  var levelName = prompt("Level name:", defaultName);
+  if (levelName === null) return;
+
+  var levelNumber = normaliseLevelNumber(levelNumberInput);
+  levelName = levelName.trim();
+  if (!levelNumber) { toast("❌ Level number is required"); return; }
+  if (!levelName) { toast("❌ Level name is required"); return; }
+
+  document.getElementById("p-level-name").value = levelName;
+  updateJSONPreview();
+
+  var json = buildLevelJSON();
+  var blob = new Blob([json], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = levelNumber + "_" + sanitizeFileSegment(levelName) + ".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("💾 Saved: " + a.download);
+};
+
+function showImport() {
+  var json = prompt("Paste level JSON:"); if (!json) return;
+  try { var data = JSON.parse(json); importLevel(data); toast("📂 Level imported!"); } catch(e) { toast("❌ Invalid JSON"); }
+}
+window.showImport = showImport;
+
+window.loadJSONFile = function() {
+  var input = document.getElementById("json-file-input");
+  if (!input) return;
+  input.value = "";
+  input.click();
+};
+
+// Hint banners (tutorial levels) aren't editable here, but must survive a
+// round-trip through the editor instead of being silently dropped
+var importedHints = null;
+// The Element Runs' own fields (the list card, the quiz doors, the groups that
+// win time) are kept the same way. They name cells of the grid, so moving
+// those cells here would leave them pointing at the wrong place.
+var importedRun = {};
+
+function importLevel(data) {
+  saveUndo();
+  importedRun = {};
+  ["run", "gates", "families"].forEach(function(k) { if (data[k]) importedRun[k] = data[k]; });
+  if (importedRun.gates || importedRun.families) toast("ℹ️ Element Run level: its quiz doors and groups are preserved on export (not editable here)");
+  importedHints = Array.isArray(data.hints) && data.hints.length ? data.hints : null;
+  if (importedHints) toast("ℹ️ Level has " + importedHints.length + " hint banners - preserved on export (not editable here)");
+  if (data.cols && data.rows) { COLS = data.cols; ROWS = data.rows; document.getElementById("grid-cols").value = COLS; document.getElementById("grid-rows").value = ROWS; canvas.width = COLS * TSIZE; canvas.height = ROWS * TSIZE; }
+  if (data.grid) { grid = []; for (var y = 0; y < ROWS; y++) { grid[y] = []; for (var x = 0; x < COLS; x++) grid[y][x] = data.grid[y * COLS + x]; } }
+  if (typeof data.scenario === "number" && data.scenario >= 0 && data.scenario < EDITOR_SCENARIOS.length) {
+    currentScenario = data.scenario;
+    document.getElementById("scenario-select").value = String(currentScenario);
+  }
+  document.getElementById("p-level-name").value = data.levelName || "";
+  document.getElementById("p-timer").value = (typeof data.timer === "number" && data.timer > 0) ? data.timer : "";
+  document.getElementById("p-sight").value = (typeof data.sight === "number" && data.sight >= 3 && data.sight <= 14) ? data.sight : "";
+  document.getElementById("p-difficulty").value = (typeof data.difficulty === "number" && data.difficulty >= 0 && data.difficulty <= 7) ? data.difficulty : "";
+  document.getElementById("p-trivia-q").value = data.triviaQuestion || "";
+  document.getElementById("p-trivia-ans").value = data.triviaAnswer || "";
+  document.getElementById("p-trivia-trap").value = data.triviaTrap || "";
+  entities.player = data.player || null; entities.exit = data.exit || null;
+  entities.elements = data.elements || []; entities.hiddenElems = data.hiddenElems || [];
+  entities.powerups = data.powerups || []; entities.enemies = data.enemies || [];
+  entities.pads = data.pads || [];
+  entities.triviaPos = data.triviaPos || null;
+  render(); updateStats();
+  refreshBundleSyncStatus();
+}
+
+// ===DEEP-VALIDATE-CORE-START===
+// Pure solvability analysis - same model as Tutorials/_validate.js:
+// BFS from the player with a door/logic-door fixpoint, run twice -
+// "strict" (obstacles block) and "soft" (dynamite/push-clearable obstacles pass).
+// state: {cols, rows, grid2D, player, exit, elements, hiddenElems, powerups,
+//         enemies, pads, triviaQuestion, triviaAnswer, triviaTrap, triviaPos,
+//         timer, scenarioElements, scenarioBonus}
+function deepValidateCore(state) {
+  var errors = [], warnings = [], marks = [];
+  var C = state.cols, R = state.rows;
+  function err(m, x, y) { errors.push(m); if (x !== undefined) marks.push({x:x, y:y, level:"error"}); }
+  function warn(m, x, y) { warnings.push(m); if (x !== undefined) marks.push({x:x, y:y, level:"warn"}); }
+  function inB(x, y) { return x >= 0 && x < C && y >= 0 && y < R; }
+
+  // Basics
+  if (!state.player) err("No player start placed");
+  if (!state.exit) err("No exit placed");
+  if (!state.elements.length) err("No elements placed - the exit would open immediately");
+  var maxE = state.scenarioElements.length;
+  if (maxE > 0 && state.elements.length < maxE)
+    warn("Only " + state.elements.length + "/" + maxE + " scenario elements placed");
+
+  // Scenario key membership (Free Play accepts anything)
+  if (maxE > 0) {
+    state.elements.forEach(function(e) {
+      if (state.scenarioElements.indexOf(e.key) < 0) err("Element " + e.key + " is not in this scenario - it would be uncollectable", e.x, e.y);
+    });
+    state.hiddenElems.forEach(function(e) {
+      if (state.scenarioBonus.indexOf(e.key) < 0) err("Hidden element " + e.key + " is not in this scenario's bonus set", e.x, e.y);
+    });
+  }
+
+  // Border must be solid wall
+  var borderBad = 0;
+  for (var bx = 0; bx < C; bx++) { if (state.grid2D[0][bx] !== 7) { borderBad++; marks.push({x:bx, y:0, level:"error"}); } if (state.grid2D[R-1][bx] !== 7) { borderBad++; marks.push({x:bx, y:R-1, level:"error"}); } }
+  for (var by = 0; by < R; by++) { if (state.grid2D[by][0] !== 7) { borderBad++; marks.push({x:0, y:by, level:"error"}); } if (state.grid2D[by][C-1] !== 7) { borderBad++; marks.push({x:C-1, y:by, level:"error"}); } }
+  if (borderBad) errors.push(borderBad + " border tile(s) are not WALL - the level edge must be sealed");
+
+  // Duplicate entity coordinates
+  var seen = {};
+  var allEnt = [["player", state.player ? [state.player] : []], ["exit", state.exit ? [state.exit] : []],
+    ["element", state.elements], ["hidden", state.hiddenElems], ["powerup", state.powerups], ["pad", state.pads]];
+  allEnt.forEach(function(pair) {
+    pair[1].forEach(function(e) {
+      var k = e.x + "," + e.y;
+      if (seen[k]) err("Overlapping placements at (" + e.x + "," + e.y + "): " + seen[k] + " + " + pair[0], e.x, e.y);
+      seen[k] = pair[0];
+    });
+  });
+
+  // Effective grid: marker tiles -> empty, moving machines -> empty, entities overlaid
+  var eff = [], tbmMarkers = [];
+  for (var y = 0; y < R; y++) {
+    eff[y] = [];
+    for (var x = 0; x < C; x++) {
+      var t = state.grid2D[y][x];
+      if (t === 29) { tbmMarkers.push({x:x, y:y}); t = 0; }
+      if (t === 32) t = 7; // gas pipe: solid
+      if (t === 4 || t === 5 || t === 6 || t === 10 || t === 11 || t === 17 || t === 21 || t === 28) t = 0;
+      eff[y][x] = t;
+    }
+  }
+  // Refuge chambers: 3×3 from top-left marker - posts solid, floor safe
+  var refugeMarks = [];
+  for (var rfy = 0; rfy < R; rfy++) for (var rfx = 0; rfx < C; rfx++)
+    if (eff[rfy][rfx] === 30) refugeMarks.push({x: rfx, y: rfy});
+  refugeMarks.forEach(function(m) {
+    if (m.y + 2 >= R - 1 + 1 || m.x + 2 >= C - 1 + 1) warn("Refuge 3×3 footprint touches the border", m.x, m.y);
+    for (var fy = m.y; fy <= Math.min(m.y + 2, R - 1); fy++)
+      for (var fx = m.x; fx <= Math.min(m.x + 2, C - 1); fx++) {
+        if (eff[fy][fx] === 7) continue;
+        var isPost = (fy === m.y || fy === m.y + 2) && (fx === m.x || fx === m.x + 2);
+        eff[fy][fx] = isPost ? 7 : 30;
+      }
+  });
+
+  tbmMarkers.forEach(function(m) {
+    if (m.y + 1 >= R - 1 || m.x + 2 >= C - 1) err("TBM footprint (3×2 from top-left marker) reaches the border", m.x, m.y);
+    for (var fy = m.y; fy <= Math.min(m.y + 1, R - 1); fy++)
+      for (var fx = m.x; fx <= Math.min(m.x + 2, C - 1); fx++)
+        if (eff[fy][fx] !== 7) eff[fy][fx] = 0;
+    if (state.player && Math.abs(m.x - state.player.x) + Math.abs(m.y - state.player.y) < 7)
+      warn("Tunnel borer starts close to the player spawn", m.x, m.y);
+  });
+  state.elements.forEach(function(e) { if (inB(e.x, e.y)) eff[e.y][e.x] = 6; });
+  state.hiddenElems.forEach(function(e) { if (inB(e.x, e.y)) eff[e.y][e.x] = 11; });
+  state.powerups.forEach(function(p) { if (inB(p.x, p.y)) eff[p.y][p.x] = 10; });
+  state.pads.forEach(function(p) { if (inB(p.x, p.y)) eff[p.y][p.x] = 17; });
+  if (state.exit) eff[state.exit.y][state.exit.x] = 5;
+
+  // Enemies: placement sanity
+  state.enemies.forEach(function(en) {
+    if (eff[en.y][en.x] !== 0 && eff[en.y][en.x] !== 19 && !(en.type === "snake" && eff[en.y][en.x] === T.WATER)) warn("Enemy (" + en.type + ") starts inside a solid/special tile", en.x, en.y);
+    if (state.player) {
+      var d = Math.abs(en.x - state.player.x) + Math.abs(en.y - state.player.y);
+      if (d < 8) warn("Enemy (" + en.type + ") only " + d + " tiles from the player start", en.x, en.y);
+    }
+  });
+
+  // Trivia consistency
+  var hasLogicDoor = false, doorCount = 0, keyCount = 0;
+  for (var y2 = 0; y2 < R; y2++) for (var x2 = 0; x2 < C; x2++) {
+    if (eff[y2][x2] === 18) hasLogicDoor = true;
+    if (eff[y2][x2] === 16) doorCount++;
+    if (eff[y2][x2] === 15) keyCount++;
+  }
+  if (state.pads.length) {
+    if (!state.triviaQuestion) warn("Pads placed but no trivia question");
+    if (!state.triviaAnswer) err("Pads placed but no correct answer set");
+    else if (!state.pads.some(function(p) { return p.key === state.triviaAnswer; })) err("No pad carries the correct answer '" + state.triviaAnswer + "'");
+    if (state.triviaTrap && !state.pads.some(function(p) { return p.key === state.triviaTrap; })) warn("Trap answer '" + state.triviaTrap + "' matches no pad");
+    if (state.triviaQuestion && !state.triviaPos) warn("Trivia question set but no question position placed");
+  }
+  if (hasLogicDoor && !state.pads.length) err("Logic doors present but no answer pads");
+  if (doorCount > keyCount) warn(doorCount + " door(s) but only " + keyCount + " key(s)");
+  if (state.timer && state.timer < 60) warn("Timer under 60 s is very tight");
+
+  // TBM lanes: any column the borer can eventually drill becomes open tunnel -
+  // soft-passable (it grinds everything except WALL/DOOR/LOGIC_DOOR/EXIT/PAD)
+  var tbmLane = [];
+  for (var tly = 0; tly < R; tly++) tbmLane[tly] = [];
+  tbmMarkers.forEach(function(m) {
+    if (m.y + 1 >= R) return;
+    [1, -1].forEach(function(dir) {
+      var cx = dir > 0 ? m.x + 3 : m.x - 1;
+      while (cx > 0 && cx < C - 1) {
+        var stopHere = false;
+        for (var r = m.y; r <= m.y + 1; r++) {
+          var lt = eff[r][cx];
+          if (lt === 7 || lt === 16 || lt === 18 || lt === 5 || lt === 17 || lt === 30) { stopHere = true; break; }
+        }
+        if (stopHere) break;
+        tbmLane[m.y][cx] = true; tbmLane[m.y + 1][cx] = true;
+        cx += dir;
+      }
+    });
+    for (var fx2 = m.x; fx2 <= Math.min(m.x + 2, C - 1); fx2++) { tbmLane[m.y][fx2] = true; tbmLane[m.y + 1][fx2] = true; }
+  });
+
+  // Reachability BFS with door fixpoint
+  function bfs(soft) {
+    if (!state.player) return null;
+    var doorsOpen = false, logicOpen = false, changed = true, vis = null;
+    while (changed) {
+      changed = false;
+      vis = [];
+      for (var vy = 0; vy < R; vy++) { vis[vy] = []; }
+      var q = [[state.player.x, state.player.y]];
+      vis[state.player.y][state.player.x] = true;
+      while (q.length) {
+        var cur = q.shift(), cx = cur[0], cy = cur[1];
+        var dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+        for (var di = 0; di < 4; di++) {
+          var nx = cx + dirs[di][0], ny = cy + dirs[di][1];
+          if (!inB(nx, ny) || vis[ny][nx]) continue;
+          if (soft && tbmLane[ny] && tbmLane[ny][nx]) { vis[ny][nx] = true; q.push([nx, ny]); continue; }
+          var tt = eff[ny][nx], pass;
+          switch (tt) {
+            case 0: case 1: case 9: case 12: case 13: case 14: case 19:
+            case 15: case 6: case 11: case 10: case 5: case 30: pass = true; break;
+            case 31: pass = soft; break;
+            case 16: pass = doorsOpen; break;
+            case 18: pass = logicOpen; break;
+            case 3: case 8: case 23: case 27: case 26: case 20: case 22: pass = soft; break;
+            default: pass = false;
+          }
+          if (!pass) continue;
+          vis[ny][nx] = true;
+          q.push([nx, ny]);
+        }
+      }
+      if (!doorsOpen) {
+        for (var ky = 0; ky < R && !doorsOpen; ky++) for (var kx = 0; kx < C && !doorsOpen; kx++) {
+          if (eff[ky][kx] === 15 && vis[ky][kx]) { doorsOpen = true; changed = true; }
+        }
+      }
+      if (!logicOpen && state.triviaAnswer) {
+        state.pads.forEach(function(p) {
+          if (p.key !== state.triviaAnswer || logicOpen) return;
+          var dirs2 = [[1,0],[-1,0],[0,1],[0,-1]];
+          for (var di2 = 0; di2 < 4; di2++) {
+            var ax = p.x + dirs2[di2][0], ay = p.y + dirs2[di2][1];
+            if (inB(ax, ay) && vis[ay][ax]) { logicOpen = true; changed = true; break; }
+          }
+        });
+      }
+    }
+    return vis;
+  }
+
+  if (state.player && state.exit && !errors.length) {
+    var visSoft = bfs(true), visStrict = bfs(false);
+    function target(label, tx, ty, required) {
+      if (!visSoft[ty][tx]) {
+        if (required) err(label + " at (" + tx + "," + ty + ") is UNREACHABLE - the level cannot be finished", tx, ty);
+        else warn(label + " at (" + tx + "," + ty + ") is unreachable", tx, ty);
+      } else if (!visStrict[ty][tx]) {
+        warn(label + " at (" + tx + "," + ty + ") needs an obstacle cleared (boulder push / dynamite / blast) - check the player has the means", tx, ty);
+      }
+    }
+    target("Exit", state.exit.x, state.exit.y, true);
+    state.elements.forEach(function(e) { target("Element " + e.key, e.x, e.y, true); });
+    state.hiddenElems.forEach(function(e) { target("Hidden " + e.key, e.x, e.y, false); });
+    state.powerups.forEach(function(p) { target("Powerup", p.x, p.y, false); });
+  }
+
+  return { errors: errors, warnings: warnings, marks: marks };
+}
+// ===DEEP-VALIDATE-CORE-END===
+
+var validationMarks = [];
+
+window.validateLevel = function() {
+  var sc = EDITOR_SCENARIOS[currentScenario];
+  var result = deepValidateCore({
+    cols: COLS, rows: ROWS, grid2D: grid,
+    player: entities.player, exit: entities.exit,
+    elements: entities.elements, hiddenElems: entities.hiddenElems,
+    powerups: entities.powerups, enemies: entities.enemies, pads: entities.pads,
+    triviaQuestion: document.getElementById("p-trivia-q").value.trim(),
+    triviaAnswer: document.getElementById("p-trivia-ans").value.trim(),
+    triviaTrap: document.getElementById("p-trivia-trap").value.trim(),
+    triviaPos: entities.triviaPos,
+    timer: parseInt(document.getElementById("p-timer").value, 10) || 0,
+    scenarioElements: sc.elements, scenarioBonus: sc.bonus
+  });
+
+  validationMarks = result.marks;
+  var box = document.getElementById("validate-results");
+  var h = "";
+  if (!result.errors.length && !result.warnings.length) {
+    h = '<div class="vr-ok">✅ Level is solvable - every element and the exit are reachable. No issues found.</div>';
+  } else {
+    if (!result.errors.length) h += '<div class="vr-ok">✅ Solvable - but check the warnings:</div>';
+    result.errors.forEach(function(m) { h += '<div class="vr-err">❌ ' + m + '</div>'; });
+    result.warnings.forEach(function(m) { h += '<div class="vr-warn">⚠️ ' + m + '</div>'; });
+  }
+  box.innerHTML = h;
+  box.style.display = "block";
+  render();
+  toast(result.errors.length ? "❌ " + result.errors.length + " problem(s) found" :
+        result.warnings.length ? "⚠️ Solvable, " + result.warnings.length + " warning(s)" : "✅ Level is solvable!");
+};
+window.fillBorders = function() { saveUndo(); for (var x = 0; x < COLS; x++) { grid[0][x] = T.WALL; grid[ROWS-1][x] = T.WALL; } for (var y = 0; y < ROWS; y++) { grid[y][0] = T.WALL; grid[y][COLS-1] = T.WALL; } render(); updateStats(); toast("🧱 Borders placed"); };
+window.fillAll = function(type) { saveUndo(); var t = TOOL_TO_TILE[type] || T.EARTH; for (var y = 1; y < ROWS-1; y++) for (var x = 1; x < COLS-1; x++) grid[y][x] = t; entities = freshEntities(); render(); updateStats(); toast("🟫 Filled"); };
+window.clearAll = function() { if (!confirm("Clear entirely?")) return; saveUndo(); initGrid(); render(); updateStats(); };
+window.toggleGridLines = function() { showGrid = !showGrid; render(); };
+
+function getTileCoords(e) { var rect = canvas.getBoundingClientRect(); var x = Math.floor((e.clientX - rect.left) / TSIZE); var y = Math.floor((e.clientY - rect.top) / TSIZE); return {x: Math.max(0, Math.min(COLS-1, x)), y: Math.max(0, Math.min(ROWS-1, y))}; }
+canvas.addEventListener("pointerdown", function(e) { try { canvas.setPointerCapture(e.pointerId); } catch (err) {} e.preventDefault(); closePickers(); var pos = getTileCoords(e); if (e.button === 2) { saveUndo(); removeEntitiesAt(pos.x, pos.y); grid[pos.y][pos.x] = T.EMPTY; render(); updateStats(); return; } if (e.button === 0) { if (currentTool === "element" || currentTool === "hidden_elem" || currentTool === "powerup" || currentTool === "pad" || currentTool === "trivia_pos") { saveUndo(); applyTool(pos.x, pos.y); return; } saveUndo(); isDrawing = true; lastDrawX = pos.x; lastDrawY = pos.y; applyTool(pos.x, pos.y); } });
+canvas.addEventListener("pointermove", function(e) { var pos = getTileCoords(e); document.getElementById("coords").textContent = pos.x + ", " + pos.y; if ((currentTool === "tbm" || currentTool === "refuge") && (!hoverGhost || hoverGhost.x !== pos.x || hoverGhost.y !== pos.y)) { hoverGhost = pos; render(); } if (isDrawing && (pos.x !== lastDrawX || pos.y !== lastDrawY)) { applyTool(pos.x, pos.y); lastDrawX = pos.x; lastDrawY = pos.y; } });
+canvas.addEventListener("pointerup", function() { isDrawing = false; });
+canvas.addEventListener("pointercancel", function() { isDrawing = false; });
+canvas.addEventListener("pointerleave", function() { isDrawing = false; if (hoverGhost) { hoverGhost = null; render(); } });
+canvas.addEventListener("contextmenu", function(e) { e.preventDefault(); });
+
+document.addEventListener("keydown", function(e) {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if ((e.ctrlKey || e.metaKey) && e.key === "z") { e.preventDefault(); doUndo(); }
+});
+
+// Live re-render of the on-map question text while typing
+document.getElementById("p-trivia-q").addEventListener("input", function() { render(); });
+
+// ─── Level preview: the REAL game renderer (render.js) driven by a synthetic
+// game state - pixel-identical to in-game visuals, fully lit, animated ───
+window.showPreview = function() {
+  var gs = Game.state;
+  gs.running = false;
+  if (gs.renderReq) cancelAnimationFrame(gs.renderReq);
+
+  var levelJSON;
+  try {
+    levelJSON = JSON.parse(buildLevelJSON());
+    Game.levelGen.loadCustom(levelJSON);
+  } catch (e) { toast("❌ Preview failed: " + (e && e.message ? e.message : e)); return; }
+
+  // Full-map viewport: override the game's 20×15 window and point the
+  // renderer at the preview canvas (render.js re-reads s.canvas each frame)
+  var tile = Math.max(10, Math.min(32, Math.floor(1920 / COLS), Math.floor(1200 / ROWS)));
+  window.VP_COLS = COLS; window.VP_ROWS = ROWS;
+  var pc = document.getElementById("preview-canvas");
+  pc.width = COLS * tile; pc.height = ROWS * tile;
+  gs.tile = tile;
+  gs.canvas = pc;
+  gs.ctx = pc.getContext("2d");
+  gs.camX = 0; gs.camY = 0; gs.camSmoothX = 0; gs.camSmoothY = 0;
+  for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
+    gs.explored[y][x] = true;
+    gs.seenTile[y][x] = gs.grid[y][x];
+  }
+  gs.previewMode = true;
+  gs.running = true;          // frame() self-schedules → live animations
+  Game.render.frame();
+
+  document.getElementById("preview-meta").textContent =
+    (document.getElementById("p-level-name").value.trim() || "Untitled") + " - " + COLS + "×" + ROWS +
+    " · " + entities.elements.length + " elements · " + entities.enemies.length + " enemies · in-game renderer";
+  document.getElementById("preview-overlay").classList.add("visible");
+};
+window.hidePreview = function() {
+  var gs = Game.state;
+  gs.running = false;
+  gs.previewMode = false;
+  if (gs.renderReq) cancelAnimationFrame(gs.renderReq);
+  document.getElementById("preview-overlay").classList.remove("visible");
+};
+window.downloadPreview = function() {
+  var pc = document.getElementById("preview-canvas");
+  var a = document.createElement("a");
+  a.href = pc.toDataURL("image/png");
+  a.download = (document.getElementById("p-level-name").value.trim() || "level").replace(/[^a-zA-Z0-9]+/g, "_") + "_preview.png";
+  a.click();
+};
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") window.hidePreview();
+});
+
+document.getElementById("json-file-input").addEventListener("change", function(ev) {
+  var file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+
+  file.text().then(function(text) {
+    var data = JSON.parse(text);
+    importLevel(data);
+    toast("📂 Loaded: " + file.name);
+  }).catch(function() {
+    toast("❌ Invalid JSON file");
+  }).finally(function() {
+    ev.target.value = "";
+  });
+});
+
+document.addEventListener("visibilitychange", function() {
+  if (!document.hidden) refreshBundleSyncStatus();
+});
+
+document.querySelectorAll(".tool-btn").forEach(function(btn) { btn.addEventListener("click", function() { document.querySelectorAll(".tool-btn").forEach(function(b){ b.classList.remove("active"); }); this.classList.add("active"); currentTool = this.dataset.tool; closePickers(); }); });
+
+var toastTimer = null; function toast(msg) { var el = document.getElementById("toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 2000); }
+
+// ─── Render mini tile previews on toolbar icon canvases ───
+function renderToolIcons() {
+  var SZ = 28; // icon canvas size
+  document.querySelectorAll(".tool-btn").forEach(function(btn) {
+    var cv = btn.querySelector(".t-icon-cv");
+    if (!cv) return;
+    var ic = cv.getContext("2d");
+    var tool = btn.dataset.tool;
+    ic.clearRect(0, 0, SZ, SZ);
+
+    // Scale factor: our tile is 32px but icon is 28px
+    var sc = SZ / TSIZE;
+    ic.save();
+    ic.scale(sc, sc);
+
+    // most tools show the game sprite they place; the rest have a symbol of their own below
+    var TOOL_SPRITE = {"earth": "earth", "earth_rich": "rich", "rock": "rock", "boulder": "boulder", "empty": "empty", "wall": "wall", "key": "key", "door": "door", "hazard": "barrel", "roll_barrel": "rollbarrel", "water": "water", "water_src": "watersrc", "lava": "lava", "lava_src": "lavasrc", "ice": "ice", "web": "web", "spider_nest": "nest", "basalt": "basalt", "cart": "cart", "cart_bounce": "roguecart", "shaft_lift": "lift", "gas": "gas", "gas_src": "gaspipe", "player": "miner", "exit": "exit", "logic_door": "logicdoor", "bat": "bat", "snake": "snake", "crab": "crab", "spider": "spider", "element": "gem", "powerup": "tool0", "pad": "pad"};
+    if (TOOL_SPRITE[tool]) {
+      var backed = { boulder: 1, key: 1, bat: 1, snake: 1, crab: 1, spider: 1, element: 1, powerup: 1, player: 1, cart: 1, cart_bounce: 1, shaft_lift: 1 };
+      if (backed[tool]) ic.drawImage(sprite("empty"), 0, 0);
+      ic.drawImage(backed[tool] ? spriteIcon(TOOL_SPRITE[tool]) : sprite(TOOL_SPRITE[tool]), 0, 0);
+      ic.restore();
+      return;
+    }
+
+    switch(tool) {
+      case "tbm":
+        ic.fillStyle = "#0e0e16"; ic.fillRect(0,0,TSIZE,TSIZE);
+        ic.fillStyle = "#4a505c"; ic.fillRect(2,8,TSIZE*0.55,TSIZE-16);
+        ic.fillStyle = "#e8b84b"; ic.fillRect(2,TSIZE/2-2,TSIZE*0.55,4);
+        ic.fillStyle = "#565e6a"; ic.beginPath(); ic.arc(TSIZE*0.72,TSIZE/2,TSIZE*0.34,0,Math.PI*2); ic.fill();
+        ic.strokeStyle = "#22262c"; ic.lineWidth = 1.5;
+        ic.beginPath(); ic.moveTo(TSIZE*0.72-TSIZE*0.3,TSIZE/2); ic.lineTo(TSIZE*0.72+TSIZE*0.3,TSIZE/2); ic.stroke();
+        ic.beginPath(); ic.moveTo(TSIZE*0.72,TSIZE/2-TSIZE*0.3); ic.lineTo(TSIZE*0.72,TSIZE/2+TSIZE*0.3); ic.stroke();
+        break;
+      case "refuge":
+        ic.fillStyle = "#232733"; ic.fillRect(0,0,TSIZE,TSIZE);
+        ic.fillStyle = "#454c58"; ic.fillRect(2,2,7,7); ic.fillRect(TSIZE-9,2,7,7); ic.fillRect(2,TSIZE-9,7,7); ic.fillRect(TSIZE-9,TSIZE-9,7,7);
+        ic.fillStyle = "#e8e8ec"; ic.beginPath(); ic.arc(TSIZE/2,TSIZE/2,6,0,Math.PI*2); ic.fill();
+        ic.fillStyle = "#3fae5a"; ic.fillRect(TSIZE/2-1.5,TSIZE/2-4.5,3,9); ic.fillRect(TSIZE/2-4.5,TSIZE/2-1.5,9,3);
+        break;
+      case "trivia_pos":
+        ic.fillStyle = "#0e0e16"; ic.fillRect(0,0,TSIZE,TSIZE);
+        ic.fillStyle = "rgba(255,255,255,0.15)"; ic.fillRect(0,0,TSIZE,TSIZE);
+        ic.fillStyle = "#fff"; ic.font = "bold 11px monospace"; ic.textAlign = "center";
+        ic.fillText("Q", TSIZE/2, TSIZE/2+4);
+        ic.strokeStyle = "rgba(255,255,255,0.3)"; ic.lineWidth = 1;
+        ic.strokeRect(3, 3, TSIZE-6, TSIZE-6);
+        break;
+      case "hidden_elem":
+        ic.fillStyle = "#5c3d1e"; ic.fillRect(0,0,TSIZE,TSIZE);
+        ic.fillStyle = "rgba(155,80,255,0.12)"; ic.fillRect(0,0,TSIZE,TSIZE);
+        // Star shape
+        ic.fillStyle = "rgba(155,80,255,0.6)";
+        ic.save(); ic.translate(TSIZE/2, TSIZE/2);
+        ic.beginPath();
+        for (var si = 0; si < 5; si++) {
+          var a1 = (si * 72 - 90) * Math.PI / 180, a2 = ((si * 72) + 36 - 90) * Math.PI / 180;
+          ic.lineTo(Math.cos(a1) * 9, Math.sin(a1) * 9);
+          ic.lineTo(Math.cos(a2) * 4, Math.sin(a2) * 4);
+        }
+        ic.closePath(); ic.fill(); ic.restore();
+        ic.fillStyle = "#fff"; ic.font = "bold 8px monospace"; ic.textAlign = "center";
+        ic.fillText("?", TSIZE/2, TSIZE/2+3);
+        break;
+      case "eraser":
+        ic.fillStyle = "#0e0e16"; ic.fillRect(0,0,TSIZE,TSIZE);
+        // Red X
+        ic.strokeStyle = "#e85454"; ic.lineWidth = 3; ic.lineCap = "round";
+        ic.beginPath(); ic.moveTo(8, 8); ic.lineTo(TSIZE-8, TSIZE-8); ic.stroke();
+        ic.beginPath(); ic.moveTo(TSIZE-8, 8); ic.lineTo(8, TSIZE-8); ic.stroke();
+        break;
+    }
+    ic.restore();
+  });
+}
+
+refreshBundleSyncStatus();
+
+
+
+
+
+
+
+
+
+
+
+
+initGrid(); initScenarioSelect(); render(); updateStats(); renderToolIcons();
+// the miner is drawn from image files: draw again once they have loaded
+window.addEventListener("load", function() { setTimeout(function() { render(); renderToolIcons(); }, 150); });
+})();
+</script>
+</body>
+</html>

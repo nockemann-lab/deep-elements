@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "noEmit": true,
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "strict": false
+  },
+  "include": [
+    "types.d.ts",
+    "config.js", "data.js", "level-sets.js", "sound.js", "state.js", "camera.js",
+    "enemies.js", "physics.js", "level-gen.js", "ui.js", "mission-map.js",
+    "render-core.js", "render-tiles.js", "render-creatures.js", "render-player.js",
+    "render.js", "input.js", "machines.js", "shared-level.js", "game.js"
+  ]
+}

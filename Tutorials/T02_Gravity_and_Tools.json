@@ -1,0 +1,49 @@
+{
+  "cols": 25, "rows": 15,
+  "scenario": 7,
+  "levelName": "Tutorial 2: Gravity & Tools",
+  "timer": 300,
+  "grid": [
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+    7,2,2,2,2,2,2,3,2,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,0,0,0,0,0,0,1,1,1,0,0,0,0,3,0,0,1,1,0,0,0,2,2,7,
+    7,2,2,2,2,2,2,0,2,0,2,2,2,2,2,2,0,2,2,2,2,1,2,2,7,
+    7,2,2,2,2,2,2,0,2,0,2,2,2,2,2,2,2,2,2,2,2,1,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,7,
+    7,2,0,1,1,0,0,0,0,0,0,0,1,1,0,8,0,0,0,0,0,0,2,2,7,
+    7,2,1,2,2,2,2,2,2,2,2,2,2,2,0,1,2,2,2,2,2,2,2,2,7,
+    7,2,1,2,2,2,2,2,2,2,2,0,9,1,0,1,2,2,2,2,2,2,2,2,7,
+    7,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,9,1,1,7,
+    7,0,0,0,0,3,3,1,1,1,0,0,0,0,0,0,0,16,0,1,1,1,1,1,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,0,2,1,1,1,1,0,1,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,15,2,2,2,2,2,2,1,1,1,1,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+  ],
+  "player": {"x":2,"y":2},
+  "exit": {"x":22,"y":11},
+  "elements": [
+    {"x":11,"y":2,"key":"Li"},
+    {"x":11,"y":8,"key":"Co"},
+    {"x":9,"y":10,"key":"Ni"},
+    {"x":21,"y":10,"key":"Cu"}
+  ],
+  "powerups": [
+    {"x":6,"y":6,"type":0},
+    {"x":7,"y":6,"type":0},
+    {"x":8,"y":6,"type":0},
+    {"x":16,"y":11,"type":1}
+  ],
+  "hints": [
+    {"x":2,"y":2,"r":2,"icon":"⛏️","title":"WELCOME BACK","text":"The deep holds dangers - this lesson covers <strong>gravity</strong> and your <strong>tools</strong>. Head right!"},
+    {"x":5,"y":2,"r":1,"icon":"🪨","title":"FALLING BOULDERS","text":"Boulders fall as soon as nothing holds them up. Dig along under these two and keep walking: each drops into the pit behind you. <strong>Never go straight down with a boulder above you</strong> - it follows and lands on you."},
+    {"x":12,"y":2,"r":1,"icon":"🫸","title":"PUSH IT","text":"Walk into a boulder to <strong>push</strong> it. Shove this one ahead - it will drop into the gap and clear your way."},
+    {"x":18,"y":6,"r":1,"icon":"☣️","title":"TOXIC BARREL","text":"Toxic barrels explode <strong>3×3</strong> when they fall or get hit. Push it into the pit and <em>stand well back</em> - the blast opens the vault below."},
+    {"x":10,"y":6,"r":1,"icon":"🧨","title":"DYNAMITE","text":"Grab the dynamite ahead! Press <strong>1</strong> to place a stick, then get clear: every step and every second burns the fuse, and it lasts for only <em>five</em>. The blast breaks earth, boulders and ice, but <strong>not solid rock</strong>."},
+    {"x":2,"y":8,"r":1,"icon":"🚧","title":"BOULDER PLUG","text":"Boulders plug the tunnel below - no room to push them. Place dynamite beside the plug and <em>retreat up this shaft</em>!"},
+    {"x":11,"y":10,"r":0,"icon":"🔑","title":"THE KEY","text":"A <strong>key</strong> lies under the earth just ahead, below the tunnel. Dig down for it - the door stays locked without one."},
+    {"x":14,"y":10,"r":0,"icon":"🔦","title":"HELMET LAMP","text":"A helmet lamp lies in the alcove ahead. Press <strong>2</strong> to light it: for 12 seconds you see twice as far. Handy in the huge deep mines!"},
+    {"x":16,"y":10,"r":0,"icon":"🚪","title":"LOCKED DOOR","text":"A door uses up one <strong>key</strong> when you walk into it. Unlock this one to enter the final vault."},
+    {"x":19,"y":10,"r":0,"icon":"🏁","title":"FINAL VAULT","text":"Dig out the last element, then step onto the <strong>exit hatch</strong> to finish the lesson."}
+  ]
+}

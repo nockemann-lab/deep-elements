@@ -1,0 +1,23 @@
+[
+  "01_Circuit_Board.json",
+  "02_LED_Display.json",
+  "03_Solar_Panel.json",
+  "04_Battery_Pack.json",
+  "05_EV_Motor.json",
+  "06_Wind_Turbine.json",
+  "07_Hydrogen_Fuel_Cell.json",
+  "08_Smartphone.json",
+  "09_MRI_Scanner.json",
+  "10_Medical_Implant.json",
+  "11_Jet_Engine.json",
+  "12_Satellite.json",
+  "13_Deep_Sea_Cable.json",
+  "14_Offshore_Turbine.json",
+  "15_Space_Telescope.json",
+  "16_Quantum_Computer.json",
+  "17_Superalloy_Foundry.json",
+  "18_Fibre_Optics.json",
+  "19_Urban_Mine.json",
+  "20_Quantum_Core.json",
+  "21_Gotthard_Base_Tunnel.json"
+]

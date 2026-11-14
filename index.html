@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Deep Elements - Dig for Your Phone's Hidden Elements</title>
+<meta name="description" content="Dig deep, dodge cave creatures, and collect the real elements inside everyday technology - a mining puzzle game about the periodic table and critical mineral supply chains.">
+<meta name="theme-color" content="#0a0c12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deep Elements">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛏️</text></svg>">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Deep Elements - Dig for Your Phone's Hidden Elements">
+<meta property="og:description" content="A mining puzzle game about the periodic table: 31 real-world missions, endless depths, guided tutorials, and three Element Runs through the periodic table.">
+<meta property="og:image" content="banner.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="style.css?v=20">
+</head>
+<body>
+
+<div id="boot-screen">
+  <div class="boot-inner">
+    <div class="boot-icon">&#9935;&#65039;</div>
+    <div class="boot-title">DEEP ELEMENTS</div>
+    <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+    <div class="boot-label" id="boot-label">Entering the mine&hellip;</div>
+  </div>
+</div>
+<script>
+(function(){
+  var fill=document.getElementById("boot-fill"),label=document.getElementById("boot-label");
+  var p=0,done=false;
+  function setP(v){if(v>p){p=v;fill.style.width=p+"%";}}
+  setP(15);
+  document.addEventListener("DOMContentLoaded",function(){setP(55);label.textContent="Lighting the lamps…";});
+  function finish(){
+    if(done)return;done=true;setP(100);label.textContent="Ready!";
+    var el=document.getElementById("boot-screen");
+    setTimeout(function(){el.classList.add("boot-hide");setTimeout(function(){el.remove();},450);},250);
+  }
+  window.addEventListener("load",finish);
+  setTimeout(finish,15000);
+  var creep=setInterval(function(){if(done){clearInterval(creep);return;}if(p<90)setP(p+1);},400);
+})();
+</script>
+
+<div class="title-bar"><h1>&#9935;&#65039; DEEP ELEMENTS &#9935;&#65039;</h1><p>Dig deep to uncover the elements inside everyday technology! <button id="mute-btn" data-action="toggleMute" title="Toggle sound">&#128266;</button></p></div>
+<div class="game-layout">
+  <div class="game-area">
+    <div class="mobile-hud" id="mobile-hud">
+      <span class="mh-stat"><span class="mh-ico">&#128142;</span><b id="mh-elems">0/9</b></span>
+      <span class="mh-timer"><span class="mh-ico" id="mh-clock">&#9200;</span><span class="mh-track"><span class="mh-fill" id="mh-fill"></span></span><b id="mh-time">90</b></span>
+      <span class="mh-stat mh-score"><b id="mh-score">0</b></span>
+      <button class="mh-btn" data-action="togglePause" aria-label="Pause">&#9208;&#65039;</button>
+    </div>
+    <canvas id="game"></canvas>
+    <button class="fact-toast" id="fact-toast"></button>
+    <div class="tutorial-hint" id="tutorial-hint"></div>
+    <div class="controls-hint">
+      <span class="key-hint"><kbd>&#8593;</kbd><kbd>&#8595;</kbd><kbd>&#8592;</kbd><kbd>&#8594;</kbd> Move</span>
+      <span class="key-hint"><kbd>1</kbd>&#8211;<kbd>5</kbd> Use a tool (or click it)</span>
+      <span class="key-hint"><kbd>P</kbd> Pause</span>
+      <span class="key-hint"><kbd>R</kbd> Restart</span>
+    </div>
+    <div class="mobile-controls">
+      <div class="mobile-items" id="mobile-items"></div>
+      <div class="mobile-dpad"><div class="dpad-grid">
+        <div class="dpad-btn dpad-empty"></div><button class="dpad-btn" data-key="ArrowUp" aria-label="Up">&#9650;</button><div class="dpad-btn dpad-empty"></div>
+        <button class="dpad-btn" data-key="ArrowLeft" aria-label="Left">&#9664;</button><button class="dpad-btn dpad-mid" data-key="pause" aria-label="Pause">&#9208;</button><button class="dpad-btn" data-key="ArrowRight" aria-label="Right">&#9654;</button>
+        <div class="dpad-btn dpad-empty"></div><button class="dpad-btn" data-key="ArrowDown" aria-label="Down">&#9660;</button><div class="dpad-btn dpad-empty"></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="side-panel">
+    <div class="panel-box"><h3>&#9935;&#65039; STATUS</h3>
+      <div class="hud-level-row" id="hud-level">Depth 1</div>
+      <div class="hud-row">
+        <div class="hud-stat"><span class="val" id="hud-collected">0/9</span><span class="lbl">Elements</span></div>
+        <div class="hud-stat danger"><span class="val" id="hud-enemies">0</span><span class="lbl">Creatures</span></div>
+        <div class="hud-stat score"><span class="val" id="hud-score">0</span><span class="lbl">Score</span></div>
+      </div>
+      <div class="timer-bar" id="timer-bar"><span class="timer-label">&#9200;</span><div class="timer-track"><div class="timer-fill" id="timer-fill" style="width:100%;background:var(--green)"></div></div><span class="timer-val" id="timer-val">90</span></div>
+      <div class="combo-bar"><div class="combo-fill" id="combo-fill"></div></div>
+      <div class="combo-text" id="combo-text"></div>
+      <div class="inventory-bar" id="inventory-bar"></div>
+    </div>
+    <div class="panel-box"><h3 id="comp-tracker-title">&#128241; SMARTPHONE</h3><div class="phone-tracker" id="comp-tracker">
+    </div></div>
+    <div class="panel-box elem-panel" id="elem-panel"><h3>&#128300; ELEMENT DISCOVERED</h3>
+      <div class="ep-empty" id="ep-empty">Collect an element to learn about it...</div>
+      <div id="ep-content" style="display:none">
+        <div class="ep-header"><span class="ep-sym" id="ep-sym"></span><div class="ep-title"><span class="ep-name" id="ep-name"></span><span class="ep-z" id="ep-z"></span></div><span class="ep-risk" id="ep-risk"></span></div>
+        <div class="ep-body" id="ep-body"></div>
+        <div class="ep-fun" id="ep-fun"></div>
+      </div>
+    </div>
+    <div class="panel-box"><h3>&#128203; EVENT LOG</h3><div class="collection-log" id="collection-log">
+      <div class="log-entry log-empty">Dig through earth to find minerals...</div>
+    </div></div>
+  </div>
+</div>
+<div class="game-overlay" id="game-overlay"><div class="overlay-card" id="overlay-card"></div></div>
+<div class="pause-overlay hidden" id="pause-overlay" data-action="togglePause">
+  <div class="pause-card"></div>
+</div>
+<div class="share-overlay hidden" id="share-overlay">
+  <div class="share-card">
+    <h3>&#127873; PLAY A SHARED LEVEL</h3>
+    <p>Paste a level code below. Codes are made in the <a href="Level%20Editor.html" target="_blank" rel="noopener">Deep Elements level editor</a> (its &#8220;Copy JSON&#8221; button) and passed on by other miners.</p>
+    <textarea id="share-input" spellcheck="false" placeholder='{"cols":20,"rows":15,"grid":[...]}'></textarea>
+    <div class="share-error" id="share-error"></div>
+    <div class="btn-row">
+      <button class="overlay-btn primary" data-action="playSharedLevel">&#9935;&#65039; PLAY IT</button>
+      <button class="overlay-btn secondary" data-action="hideSharedLevelDialog">CANCEL</button>
+    </div>
+  </div>
+</div>
+<div class="share-overlay hidden" id="run-overlay" data-action="hideRunChooser">
+  <div class="share-card run-card" data-action="noop">
+    <h3>&#129514; ELEMENT RUNS</h3>
+    <p>One cavern, one clock. Complete a whole group of elements and time goes back on the clock; the doors between the halls ask about what you have just collected.</p>
+    <div class="run-list" id="run-list"></div>
+    <div class="btn-row"><button class="overlay-btn secondary" data-action="hideRunChooser">BACK</button></div>
+  </div>
+</div>
+<div class="notebook-overlay hidden" id="notebook-overlay">
+  <div class="notebook-card">
+    <div class="nb-rings" aria-hidden="true"></div>
+    <div class="nb-ribbon" aria-hidden="true"></div>
+    <div class="nb-page">
+      <div class="nb-head">
+        <div>
+          <h2>FIELD NOTEBOOK</h2>
+          <div class="nb-owner" id="nb-owner"></div>
+        </div>
+        <button class="nb-close" data-action="closeNotebook">&#10005; CLOSE</button>
+      </div>
+      <div class="nb-note" id="nb-note"></div>
+      <p class="nb-sub" id="nb-sub"></p>
+      <div class="nb-grid-wrap"><div class="nb-grid" id="nb-grid"></div></div>
+      <div class="nb-swipe">&#8596; swipe the table sideways</div>
+      <div class="nb-detail" id="nb-detail"></div>
+      <p class="nb-legend" id="nb-legend"></p>
+      <div class="nb-foot"><button class="nb-reset" data-action="resetNotebook">Tear out every page and start a fresh notebook</button></div>
+    </div>
+  </div>
+  <div class="nb-actions" id="nb-actions"></div>
+</div>
+<div class="doc-overlay hidden" id="doc-overlay">
+  <div class="doc-card">
+    <div class="doc-head">
+      <h2 id="doc-title"></h2>
+      <span><button class="nb-close" data-action="printDoc">&#128424; PRINT</button> <button class="nb-close" data-action="closeDoc">&#10005; CLOSE</button></span>
+    </div>
+    <div class="doc-body" id="doc-body"></div>
+  </div>
+</div>
+<div class="map-overlay hidden" id="map-overlay">
+  <div class="map-card">
+    <div class="map-head">
+      <h2>&#128506;&#65039; WORLD MINE MAP</h2>
+      <span class="map-head-btns"><button class="map-back map-nb" data-action="openNotebook">&#128211; NOTEBOOK</button><button class="map-back" data-action="mapBackToMenu">&#8592; MENU</button></span>
+    </div>
+    <p class="map-sub">Pick a real mine - its ore feeds the mission's elements. Complete them in any order!</p>
+    <div class="map-meta">
+      <span class="map-progress" id="map-progress"></span>
+      <span class="map-legend"><span class="lg diff-easy">&#8226; EASY</span><span class="lg diff-medium">&#8226;&#8226; MEDIUM</span><span class="lg diff-hard">&#8226;&#8226;&#8226; HARD</span><span class="lg">&#10003; done</span></span>
+    </div>
+    <div class="map-holder" id="map-holder">
+      <canvas id="map-canvas"></canvas><div id="map-markers"></div>
+      <div class="map-zoom-controls">
+        <button id="map-zin" title="Zoom in">+</button>
+        <button id="map-zout" title="Zoom out">&minus;</button>
+        <button id="map-zreset" title="Reset view">&#8962;</button>
+      </div>
+      <div class="map-zoom-hint">scroll / pinch to zoom &middot; drag to pan</div>
+    </div>
+    <div class="map-detail" id="map-detail"><div class="md-empty">Select a mine marker to see its mission&hellip;</div></div>
+    <div class="map-list" id="map-list"></div>
+  </div>
+</div>
+<div class="menu-overlay hidden" id="menu-overlay">
+  <div class="menu-card">
+    <div class="menu-banner"><img src="banner.jpg" alt="Deep Elements: The Critical Mineral Hunt"></div>
+    
+    <p class="menu-tagline">Dig for the real elements inside everyday technology. <strong>The facts are real - the mining is a game.</strong></p>
+    <div id="mode-buttons" class="mode-cards">
+      <button class="mode-card" id="tutorial-mode-btn" disabled style="--accent:var(--green)" data-action="beginGame" data-arg="tutorial">
+        <span class="mc-tag">START HERE</span>
+        <canvas class="mc-art" width="112" height="112" data-icon="miner"></canvas>
+        <span class="mc-title">Tutorial</span>
+        <span class="mc-desc">Six guided lessons teach every block, tool, machine &amp; creature of the deep.</span>
+        <span class="mc-prog" id="mc-prog-tutorial"></span>
+      </button>
+      <button class="mode-card" style="--accent:var(--gold)" data-action="beginGame" data-arg="random">
+        <span class="mc-tag">LEADERBOARD</span>
+        <canvas class="mc-art" width="112" height="112" data-icon="cart"></canvas>
+        <span class="mc-title">Endless Depths</span>
+        <span class="mc-desc">A new mine every time, each depth bigger and meaner. Bank your discoveries or push your luck.</span>
+        <span class="mc-prog" id="mc-prog-endless"></span>
+      </button>
+      <button class="mode-card" id="mission-mode-btn" disabled style="--accent:var(--cyan)" data-action="beginGame" data-arg="custom">
+        <span class="mc-tag">31 MISSIONS</span>
+        <canvas class="mc-art" width="112" height="112" data-icon="globe"></canvas>
+        <span class="mc-title">Critical Missions</span>
+        <span class="mc-desc">Real mines on a world map. Each mission builds one device from the elements it truly needs.</span>
+        <span class="mc-prog" id="mc-prog-missions"></span>
+      </button>
+      <button class="mode-card" id="elementrun-mode-btn" disabled style="--accent:var(--purple,#a87ae8)" data-action="beginGame" data-arg="elementrun">
+        <span class="mc-tag">3 RUNS</span>
+        <canvas class="mc-art" width="112" height="112" data-icon="ptable"></canvas>
+        <span class="mc-title">Element Runs</span>
+        <span class="mc-desc">Race the clock through the periodic table: a sprint over the first twenty elements, or all 94 elements found in nature in one run.</span>
+        <span class="mc-prog" id="mc-prog-run"></span>
+      </button>
+    </div>
+    <button class="mode-card mode-card-wide" style="--accent:#e6c88a" data-action="openNotebook">
+      <canvas class="mc-art" width="112" height="112" data-icon="notebook"></canvas>
+      <span class="mc-tag">READ UP</span>
+      <span class="mc-title">Field Notebook</span>
+      <span class="mc-desc" id="notebook-btn">Read up on every element you have found</span>
+    </button>
+    <div class="menu-extra"><button class="menu-btn" data-action="showSharedLevelDialog">&#127873; Play a shared level</button></div>
+    <div id="menu-status"></div>
+    <div class="menu-shell">
+    <div class="menu-tabs">
+      <button class="menu-tab active" data-tab="howto" data-action="showMenuTab" data-arg="howto">HOW TO PLAY</button>
+      <button class="menu-tab" data-tab="guide" data-action="showMenuTab" data-arg="guide">FIELD GUIDE</button>
+      <button class="menu-tab" data-tab="scores" data-action="showMenuTab" data-arg="scores">HIGH SCORES</button>
+    </div>
+    <div class="menu-panel active" id="menu-howto">
+      <div class="how-steps">
+        <div class="how-step"><canvas class="g-ico" width="72" height="72" data-icon="earth"></canvas><span class="hs-num">1</span><strong>DIG</strong><span>Walk into earth to tunnel through it. Rock and walls will not budge.</span></div>
+        <div class="how-step"><canvas class="g-ico" width="72" height="72" data-icon="gem"></canvas><span class="hs-num">2</span><strong>COLLECT</strong><span>Gather every element the device needs. Each one comes with a fact card.</span></div>
+        <div class="how-step"><canvas class="g-ico" width="72" height="72" data-icon="exit"></canvas><span class="hs-num">3</span><strong>ESCAPE</strong><span>The exit unbars once you hold them all. Reach it before the clock runs out.</span></div>
+      </div>
+      <div class="how-cols">
+        <div class="how-box">
+          <h4>CONTROLS</h4>
+          <div class="how-key"><span><kbd>&#8592;</kbd><kbd>&#8593;</kbd><kbd>&#8595;</kbd><kbd>&#8594;</kbd></span><em>Move and dig</em></div>
+          <div class="how-key"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><em>Move and dig, too</em></div>
+          <div class="how-key"><span><kbd>1</kbd> &ndash; <kbd>5</kbd></span><em>Use a tool (or click it)</em></div>
+          <div class="how-key"><span><kbd>P</kbd> or <kbd>Esc</kbd></span><em>Pause</em></div>
+          <div class="how-key"><span><kbd>R</kbd></span><em>Restart the level (asks first)</em></div>
+          <h5 class="how-sub">TOUCH SCREEN</h5>
+          <div class="how-key"><span>D-pad, or drag on the mine</span><em>Move and dig</em></div>
+          <div class="how-key"><span>Keep holding</span><em>Keep walking</em></div>
+          <div class="how-key"><span>Tap a tool</span><em>Use it</em></div>
+          <div class="how-key"><span>&#9208; button</span><em>Pause</em></div>
+        </div>
+        <div class="how-box">
+          <h4>GOOD TO KNOW</h4>
+          <ul class="how-list">
+            <li><strong>Boulders fall</strong> when you dig beneath them. Never dig straight down under one - but do drop them on creatures.</li>
+            <li><strong>Earth hides you.</strong> Most creatures hunt by sight, so every open tunnel is a way to be seen. Up close they sense you anyway.</li>
+            <li><strong>Stars</strong> are for speed: three with 35&nbsp;% of the clock left at the exit, two with 15&nbsp;%.</li>
+            <li><strong>Reading is free.</strong> The first time you find an element the clock holds for a few seconds (&#128214;).</li>
+            <li><strong>Finds are kept.</strong> Every element you find stays in your field notebook, even if the mine gets you - until you close the game.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="how-more">New here? Start with the <strong>Tutorial</strong>. Creatures, tools and hazards are in the <a href="#" data-action="showMenuTab" data-arg="guide">Field Guide</a>.</p>
+    </div>
+    <div class="menu-panel" id="menu-guide">
+      <h4 class="g-head">CREATURES</h4>
+      <div class="g-grid">
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="bat"></canvas><div class="g-txt"><strong>Cave bat</strong>Flies, and hunts by sight; within a few tiles it senses you through earth too. Get clear and put earth between you. Boulders, floods and gas kill it.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="snake"></canvas><div class="g-txt"><strong>Mine snake</strong>Ignores you until you stray close - three tiles in easy mines, up to six in hard ones - then strikes fast and holds on while you are near. Swims. Crush it with a boulder.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="spider"></canvas><div class="g-txt"><strong>Cave spider</strong>Blind, but feels digging up to 15 tiles away and a pick-up within 5; in harder mines it also notices you a tile or two off. Walk, don&rsquo;t dig. Dynamite its nest before the brood grows.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="crab"></canvas><div class="g-txt"><strong>Crystal crab</strong>Slow, and digs through earth to reach you. Falling boulders bounce off its shell - use dynamite, or simply outwalk it.</div></div>
+      </div>
+      <h4 class="g-head">TOOLS</h4>
+      <div class="g-grid">
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="tool0"></canvas><div class="g-txt"><strong>1 &middot; Dynamite</strong>Place it and run. The fuse is short: every step you take and every second that passes burns it, five in all. Clears earth, boulders and ice, but not solid rock. The noise draws creatures.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="tool1"></canvas><div class="g-txt"><strong>2 &middot; Helmet lamp</strong>Doubles how far you can see for 12 seconds.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="tool2"></canvas><div class="g-txt"><strong>3 &middot; Geiger counter</strong>Reveals hidden bonus elements for 15 seconds. Dig them while it runs.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="tool3"></canvas><div class="g-txt"><strong>4 &middot; Gas mask</strong>Twenty seconds of safe breathing in gas.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="tool4"></canvas><div class="g-txt"><strong>5 &middot; Water pump</strong>Stand beside a flood to place it. Drains the water and caps the spring.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="key"></canvas><div class="g-txt"><strong>Keys</strong>Each key opens one locked door. Answer pads open the glowing logic doors: step on the right element. A wrong pad costs 30 seconds, and the answers change places every time.</div></div>
+      </div>
+      <h4 class="g-head">READING AN ELEMENT CARD</h4>
+      <div class="g-grid">
+        <div class="g-card"><span class="g-ico g-emo">&#127991;&#65039;</span><div class="g-txt"><strong>Supply risk</strong>How easily the world&rsquo;s supply could be disrupted. <b class="risk-word-low">Low</b>: many producers. <b class="risk-word-medium">Medium</b>: fairly concentrated. <b class="risk-word-high">High</b>: a few countries control it and it is hard to replace. <b class="risk-word-high">Critical</b>: the highest level - one country or one by-product stream supplies most of it, and nothing replaces it easily.</div></div>
+        <div class="g-card"><span class="g-ico g-emo">&#9878;&#65039;</span><div class="g-txt"><strong>Reality check</strong>How the element is really obtained. Nobody picks up glowing crystals: most come from ore, brine, air or as a byproduct of something else.</div></div>
+        <div class="g-card"><span class="g-ico g-emo">&#128295;</span><div class="g-txt"><strong>In this device</strong>On a mission, each card says what that element actually does in the device you are building.</div></div>
+        <div class="g-card"><span class="g-ico g-emo">&#128172;</span><div class="g-txt"><strong>Underlined words</strong>Point at or tap a dotted-underlined word, such as <em>cathode</em> or <em>alloy</em>, to see what it means.</div></div>
+      </div>
+      <h4 class="g-head">HAZARDS &amp; MACHINES</h4>
+      <div class="g-grid">
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="boulder"></canvas><div class="g-txt"><strong>Boulders</strong>Push them sideways; they fall when unsupported. One landing on you ends the dig.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="water"></canvas><div class="g-txt"><strong>Water</strong>Floods downhill from hidden springs. You wade at half speed; snakes do not slow down.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="lava"></canvas><div class="g-txt"><strong>Lava</strong>One step in is fatal. Dig into a glowing vein and the lava breaks out in front of you: stop there, and go round. It then creeps outward and down, never up.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="gas"></canvas><div class="g-txt"><strong>Mine gas</strong>Rises and spreads from broken pipes. Suffocates in seconds - and explodes if any blast touches it.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="barrel"></canvas><div class="g-txt"><strong>Toxic barrels</strong>Explode when they fall or are struck. Push one into a pit and stand well back.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="ice"></canvas><div class="g-txt"><strong>Ice and basalt</strong>Your pickaxe will not mark ice: it takes a blast. Basalt crumbles away by itself if you wait.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="cart"></canvas><div class="g-txt"><strong>Minecarts</strong>Shove one to send it rolling over anything on the line, or step down onto it to ride.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="roguecart"></canvas><div class="g-txt"><strong>Runaway carts and lifts</strong>Old machines that never stop. Touching one is fatal: watch the rhythm, then cross.</div></div>
+        <div class="g-card"><span class="g-ico g-emo">&#128679;</span><div class="g-txt"><strong>Tunnel borer</strong>Grinds through earth, rock and ice in its lane and turns back at a wall. Never stand in front; follow the tunnel it leaves behind.</div></div>
+        <div class="g-card"><canvas class="g-ico" width="72" height="72" data-icon="refugepost"></canvas><div class="g-txt"><strong>Refuge chambers</strong>Step inside to save your progress. If the mine claims you, you can return there for 100 points.</div></div>
+      </div>
+    </div>
+    <div class="menu-panel" id="menu-scores">
+      <div id="lb-container"><div class="lb-empty">No scores yet - be the first!</div></div>
+      <button class="lb-clear" data-action="clearScores">Clear Scores</button>
+    </div>
+    </div>
+      <div class="menu-toggles"><button class="menu-btn" data-action="toggleMute" id="menu-mute-btn">&#128266; Sound ON</button> <button class="menu-btn" data-action="cycleVolume" id="volume-btn" title="Change the volume">&#128265; Volume 100%</button> <button class="menu-btn" data-action="toggleReducedFx" id="fx-btn">&#10024; Effects: Full</button></div>
+      <p class="menu-foot">Every element fact and mine location is researched and sourced: <a href="SOURCES.md" data-action="openDoc" data-arg="sources">sources</a> &middot; <a href="TEACHERS_GUIDE.md" data-action="openDoc" data-arg="guide">teacher&rsquo;s guide</a> &middot; <a href="CREDITS.md" data-action="openDoc" data-arg="credits">credits</a></p>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="levels-inline.js"></script>
+<script src="docs-inline.js"></script>
+<script src="level-sets.js"></script>
+<script src="sound.js"></script>
+<script src="state.js"></script>
+<script src="camera.js"></script>
+<script src="enemies.js"></script>
+<script src="physics.js"></script>
+<script src="level-gen.js"></script>
+<script src="ui.js?v=18"></script>
+<script src="mission-map.js"></script>
+<script src="render-core.js"></script>
+<script src="render-tiles.js"></script>
+<script src="render-creatures.js"></script>
+<script src="render-player.js"></script>
+<script src="render.js"></script>
+<script src="input.js"></script>
+<script src="machines.js"></script>
+<script src="shared-level.js"></script>
+<script src="game.js"></script>
+
+</body>
+</html>

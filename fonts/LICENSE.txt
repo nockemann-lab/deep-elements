@@ -1,0 +1,18 @@
+This directory contains self-hosted web fonts, both licensed under the
+SIL Open Font License, Version 1.1 (OFL-1.1):
+
+- "Press Start 2P" — Copyright 2012 The Press Start 2P Project Authors
+  (cody@zone38.net), with Reserved Font Name "Press Start 2P".
+  https://fonts.google.com/specimen/Press+Start+2P
+
+- "DM Sans" — Copyright 2014-2025 Indian Type Foundry, Jonny Pinhorn,
+  Google LLC and the DM Sans Project Authors.
+  https://fonts.google.com/specimen/DM+Sans
+
+The full text of the SIL Open Font License, Version 1.1 is available at:
+https://openfontlicense.org
+
+Summary of key OFL terms: the fonts may be used, studied, modified and
+redistributed freely (including bundled with software) as long as they are
+not sold by themselves, reserved font names are not reused for derivatives,
+and this copyright/license notice is retained.

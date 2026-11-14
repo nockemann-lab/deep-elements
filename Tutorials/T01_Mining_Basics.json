@@ -1,0 +1,108 @@
+{
+  "cols": 20,
+  "rows": 15,
+  "scenario": 0,
+  "levelName": "Tutorial 1: Mining Basics",
+  "timer": 240,
+  "grid": [
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+    7,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
+    7,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
+    7,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
+    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
+    7,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,7,
+    7,1,1,1,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,7,
+    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
+    7,2,2,2,9,9,9,9,1,1,1,1,1,1,1,1,1,1,1,7,
+    7,1,1,1,9,9,9,9,1,1,1,1,1,1,1,1,1,1,1,7,
+    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
+    7,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,7,
+    7,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,
+    7,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,7,
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+  ],
+  "player": {
+    "x": 2,
+    "y": 2
+  },
+  "exit": {
+    "x": 17,
+    "y": 13
+  },
+  "elements": [
+    {
+      "x": 8,
+      "y": 2,
+      "key": "In"
+    },
+    {
+      "x": 4,
+      "y": 9,
+      "key": "Au"
+    },
+    {
+      "x": 16,
+      "y": 10,
+      "key": "Li"
+    }
+  ],
+  "enemies": [],
+  "hints": [
+    {
+      "x": 2,
+      "y": 2,
+      "r": 1,
+      "icon": "⛏️",
+      "title": "WELCOME, MINER!",
+      "text": "Use the <strong>arrow keys</strong> (or the on-screen D-pad) to move. Head <em>right</em> to start your dig."
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "r": 0,
+      "icon": "🛠️",
+      "title": "DIGGING",
+      "text": "Walk into brown <strong>earth</strong> to dig a tunnel straight through it."
+    },
+    {
+      "x": 6,
+      "y": 2,
+      "r": 0,
+      "icon": "💎",
+      "title": "ELEMENTS",
+      "text": "Collect the glowing <strong>elements</strong> - the chemical elements that everyday technology is built from. The <em>STATUS</em> panel counts them."
+    },
+    {
+      "x": 8,
+      "y": 6,
+      "r": 2,
+      "icon": "🪨",
+      "title": "SOLID ROCK",
+      "text": "Gray <strong>rock</strong> and walls can't be dug - not even blasted. Find a way around: try heading <em>west</em>."
+    },
+    {
+      "x": 5,
+      "y": 8,
+      "r": 2,
+      "icon": "✨",
+      "title": "RICH EARTH",
+      "text": "Golden, sparkling <strong>rich earth</strong> marks mineral-laden ground - treasure is often close by."
+    },
+    {
+      "x": 10,
+      "y": 10,
+      "r": 3,
+      "icon": "⏰",
+      "title": "ON THE CLOCK",
+      "text": "Watch the <strong>⏰ timer</strong> in the STATUS panel - finishing fast means a better <em>score</em>."
+    },
+    {
+      "x": 14,
+      "y": 11,
+      "r": 2,
+      "icon": "🚪",
+      "title": "EXIT HATCH",
+      "text": "The exit opens only once <strong>ALL</strong> elements are collected. Missing one? Backtrack - something still <em>glints</em> nearby."
+    }
+  ]
+}
