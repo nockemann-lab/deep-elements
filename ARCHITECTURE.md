@@ -33,7 +33,12 @@ keep that manageable:
 - **A level is loaded by `level-gen.js`** (`loadCustom` for a level file, `generateRandom`
   for Endless Depths). Anything a level needs to reset belongs there.
 - **A run is snapshotted by `CHECKPOINT_FIELDS`** in `game.js`. A new piece of run state
-  that should survive a refuge respawn must be added to that list.
+  that should survive a refuge respawn must be added to that list. The same snapshot
+  serves the lessons: a hint marked `"save": true` takes one as it appears
+  (`saveLessonCheckpoint`), `s.checkpointHint` records which hint it was (−1 for a
+  refuge), and `respawnAtRefuge()` restores either kind - free for a lesson's own
+  checkpoint, at `RESPAWN_COST` for a refuge. The death card and, in a lesson, the pause
+  and restart cards offer it.
 
 ## Movement rules
 
@@ -151,7 +156,10 @@ prints one line per check. The tests drive the game through its public entry poi
 (`Game.map.start`, `Game.loop.*`, key and pointer events) and cover: every level starting
 and drawing, collecting, the quiz, restart and inventory rules, checkpoints, shared-level
 sanitising, the win and death screens, the document viewer, tap/hold/touch movement, one
-scene per movement rule, and a level that draws every tile, creature and machine.
+scene per movement rule, and a level that draws every tile, creature and machine. Lessons
+3 to 6 are also walked through part by part on their real maps, the right way and some
+wrong ways (`lessonStart`, `route`), with the timed rules ticked by hand; a lesson whose
+map is changed needs its routes there changed with it.
 
 Run them after any change. They do not judge how the game looks or feels.
 

@@ -23,7 +23,8 @@ carry. Tutorials are loaded by `level-sets.js` and played in manifest order from
   "enemies": [{"x":15,"y":10,"type":"bat"}],
   "pads": [{"x":3,"y":12,"key":"Au"}],
   "triviaQuestion": "…?", "triviaAnswer": "Au", "triviaPos": {"x":3,"y":10},
-  "hints": [{"x":1,"y":1,"r":1,"icon":"⛏️","title":"WELCOME","text":"Use the <strong>arrow keys</strong> to move."}]
+  "hints": [{"x":1,"y":1,"r":1,"icon":"⛏️","title":"WELCOME","text":"Use the <strong>arrow keys</strong> to move.",
+             "task":"Dig east to the indium.","save":true}]
 }
 ```
 
@@ -86,7 +87,7 @@ A creature patrols from the first second, so by the time the miner arrives it ma
 anywhere it can reach. To have one lie in wait, add `"wait": true`:
 `{"x":14,"y":6,"type":"bat","wait":true}`. It then stays exactly where the level puts it
 until it first notices the miner (or, for a spider, feels a tremor), and from then on it
-behaves like any other. Lesson 3 uses this for all four creatures, so that each is met
+behaves like any other. The lessons use this for every creature, so that each is met
 where its hint says it is. The level editor cannot set the flag but keeps it on export.
 
 ## Element keys must match the scenario
@@ -98,9 +99,11 @@ scenario 9 Quantum Computer: req Nb,Al,Si,Au,He,Nd,Ta,Cu,In / bonus Ge,Ga,Ti,Ag,
 (see `_validate.js` for all)
 
 ## Hints
-`hints: [{x, y, r, icon, title, text}]` - when the player is within Chebyshev distance
-`r` (default 1) of `(x,y)`, a banner shows `icon title` and `text` (HTML allowed:
-`<strong>` = gold, `<em>` = cyan). On a desktop the banner sits below the mine; on a touch
+`hints: [{x, y, r, icon, title, text, task, save}]` - when the player is within Chebyshev
+distance `r` (default 1) of `(x,y)`, a banner shows `icon title` and `text` (HTML allowed:
+`<strong>` = gold, `<em>` = cyan). `task` (optional) is shown on a line of its own under
+the text, marked ▶: the one thing the player is to do next. `save` (optional, lessons
+only) is described below. On a desktop the banner sits below the mine; on a touch
 screen it lies over the mine and moves out of the miner's way. Each hint fires once, at
 most one per step; it stays at least 14 s (longer when the text needs it: its reading
 time plus 5 s) and is copied into the event log. Order the array by intended encounter
@@ -113,11 +116,26 @@ banner then shows "⏸ The mine waits while you read - move to go on" and the cl
 A miner who keeps walking is never held; the first step after a wait ends it, and so does
 using a tool. The card of a newly found element holds the mine the same way for 8 s.
 This happens only in Tutorial mode: a mission, run or shared level with hints is not held.
+
+**A hint with `"save": true` is a checkpoint.** In Tutorial mode the whole mine is
+snapshotted as such a hint appears. From then on the death card offers "↩️ TRY THIS PART
+AGAIN" and the pause card "↩️ RETRY THIS PART": the mine, the miner, the pack and the
+score go back to that moment, the hint is shown again, and nothing is charged. A stick
+that is still burning when the hint appears goes back into the saved pack. A refuge
+chamber in a lesson is an ordinary checkpoint (respawning costs 100 points) and replaces
+the hint's; the pause card then offers "⛑️ BACK TO THE REFUGE (−100)", so a miner who has
+wasted a tool can go back without dying first. Outside Tutorial mode `save` does nothing.
+Put `save` on a hint only where the miner is safe at the moment it fires: a retry starts
+there, with the mine as it was.
+
 - ALWAYS include a welcome hint that fires at the player spawn.
 - Place hints a couple of tiles BEFORE the thing they explain, so the player reads first,
   encounters second. Danger hints must fire outside lethal range of the danger.
-- Keep the text short: ONE idea per hint, at most about 40 words (the longest in the
-  lessons). 6–10 hints per level.
+- ONE rule per hint, in `text`, and one instruction in `task`. The lessons' hints run from
+  about 30 to about 100 words with the task; the reading time grows with the length.
+  5–8 hints per level.
+- Fire the hint with `r: 0` on a cell the route must cross (a one-tile doorway) when the
+  part it opens must not be entered unread.
 - A hint that asks the player to wait for something timed (a machine passing, basalt
   crumbling) is itself held while it is read: the thing only moves on once the reading
   time is up or the miner has taken a step.
@@ -149,19 +167,44 @@ wherever they appear.
 - The level editor keeps all three fields on export but cannot edit them, and its own
   validator does not know about gates: check a run with `node Tutorials/_validate.js`.
 
+## How a lesson is built
+The six lessons are chains of small parts, and each part is a gate: the way on is closed
+until the player has used the one thing the part teaches. The rules they were built to:
+
+- **Nothing is scenery.** Every block, tool, creature and machine on the map either bars
+  the way or is what opens it. A tile the player can walk past without doing anything is
+  taken out.
+- **The right way is the only way.** The wrong move is either blocked (a boulder in water
+  will not be pushed, the exit stays barred) or fatal (a step into lava, a stick lit under
+  firedamp), and the hint says which. The validator proves only that a route exists; that
+  there is no route *round* a gate has to be checked by playing the wrong ways.
+- **The tool lies at the gate**, one of it, and the part begins with a `save` hint (or a
+  refuge), so that a wasted tool costs a retry of that part and not the lesson.
+- **Each hint states a rule and sets a task.** Only true statements: a number in a hint
+  (a fuse of five steps, a snake's three tiles) must be the engine's number. That is why
+  the lessons carry `"difficulty": 0`: the creatures' senses grow with difficulty.
+- **Nothing moves before the player acts.** Springs and veins are sealed, gas is boxed in,
+  creatures wait (`"wait": true`). `tests/smoke.js` checks this for every lesson.
+- Three engine rules that shape a gate: water and lava never flow into the cell the
+  miner stands in; a boulder or cart pushed along a tunnel flattens a creature in its way;
+  a blast lights every gas cell within two tiles of the stick, and then the whole cloud
+  joined to it burns, with its vent.
+
 ## Design rules
 - Win = collect ALL `elements` then step on exit. Use 3–5 elements so lessons stay short.
 - Border (row 0, last row, col 0, last col) must be entirely WALL (7).
 - Generous `timer` (240–360 s). No unfair deaths: every hazard must be survivable on a
   first encounter after reading its hint - also by a player who walks slowly, and by one
   who does not stop to read.
-- `sight` (fog-of-war radius, tiles): omit for the default 8.4. Hard missions use 5;
+- `sight` (fog-of-war radius, tiles): omit for the default 8.4. Hard missions and lesson 6 use 5;
   valid range 3–14. The helmet lamp doubles whatever is set.
 - `difficulty` (enemy speed and detection range): 0 = gentlest … 7 = fastest. Omit to
-  use the default - tutorials ramp by lesson number, missions follow the world map's
-  easy/medium/hard label (1 / 4 / 7), shared levels get 0.
-- The level must be completable even if the player wastes some resources (e.g. give a
-  spare dynamite).
+  use the default - a tutorial file without it ramps by lesson number, missions follow the
+  world map's easy/medium/hard label (1 / 4 / 7), shared levels get 0. All six lessons
+  set 0.
+- A mission must be completable even if the player wastes some resources (e.g. give a
+  spare dynamite). A lesson gives exactly what a part needs and relies on its checkpoints
+  instead (see above).
 - Grid is row-major with y down. Boulders fall in +y.
 - A boulder with EARTH under it stays put until the earth is dug.
 - Gas never spreads downwards, and earth holds it back: a pocket entered from below stays
@@ -175,6 +218,10 @@ wherever they appear.
 - A tunnel borer clears its lane within the first minute. Give the miner a safe cell
   beside the lane to wait in, and a way out that is not at the very end of the lane
   (the borer turns there, so the gap behind it is shortest).
+- The validator's route-finder knows two things beyond walking and digging: lava on an
+  unbroken run of tunnel with a cart in it can be crossed (the cart is ridden over it),
+  and a gas vent can be removed (a blast burns it away with its cloud). It does not know
+  whether the player has the stick or can reach the cart; play the level.
 
 ## Workflow
 1. Sketch the layout in ASCII, one char per tile; convert to the flat grid with a small
@@ -182,5 +229,6 @@ wherever they appear.
 2. Write `Tutorials/<yourfile>.json`.
 3. Run `node Tutorials/_validate.js Tutorials/<yourfile>.json` - fix ALL errors; justify
    any remaining warnings.
-4. Mentally walk the solution path start→finish; verify every element is collectable and
-   every hint fires along the natural route.
+4. Walk the solution path start→finish in the game; verify every element is collectable
+   and every hint fires along the natural route. For a lesson, also play each part the
+   wrong way and check that it ends as its hint says, and that the retry puts it back.

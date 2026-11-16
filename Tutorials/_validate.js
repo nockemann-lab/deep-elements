@@ -289,6 +289,22 @@ tbmMarkers.forEach(function(m) {
   });
 });
 
+// Cart lines: a miner who boards a cart rides it along its row through open tunnel, water
+// and lava alike. Lava that lies on an unbroken run with a cart in it can therefore be
+// crossed - treat those cells as passable in SOFT mode.
+var cartLine = [];
+for (var cy0 = 0; cy0 < rows; cy0++) {
+  cartLine[cy0] = [];
+  var runStart = -1, runHasCart = false;
+  for (var cx0 = 0; cx0 <= cols; cx0++) {
+    var ct = cx0 < cols ? eff[cy0][cx0] : T.WALL;
+    var rolls = ct === T.EMPTY || ct === T.WEB || ct === T.WATER || ct === T.LAVA || ct === T.CART;
+    if (rolls) { if (runStart < 0) { runStart = cx0; runHasCart = false; } if (ct === T.CART) runHasCart = true; continue; }
+    if (runStart >= 0 && runHasCart) for (var rx = runStart; rx < cx0; rx++) if (eff[cy0][rx] === T.LAVA) cartLine[cy0][rx] = true;
+    runStart = -1;
+  }
+}
+
 // PAD tiles always block movement (you bump them); stepping-on is via bump, so treat
 // pads as REACHABLE if any passable tile is 4-adjacent to them.
 function bfs(passFn) {
@@ -322,6 +338,7 @@ function runSolver(soft) {
     changed = false;
     vis = bfs(function(tt2, lx2, ly2) {
       if (soft && tbmLane[ly2] && tbmLane[ly2][lx2]) return true;
+      if (soft && cartLine[ly2][lx2]) return true;
       switch (tt2) {
         case T.EMPTY: case T.EARTH: case T.EARTH_RICH: case T.WATER: case T.WATER_SRC:
         case T.FUSE: case T.WEB: case T.KEY: case T.ELEMENT: case T.HIDDEN_ELEM:
@@ -336,6 +353,8 @@ function runSolver(soft) {
         case T.BOULDER: case T.HAZARD: case T.ICE: case T.BASALT: case T.SPIDER_NEST:
         case T.CART: case T.ROLL_BARREL:
           return soft;
+        case T.GAS_SRC:
+          return soft; // a blast burns the vent away with its cloud
         default: return false; // WALL, ROCK, LAVA, LAVA_SRC, PAD, PLAYER
       }
     });

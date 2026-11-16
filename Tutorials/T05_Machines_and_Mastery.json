@@ -1,1 +1,185 @@
-{"cols":25,"rows":20,"scenario":9,"levelName":"Tutorial 5: Machines & Mastery","timer":360,"grid":[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,0,2,2,2,2,2,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,7,7,2,2,2,0,0,0,0,0,0,0,0,21,0,0,0,0,0,0,0,0,0,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,7,7,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,7,7,2,2,2,2,2,0,2,0,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,2,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,2,0,0,0,2,28,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,2,0,0,0,2,0,2,2,2,2,2,2,2,2,2,2,2,0,26,0,2,2,2,7,7,2,2,0,2,2,0,2,2,2,2,2,23,1,0,0,0,2,1,1,1,2,2,2,7,7,2,2,0,0,0,0,0,0,0,22,0,23,1,0,0,0,0,0,0,0,0,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,7,7,2,2,2,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,2,7,7,2,2,2,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],"player":{"x":2,"y":2},"exit":{"x":5,"y":18},"elements":[{"x":12,"y":3,"key":"Au"},{"x":10,"y":10,"key":"Si"},{"x":3,"y":12,"key":"He"},{"x":15,"y":15,"key":"Cu"},{"x":7,"y":18,"key":"Nb"}],"hiddenElems":[],"powerups":[{"x":14,"y":14,"type":0},{"x":15,"y":14,"type":0}],"enemies":[{"x":17,"y":2,"type":"snake","wait":true}],"pads":[{"x":12,"y":18,"key":"Si"},{"x":14,"y":18,"key":"Nb"},{"x":16,"y":18,"key":"Cu"}],"triviaQuestion":"Which superconducting metal powers quantum computer circuits?","triviaAnswer":"Nb","triviaTrap":"","triviaPos":{"x":12,"y":16},"hints":[{"x":2,"y":2,"r":2,"icon":"⚙️","title":"OLD MACHINES","text":"The old mine's <strong>machines</strong> still run - carts, lifts, powder barrels. Master them, then pass the test at the end."},{"x":5,"y":2,"r":1,"icon":"🛒","title":"MINECART","text":"Walk into a minecart to <strong>shove it rolling</strong> - it flattens everything down the line. See that snake ahead? Send it a delivery."},{"x":16,"y":4,"r":1,"icon":"🚃","title":"RUNAWAY CART","text":"Below, a runaway cart rolls from wall to wall without end, and touching it is fatal. Wait in this shaft, watch its rhythm and <em>dart across</em> the moment it has passed."},{"x":8,"y":10,"r":1,"icon":"🛗","title":"SHAFT LIFT","text":"An old lift still patrols the vertical lane to the west, crushing anything in its path. Wait in the alcove beside the lane, let it pass, then <em>cross</em>. You'll cross its lane twice!"},{"x":8,"y":15,"r":1,"icon":"🛢️","title":"POWDER BARREL","text":"These barrels <strong>roll</strong> when shoved and <strong>explode</strong> on impact. Shove this one at the ice wall ahead: the blast cracks the vault open."},{"x":17,"y":15,"r":1,"icon":"🕸️","title":"SPIDER NEST","text":"Behind the earth above you sits a spider <strong>nest</strong>, hatching one spider after another. Leave that earth alone and they stay walled in. In the open mines, dynamite a nest before it overruns you."},{"x":19,"y":17,"r":1,"icon":"🧠","title":"THE LOGIC DOOR","text":"Answer pads! Read the question on the wall and <strong>step on the pad with the correct element</strong> to open the logic doors. A wrong pad costs <em>30 seconds</em> on the clock."},{"x":7,"y":17,"r":1,"icon":"🎓","title":"MACHINES MASTERED","text":"Carts, lifts, barrels and logic doors - <strong>you've mastered the machines</strong>. Collect the niobium and take the exit. One lesson left: the survival kit for the deepest mines."}]}
+{
+  "cols": 25,
+  "rows": 20,
+  "scenario": 9,
+  "levelName": "Tutorial 5: Machines & Mastery",
+  "timer": 420,
+  "difficulty": 0,
+  "player": {
+    "x": 4,
+    "y": 2
+  },
+  "exit": {
+    "x": 19,
+    "y": 18
+  },
+  "grid": [
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,7,
+    7,0,0,0,0,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,0,0,0,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,20,24,24,24,24,24,2,0,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,21,0,0,0,0,0,0,0,0,0,0,0,0,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,2,2,2,28,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,0,2,2,2,0,2,2,2,2,2,2,0,2,2,7,
+    7,2,2,2,2,2,2,2,2,0,0,0,22,0,0,0,0,23,0,0,0,0,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,7,
+    7,2,2,0,0,0,0,1,26,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,7,
+    7,2,2,0,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,7,
+    7,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,7,
+    7,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,2,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,2,2,2,2,7,
+    7,2,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,2,2,2,2,7,
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+  ],
+  "elements": [
+    {
+      "x": 14,
+      "y": 3,
+      "key": "He"
+    },
+    {
+      "x": 17,
+      "y": 8,
+      "key": "Au"
+    },
+    {
+      "x": 18,
+      "y": 11,
+      "key": "Cu"
+    },
+    {
+      "x": 19,
+      "y": 13,
+      "key": "Si"
+    },
+    {
+      "x": 4,
+      "y": 17,
+      "key": "Nb"
+    }
+  ],
+  "hiddenElems": [],
+  "powerups": [
+    {
+      "x": 15,
+      "y": 13,
+      "type": 0
+    }
+  ],
+  "enemies": [
+    {
+      "x": 12,
+      "y": 2,
+      "type": "snake",
+      "wait": true
+    }
+  ],
+  "pads": [
+    {
+      "x": 7,
+      "y": 18,
+      "key": "Si"
+    },
+    {
+      "x": 9,
+      "y": 18,
+      "key": "Nb"
+    },
+    {
+      "x": 11,
+      "y": 18,
+      "key": "Cu"
+    }
+  ],
+  "triviaQuestion": "Which superconducting metal powers quantum computer circuits?",
+  "triviaAnswer": "Nb",
+  "triviaTrap": "",
+  "triviaPos": {
+    "x": 9,
+    "y": 16
+  },
+  "hints": [
+    {
+      "x": 4,
+      "y": 2,
+      "r": 0,
+      "icon": "🛒",
+      "title": "THE MINECART",
+      "text": "The old mine's <strong>machines</strong> still work. A <strong>minecart</strong> rolls away from you when you walk into it, to the end of its line, and flattens every creature in its way. A snake sleeps in the tunnel to the east, the only way on.",
+      "task": "Go round by the gallery below, get behind the cart and push it east. Pushed from this side it rolls west into the dead end, and you can no longer get behind it.",
+      "save": true
+    },
+    {
+      "x": 14,
+      "y": 4,
+      "r": 0,
+      "icon": "🌋",
+      "title": "RIDING A CART",
+      "text": "A cart also carries you. Step <strong>down</strong> onto it from above, then press ← or →: it rolls to the end of its line, through water and even through <strong>lava</strong>, and you ride unharmed. Press ↑ to hop out.",
+      "task": "Board the cart under the end of this gallery, ride east over the lava and hop out at the far end.",
+      "save": true
+    },
+    {
+      "x": 22,
+      "y": 5,
+      "r": 0,
+      "icon": "🚃",
+      "title": "RUNAWAY CART",
+      "text": "On the line below, a <strong>runaway cart</strong> rolls from end to end without stopping. To stand in its way, or to step in front of it, is fatal. Your way on is a shaft in the floor of the line, five tiles to the west.",
+      "task": "Wait in the niche above the line. When the cart has gone to the far west end, run west along the line and drop into the shaft.",
+      "save": true
+    },
+    {
+      "x": 17,
+      "y": 9,
+      "r": 0,
+      "icon": "🛢️",
+      "title": "POWDER BARREL",
+      "text": "A <strong>powder barrel</strong> rolls away from you when you walk into it, and <strong>explodes</strong> against the first thing it hits. Its blast breaks ice and earth, not rock. In the tunnel below stands one barrel, and an <strong>ice wall</strong> closes the tunnel's east end.",
+      "task": "Two holes in this floor lead down. Take the one that lets you push the barrel east, into the ice.",
+      "save": true
+    },
+    {
+      "x": 19,
+      "y": 11,
+      "r": 0,
+      "icon": "🛗",
+      "title": "SHAFT LIFT",
+      "text": "An old <strong>lift</strong> runs up and down the shaft ahead without stopping, and crushes whatever it meets. Your way on leaves the shaft two tiles further down, to the west.",
+      "task": "Wait here until the lift has passed you and is near the top of the shaft. Then step in, go down two tiles and step out to the west.",
+      "save": true
+    },
+    {
+      "x": 15,
+      "y": 13,
+      "r": 0,
+      "icon": "🕸️",
+      "title": "SPIDER NEST",
+      "text": "The lump in the tunnel ahead is a <strong>spider nest</strong>. It blocks the way, and every few seconds it hatches a spider into any open tunnel beside it: look into the pocket beneath it. Walled in by earth and rock it is harmless. Only a blast destroys a nest, and the blast kills the spiders around it too.",
+      "task": "Dig away the earth in front of the nest, lay the stick there at once (key 1) and step back two tiles.",
+      "save": true
+    },
+    {
+      "x": 3,
+      "y": 15,
+      "r": 0,
+      "icon": "🧠",
+      "title": "THE LOGIC DOOR",
+      "text": "A <strong>logic door</strong> opens only to the right answer. The question is written on the wall, and each pad on the floor carries an element. A wrong pad costs <em>30 seconds</em> on the clock.",
+      "task": "Take the niobium and read its card. Then read the question and step on the pad of the element that answers it.",
+      "save": true
+    },
+    {
+      "x": 16,
+      "y": 17,
+      "r": 1,
+      "icon": "🎓",
+      "title": "MACHINES MASTERED",
+      "text": "Carts, barrels, lifts, nests and logic doors: you have worked every one of them. One lesson is left: the survival kit for the deepest mines. Take the exit!"
+    }
+  ]
+}

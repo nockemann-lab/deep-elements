@@ -266,8 +266,9 @@
       for (var i = s.placedDynamite.length - 1; i >= 0; i--) {
         s.placedDynamite[i].fuse--;
         if (s.placedDynamite[i].fuse <= 0) {
-          Game.physics.detonateDynamite(s.placedDynamite[i].x, s.placedDynamite[i].y);
-          s.placedDynamite.splice(i, 1);
+          // taken off the list first: a stick must never go off twice
+          var stick = s.placedDynamite.splice(i, 1)[0];
+          Game.physics.detonateDynamite(stick.x, stick.y);
         }
       }
     },

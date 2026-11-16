@@ -35,6 +35,7 @@
       if (!el) return;
       el.innerHTML = '<span class="th-title">' + (h.icon || "💡") + ' ' + (h.title || "HINT") + '</span>' +
         '<span class="th-text">' + (h.text || "") + '</span>' +
+        (h.task ? '<span class="th-task">▶ ' + h.task + '</span>' : '') +
         '<span class="th-wait">⏸ The mine waits while you read - move to go on</span>';
       el.classList.remove("waiting");
       el.classList.add("visible");
@@ -42,7 +43,7 @@
       if (!h.silent && SFX.collectPowerup) SFX.collectPowerup();
       // "WELCOME, MINER!" needs no colon after it
       var logTitle = h.title ? "<strong>" + h.title + (/[!?.:]$/.test(h.title) ? "" : ":") + "</strong> " : "";
-      Game.ui.addLog(h.icon || "💡", logTitle + (h.text || ""), "powerup-log");
+      Game.ui.addLog(h.icon || "💡", logTitle + (h.text || "") + (h.task ? " <em>▶ " + h.task + "</em>" : ""), "powerup-log");
       clearTimeout(Game.ui._hintTimeout);
       Game.ui._hintTimeout = setTimeout(function() { Game.ui.hideHint(); },
         Math.max(HINT_SHOW_MS, Game.ui.hintReadMs(h) + HINT_SHOW_AFTER_READ_MS));
@@ -50,7 +51,7 @@
 
     // How long a hint takes to read: a base plus a time per word of its text
     hintReadMs: function(h) {
-      var words = String(h.text || "").replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
+      var words = String((h.text || "") + " " + (h.task || "")).replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
       return HINT_READ_BASE_MS + HINT_READ_MS_PER_WORD * words;
     },
 
@@ -928,12 +929,14 @@
           }
         }
         var mapBtn = (s.mode === "custom" && Game.map) ? '<button class="overlay-btn secondary" data-action="showMissionMap">🗺️ MINE MAP</button>' : '';
-        var respawnBtn = s.checkpoint ? '<button class="overlay-btn primary" data-action="respawnAtRefuge">⛑️ RESPAWN AT REFUGE (−100)</button>' : '';
+        // A lesson's own checkpoint is free; a refuge's costs points
+        var respawnBtn = !s.checkpoint ? '' : '<button class="overlay-btn primary" data-action="respawnAtRefuge">' +
+          (s.checkpointHint >= 0 ? '↩️ TRY THIS PART AGAIN' : '⛑️ RESPAWN AT REFUGE (−100)') + '</button>';
         var whereHtml = s.mode === "random" ? ' &middot; Depth ' + (s.level + 1) + (Game.ui.bestDepth() ? ' (deepest cleared: ' + Game.ui.bestDepth() + ')' : '') : '';
         card.innerHTML = '<h2 style="color:var(--red)">' + title + '</h2><p>' + msg + '</p>' +
           '<p class="lose-stats"><strong>' + s.collected.length + ' of ' + s.totalElements + '</strong> elements found &middot; Score <strong>' + s.score + '</strong>' + whereHtml + '</p>' + lostHtml + deathPt +
           (s.collected.length > 0 ? Game.ui.notebookButtonHtml('What you dug up is still in there - read up before you try again') : '') +
-          '<div class="btn-row">' + respawnBtn + '<button class="overlay-btn ' + (s.checkpoint ? 'secondary' : 'primary') + '" data-action="startLevel" data-arg="' + s.level + '">TRY AGAIN</button>' + mapBtn + '<button class="overlay-btn secondary" data-action="showMenuScreen">MENU</button></div>';
+          '<div class="btn-row">' + respawnBtn + '<button class="overlay-btn ' + (s.checkpoint ? 'secondary' : 'primary') + '" data-action="startLevel" data-arg="' + s.level + '">' + (s.mode === "tutorial" ? 'RESTART LESSON' : 'TRY AGAIN') + '</button>' + mapBtn + '<button class="overlay-btn secondary" data-action="showMenuScreen">MENU</button></div>';
       }
       ov.classList.add("visible");
     },

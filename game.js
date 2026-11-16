@@ -187,7 +187,8 @@
       Game.ui.addLog("🤿", "Gas mask sealed - 20 s of clean air!", "powerup-log");
     } else if (slot === PU.PUMP) {
       // needs water on or next to the player
-      var wDirs = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], nearWater = false;
+      // (a miner wading in a flooded tile is in water, whatever lies around it)
+      var wDirs = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], nearWater = !!s.playerOnWater;
       for (var wd = 0; wd < wDirs.length; wd++) {
         var wx = s.playerX + wDirs[wd][0], wy = s.playerY + wDirs[wd][1];
         if (wx >= 0 && wx < s.cols && wy >= 0 && wy < s.rows &&
@@ -205,10 +206,12 @@
     Game.ui.updateHUD(); Game.render.frame();
   }
 
-  // ─── Refuge checkpoints: full run snapshot, restored on respawn ───
+  // ─── Checkpoints: full run snapshot, restored on respawn ───
   // Everything that defines the state of a run. Saved by deep copy when the
-  // miner steps into a refuge and copied back on respawn. A new piece of
-  // level state that should survive a respawn belongs in this list.
+  // miner steps into a refuge (respawning there costs points) or, in a
+  // lesson, when a hint marked "save" appears (trying that part again is
+  // free). A new piece of level state that should survive a respawn belongs
+  // in this list.
   var CHECKPOINT_FIELDS = [
     "grid", "seenTile", "explored", "playerX", "playerY", "playerOnWater", "playerOnGas", "inRefuge",
     "score", "levelTime", "moves", "keysCollected", "inventory", "activeEffects",
@@ -217,7 +220,7 @@
     "triviaMap", "triviaAnswer", "gates", "familiesDone", "maxLevelTime",
     "enemies", "enemiesKilled", "bouncingCarts", "shaftLifts", "tbms", "pumps",
     "rollingBarrels", "rollingCarts", "rollingBarrelFalling", "fallingBoulders", "hazardFalling",
-    "waterLevel", "lavaLevel", "gasLevel", "basaltLife"
+    "waterLevel", "lavaLevel", "gasLevel", "basaltLife", "tutorialHints"
   ];
   var RESPAWN_COST = 100;
 
@@ -227,6 +230,17 @@
     var snapshot = {};
     CHECKPOINT_FIELDS.forEach(function(field) { snapshot[field] = deepCopy(s[field]); });
     s.checkpoint = snapshot;
+    s.checkpointHint = -1;
+  }
+
+  // A lesson's own checkpoint: taken as hint number `index` appears, so that
+  // one part of a lesson can be tried again without walking the whole lesson
+  // once more. A stick still burning goes back into the pack, because the
+  // snapshot is taken before its blast.
+  function saveLessonCheckpoint(index) {
+    saveCheckpoint();
+    s.checkpoint.inventory[PU.DYNAMITE] += s.placedDynamite.length;
+    s.checkpointHint = index;
   }
 
   window.respawnAtRefuge = function() {
@@ -234,7 +248,8 @@
     if (!c) return;
     clearIntervals();
     CHECKPOINT_FIELDS.forEach(function(field) { if (c[field] !== undefined) s[field] = deepCopy(c[field]); });
-    s.score = Math.max(0, s.score - RESPAWN_COST);
+    var lessonHint = s.checkpointHint >= 0 ? s.tutorialHints[s.checkpointHint] : null;
+    if (!lessonHint) s.score = Math.max(0, s.score - RESPAWN_COST);
 
     // transient state starts clean
     s.tileSlide = {}; s.tileBounce = {};
@@ -249,9 +264,20 @@
     syncPlayerVisualPosition(s.playerX, s.playerY);
     s.running = true;
     s.paused = false;
+    s.restartArmed = false;
+    var pauseOv = document.getElementById("pause-overlay"); if (pauseOv) pauseOv.classList.add("hidden");
+    SFX.holdMusic(false);
     startIntervals();
     SFX.levelStart();
-    Game.ui.addLog("⛑️", "Back at the refuge - the mountain forgets nothing, but you get another try. (−" + RESPAWN_COST + ")", "powerup-log");
+    if (lessonHint) {
+      // The part starts with its task in front of the miner again
+      Game.ui.addLog("↩️", "This part again - the mine is as it was when the task appeared.", "powerup-log");
+      s.hintHoldUntil = 0;
+      Game.ui.showHint(lessonHint);
+      holdForReading(Game.ui.hintReadMs(lessonHint));
+    } else {
+      Game.ui.addLog("⛑️", "Back at the refuge - the mountain forgets nothing, but you get another try. (−" + RESPAWN_COST + ")", "powerup-log");
+    }
     if (s.mode === "elementrun") Game.ui.renderRunPT();
     Game.ui.updateHUD();
     Game.render.frame();
@@ -602,6 +628,13 @@
       s.playerX = step.nx; s.playerY = step.ny;
       syncPlayerVisualPosition(step.nx, step.ny);
       gameOver(true);
+    } else if (Date.now() - (s.exitBarredAt || 0) > 2500) {
+      // A barred hatch says why, but not on every repeat of a held key
+      s.exitBarredAt = Date.now();
+      var missing = s.totalElements - s.collected.length;
+      bump();
+      Game.ui.addLog("🔒", "The exit hatch stays barred: <strong>" + missing + " element" + (missing > 1 ? "s" : "") +
+        "</strong> still in the mine.", "crush-log");
     }
     return STOP;
   }
@@ -1115,6 +1148,7 @@
       if (h.fired) continue;
       if (Math.abs(s.playerX - h.x) <= h.r && Math.abs(s.playerY - h.y) <= h.r) {
         h.fired = true;
+        if (h.save && s.mode === "tutorial") saveLessonCheckpoint(i);
         Game.ui.showHint(h);
         holdForReading(Game.ui.hintReadMs(h));
         return;
@@ -1222,7 +1256,7 @@
     s.collectEffects = [];
     s.runBonusCollected = {};
     s.tbms = [];
-    s.checkpoint = null;
+    s.checkpoint = null; s.checkpointHint = -1;
     s.riding = null;
     s.ridingRoll = null;
     s.gasExposure = 0;
@@ -1338,17 +1372,34 @@
   }
 
   // Buttons stop the click reaching the overlay, which would resume the game
-  var PAUSE_HTML = '&#9208;&#65039; PAUSED' +
-    '<div class="pause-btns">' +
-    '<button class="overlay-btn primary" data-action="togglePause">&#9654; RESUME</button>' +
-    '<button class="overlay-btn secondary" data-action="requestRestart">&#8635; RESTART</button>' +
-    '<button class="overlay-btn secondary" data-action="quitToMenu">MENU</button>' +
-    '</div><span class="pause-keys">Press <kbd>P</kbd>, or click anywhere else, to resume</span>';
-  var RESTART_HTML = '&#8635; RESTART LEVEL?<span>Everything collected in this level will be lost.</span>' +
-    '<div class="pause-btns">' +
-    '<button class="overlay-btn primary" data-action="requestRestart">YES, RESTART</button>' +
-    '<button class="overlay-btn secondary" data-action="togglePause">KEEP MINING</button>' +
-    '</div><span class="pause-keys">Or press <kbd>R</kbd> again to restart, <kbd>P</kbd> to keep mining</span>';
+  // In a lesson with a saved part, both cards also offer that part again -
+  // the way out for a miner who has used up a tool or blocked the way.
+  function retryPartButton() {
+    // In a lesson a miner who is stuck but alive (a wasted stick, say) can go back
+    // without dying first: free to a lesson checkpoint, at the usual cost to a refuge
+    if (s.mode !== "tutorial" || !s.checkpoint) return '';
+    return '<button class="overlay-btn secondary" data-action="respawnAtRefuge">' +
+      (s.checkpointHint >= 0 ? '&#8617;&#65039; RETRY THIS PART' : '&#9937;&#65039; BACK TO THE REFUGE (&minus;100)') + '</button>';
+  }
+  function pauseHtml() {
+    return '&#9208;&#65039; PAUSED' +
+      '<div class="pause-btns">' +
+      '<button class="overlay-btn primary" data-action="togglePause">&#9654; RESUME</button>' +
+      retryPartButton() +
+      '<button class="overlay-btn secondary" data-action="requestRestart">&#8635; RESTART</button>' +
+      '<button class="overlay-btn secondary" data-action="quitToMenu">MENU</button>' +
+      '</div><span class="pause-keys">Press <kbd>P</kbd>, or click anywhere else, to resume</span>';
+  }
+  function restartHtml() {
+    var lesson = s.mode === "tutorial";
+    return '&#8635; RESTART ' + (lesson ? 'LESSON' : 'LEVEL') + '?<span>Everything collected in this ' +
+      (lesson ? 'lesson' : 'level') + ' will be lost.</span>' +
+      '<div class="pause-btns">' +
+      '<button class="overlay-btn primary" data-action="requestRestart">YES, RESTART</button>' +
+      retryPartButton() +
+      '<button class="overlay-btn secondary" data-action="togglePause">KEEP MINING</button>' +
+      '</div><span class="pause-keys">Or press <kbd>R</kbd> again to restart, <kbd>P</kbd> to keep mining</span>';
+  }
 
   function setPauseCard(html) {
     var card = document.querySelector("#pause-overlay .pause-card");
@@ -1359,7 +1410,7 @@
     if (!s.running || s.deathAnim) return;
     s.paused = !s.paused;
     s.restartArmed = false;
-    setPauseCard(PAUSE_HTML);
+    setPauseCard(pauseHtml());
     resetHeldMovementState();
     var ov = document.getElementById("pause-overlay");
     if (ov) ov.classList.toggle("hidden", !s.paused);
@@ -1372,7 +1423,7 @@
     if (!s.running || s.deathAnim || s.restartArmed) { startLevel(s.level); return; }
     if (!s.paused) togglePause();
     s.restartArmed = true;
-    setPauseCard(RESTART_HTML);
+    setPauseCard(restartHtml());
   }
 
   // Leave the level from the pause menu

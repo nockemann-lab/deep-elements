@@ -27,7 +27,7 @@ holding to keep walking), and tap a tool to use it.
 
 | Mode | What it is |
 |---|---|
-| Tutorial | Six guided lessons covering every block, tool, machine and creature |
+| Tutorial | Six guided lessons: every block, tool, machine and creature is met as a small task that has to be solved to get on |
 | Critical Missions | 31 hand-built missions at real mines on a zoomable world map |
 | Endless Depths | Procedural mines with a push-your-luck periodic-table collection |
 | Element Runs | Three timed caverns built on the periodic table: a sprint over the first twenty elements, and two routes through all 94 elements found in nature |

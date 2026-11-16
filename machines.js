@@ -255,13 +255,18 @@
           var k = nx + "," + ny;
           if (nx < 0 || nx >= s.cols || ny < 0 || ny >= s.rows || seen[k]) continue;
           var t = s.grid[ny][nx];
-          if (t !== T.WATER && t !== T.WATER_SRC) continue;
+          // the miner wading in the flood is part of it: the water goes on beyond them
+          var wader = s.playerOnWater && nx === s.playerX && ny === s.playerY;
+          if (t !== T.WATER && t !== T.WATER_SRC && !wader) continue;
           seen[k] = true;
-          region.push({ x: nx, y: ny, d: cur[2] + 1, src: t === T.WATER_SRC });
+          if (!wader) region.push({ x: nx, y: ny, d: cur[2] + 1, src: t === T.WATER_SRC });
           queue.push([nx, ny, cur[2] + 1]);
         }
       }
       if (!region.length) {
+        // the tile the miner stands in is drained with the rest; left wet, it would
+        // turn back into water behind them and flood the gallery again
+        if (s.playerOnWater && seen[s.playerX + "," + s.playerY]) { s.playerOnWater = false; changed = true; }
         p.done = true;
         Game.ui.addLog("🚰", "Pump finished - the gallery is dry.", "powerup-log");
         continue;

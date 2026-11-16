@@ -372,7 +372,7 @@
 
       // Tutorial hints - banner messages that fire when the player nears (x,y)
       s.tutorialHints = (levelData.hints || []).map(function(h) {
-        return { x:h.x, y:h.y, r:(h.r !== undefined ? h.r : 1), icon:h.icon || "💡", title:h.title || "", text:h.text || "", fired:false };
+        return { x:h.x, y:h.y, r:(h.r !== undefined ? h.r : 1), icon:h.icon || "💡", title:h.title || "", text:h.text || "", task:h.task || "", save:!!h.save, fired:false };
       });
 
       s.levelName = levelData.levelName || "";

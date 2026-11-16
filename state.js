@@ -174,6 +174,7 @@ var GAME_STATE = {
   readFreeze: 0,               // seconds the clock is still held for reading
   quizNear: /** @type {false|string} */ (false),
   restartArmed: false,
+  exitBarredAt: 0,             // when the barred exit last said why (ms)
   lastStepAt: 0,
   levelStartInventory: [0,0,0,0,0],
   levelStartScore: 0,          // Endless: the score a depth was entered with
@@ -186,6 +187,7 @@ var GAME_STATE = {
 
   // Refuges and gas
   checkpoint: null,
+  checkpointHint: -1,          // lessons: the hint whose appearing saved the checkpoint (−1: a refuge did)
   inRefuge: false,
   refugeCells: {},
   gasLevel: {},

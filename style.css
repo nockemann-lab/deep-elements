@@ -82,6 +82,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .tutorial-hint .th-text{font-family:'DM Sans',sans-serif;font-size:.86em;color:#dde;line-height:1.45}
 .tutorial-hint .th-text strong{color:var(--gold)}
 .tutorial-hint .th-text em{color:var(--cyan);font-style:normal}
+.tutorial-hint .th-task{display:block;margin-top:6px;font-family:'DM Sans',sans-serif;font-size:.86em;font-weight:700;color:var(--cyan);line-height:1.4}
 .tutorial-hint .th-wait{display:none;margin-top:6px;font-family:'DM Sans',sans-serif;font-size:.74em;color:#9aa3b8}
 .tutorial-hint.waiting .th-wait{display:block}
 canvas{border:2px solid #2a2e3a;border-radius:6px;image-rendering:pixelated;image-rendering:crisp-edges;background:#111;display:block}

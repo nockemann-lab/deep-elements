@@ -1,1 +1,139 @@
-{"cols":25,"rows":18,"scenario":5,"levelName":"Tutorial 6: Deep Mine Survival","timer":360,"grid":[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,2,2,2,2,2,2,2,2,2,2,2,2,31,31,31,31,31,31,0,2,2,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,2,31,31,2,2,2,31,31,2,2,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,2,31,31,31,31,31,31,31,2,2,2,2,7,7,2,2,2,2,2,2,30,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,7,7,0,0,0,1,1,1,0,0,0,1,0,0,1,1,1,1,1,1,1,1,0,2,2,7,7,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,7,7,2,2,2,2,2,2,2,2,2,2,30,2,2,2,2,2,2,2,2,2,1,2,2,7,7,2,2,2,2,2,2,2,2,0,1,0,0,0,0,2,2,2,0,1,0,1,2,2,7,7,2,2,2,2,2,2,2,2,0,2,2,0,2,12,2,2,2,12,2,2,2,2,2,7,7,2,2,2,2,2,2,2,2,0,2,2,2,2,12,2,0,2,12,2,2,2,2,2,7,7,2,2,2,2,2,2,2,2,0,2,2,2,14,12,12,12,12,12,2,2,2,2,2,7,7,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,7,7,7,7,2,2,1,1,1,29,1,1,1,2,2,2,1,7,7,7,7,7,7,7,7,7,7,7,7,1,0,2,1,1,1,1,1,1,2,2,1,1,7,7,7,7,7,7,7,7,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,7,7,2,2,2,2,2,2,2,2,2,2,2,0,1,1,1,1,1,0,1,1,0,0,2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],"player":{"x":2,"y":5},"exit":{"x":22,"y":16},"elements":[{"key":"He","x":19,"y":1},{"key":"Gd","x":16,"y":10},{"key":"Ti","x":6,"y":14},{"key":"Fe","x":18,"y":16}],"hiddenElems":[],"powerups":[{"type":3,"x":11,"y":5},{"type":3,"x":12,"y":5},{"type":4,"x":20,"y":8}],"enemies":[],"hints":[{"x":2,"y":5,"r":1,"icon":"🦺","title":"SURVIVAL KIT","text":"The deepest mines add <strong>gas, floods and a tunnel borer</strong>. This lesson shows the gear that gets you through them. Dig east!"},{"x":5,"y":5,"r":1,"icon":"🛟","title":"REFUGE CHAMBER","text":"The steel chamber ahead is a <strong>refuge</strong>. Step inside and it saves your place: if you die later, you can <em>respawn here</em> for 100 points instead of starting again."},{"x":11,"y":5,"r":1,"icon":"🤿","title":"GAS MASK","text":"The green cloud above is <strong>gas</strong> - without a mask it suffocates you in about three seconds. Take the masks, press <strong>4</strong> for 20 s of clean air, then climb in for the helium."},{"x":16,"y":5,"r":1,"icon":"🔥","title":"NEVER LIGHT IT","text":"A blast that touches gas sets the <strong>whole cloud</strong> off. Keep dynamite and barrels well away from it - or use that on purpose, from a safe distance."},{"x":21,"y":7,"r":1,"icon":"🚰","title":"PUMP","text":"The tunnel ahead is <strong>flooded</strong>. Take the pump, stand beside the water and press <strong>5</strong>: it drains the flood and caps the spring that feeds it."},{"x":14,"y":8,"r":0,"icon":"🛟","title":"A NEW REFUGE","text":"Each refuge you enter <strong>replaces</strong> the last one as your respawn point. Walk through this one before you meet the machine below."},{"x":9,"y":10,"r":1,"icon":"🚧","title":"TUNNEL BORER","text":"The borer below grinds through rock and earth - and miners: <strong>touching it from any side is fatal</strong>. Wait in this shaft until it has rumbled past, then drop in behind it."},{"x":9,"y":12,"r":0,"icon":"💎","title":"IT SPARES ELEMENTS","text":"The borer leaves elements lying: the titanium is to the <strong>west</strong>, and the way out is a hole in the floor to the <strong>east</strong>. Stay well behind the machine - it turns round at each wall."},{"x":13,"y":16,"r":1,"icon":"🎓","title":"READY FOR THE DEEP","text":"Refuges, gas, floods and the borer - <strong>you know every trick the mines have</strong>. Collect the iron and take the exit!"}]}
+{
+  "cols": 25,
+  "rows": 18,
+  "scenario": 5,
+  "levelName": "Tutorial 6: Deep Mine Survival",
+  "timer": 420,
+  "sight": 5,
+  "difficulty": 0,
+  "player": {
+    "x": 2,
+    "y": 5
+  },
+  "exit": {
+    "x": 10,
+    "y": 16
+  },
+  "grid": [
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+    7,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,7,
+    7,31,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,7,
+    7,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,2,2,2,0,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,0,7,
+    7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,7,
+    7,2,2,2,2,2,2,2,2,2,30,2,2,2,2,2,2,2,2,2,30,2,2,0,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,7,
+    7,2,2,2,2,2,2,2,2,2,2,31,32,31,31,31,31,31,31,31,2,2,2,0,7,
+    7,2,2,2,2,2,2,2,2,2,2,0,2,0,0,0,0,0,0,0,0,0,0,0,7,
+    7,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,7,7,7,7,0,0,0,29,0,0,0,0,0,0,0,0,0,7,7,7,7,7,7,7,
+    7,7,7,7,7,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,7,7,7,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,2,2,2,2,2,2,7,
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+  ],
+  "elements": [
+    {
+      "x": 23,
+      "y": 3,
+      "key": "He"
+    },
+    {
+      "x": 11,
+      "y": 11,
+      "key": "Gd"
+    },
+    {
+      "x": 5,
+      "y": 14,
+      "key": "Ti"
+    },
+    {
+      "x": 14,
+      "y": 16,
+      "key": "Fe"
+    }
+  ],
+  "hiddenElems": [],
+  "powerups": [
+    {
+      "x": 3,
+      "y": 5,
+      "type": 1
+    },
+    {
+      "x": 16,
+      "y": 5,
+      "type": 3
+    },
+    {
+      "x": 13,
+      "y": 11,
+      "type": 0
+    },
+    {
+      "x": 11,
+      "y": 12,
+      "type": 1
+    }
+  ],
+  "enemies": [],
+  "pads": [],
+  "hints": [
+    {
+      "x": 2,
+      "y": 5,
+      "r": 0,
+      "icon": "🔦",
+      "title": "THE DARK",
+      "text": "The deepest mines are <strong>dark</strong>: you see about five tiles. A <strong>lamp</strong> (key <strong>2</strong>) doubles that for 12 seconds. And down here nothing saves your place but a <strong>refuge chamber</strong>: step inside one, and if the mine claims you later, you return to it for 100 points instead of starting again.",
+      "task": "Take the lamp beside you and light it. Find the refuge chamber under this tunnel and step inside it before you go on."
+    },
+    {
+      "x": 16,
+      "y": 5,
+      "r": 0,
+      "icon": "🤿",
+      "title": "GAS",
+      "text": "Ahead, a shaft climbs into galleries full of <strong>gas</strong>. Gas rises and spreads sideways, never sinks, and in it you suffocate in about three seconds. The way on runs through more than forty tiles of it. A <strong>mask</strong> (key <strong>4</strong>) gives 20 seconds of clean air.",
+      "task": "Take the mask. Put it on at the foot of the shaft, climb in and follow the galleries to their end without stopping."
+    },
+    {
+      "x": 23,
+      "y": 5,
+      "r": 0,
+      "icon": "🛟",
+      "title": "A NEW REFUGE",
+      "text": "You are through. Each refuge you enter <strong>replaces</strong> the last one as the place you return to. If you are ever stuck with no way on, pause (<strong>P</strong>) and go back to it from there.",
+      "task": "Step into the refuge chamber two tiles further down, on the west side of this shaft, before you go on."
+    },
+    {
+      "x": 23,
+      "y": 9,
+      "r": 0,
+      "icon": "🔥",
+      "title": "FIREDAMP",
+      "text": "In the hall ahead, gas hangs under the roof, fed by a <strong>vent</strong> that also blocks the way on. Because gas never sinks, you can walk beneath it. A blast within two tiles of gas sets the <strong>whole cloud</strong> alight at once, burns the vent away, and kills anyone standing next to any part of the cloud.",
+      "task": "Fetch the stick from the far end of the hall. Come back to the low tunnel at the hall's mouth, lay the stick there (key 1) and step back two tiles."
+    },
+    {
+      "x": 11,
+      "y": 12,
+      "r": 0,
+      "icon": "🚧",
+      "title": "TUNNEL BORER",
+      "text": "Below you a <strong>tunnel borer</strong> drives to and fro. It fills its tunnel from floor to roof: you cannot pass it, and its touch is fatal. It leaves elements lying. The titanium is at the west end, the way out is a hole in the floor at the east end, and the only place to hide is this shaft.",
+      "task": "From here you see only the middle of its tunnel: light the lamp to see all of it. Let the borer pass beneath you, go the other way, and be back in this shaft before it returns. Then let it pass again and go to the other end."
+    },
+    {
+      "x": 17,
+      "y": 15,
+      "r": 0,
+      "icon": "🎓",
+      "title": "READY FOR THE DEEP",
+      "text": "Darkness, refuges, gas, firedamp and the borer: you have dealt with every one of them. That was the last lesson. Take the iron and the exit: the missions are waiting!"
+    }
+  ]
+}

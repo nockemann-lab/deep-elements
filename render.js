@@ -1195,6 +1195,9 @@
     for (var i = explosionEffects.length - 1; i >= 0; i--) {
       var fx = explosionEffects[i]; var lifeTime = now - fx.startTime; var maxLife = fx.toxic ? 1000 : 800;
       if (lifeTime >= maxLife) { explosionEffects.splice(i, 1); continue; }
+      // a burning gas cloud starts its flames one after another: a flame whose
+      // time has not come yet is not drawn (a negative radius is an error)
+      if (lifeTime < 0) continue;
       var fpx = (fx.x - camTileX) * TILE + TILE / 2, fpy = (fx.y - camTileY) * TILE + TILE / 2;
       var life = 1 - (lifeTime / maxLife);
       var phase = lifeTime / maxLife;

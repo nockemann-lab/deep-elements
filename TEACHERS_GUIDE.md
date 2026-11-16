@@ -61,7 +61,9 @@ After playing, students can:
 1. **Hook (5 min):** "How many chemical elements are in your phone?" Collect guesses.
    (Answer per the game: around 30 - some counts run to 60 or more.)
 2. **Tutorial (10 min):** students play Tutorial levels 1–2 - movement, digging,
-   collecting, reading the element fact cards.
+   collecting, reading the element fact cards, boulders and dynamite. Each lesson is a
+   chain of small tasks; the hint banner states the rule and, on the line
+   marked ▶, what to do next.
 3. **Mission (15 min):** each student picks one mine on the world map (Critical Missions)
    and completes it. Ask them to note *which country they were "in"* and *one element fact*
    from the side panel. Mines are marked easy, medium or hard - steer first-time players
@@ -288,6 +290,11 @@ caption cannot do justice - students may find it when they search, so be prepare
   the clock all stop (the banner shows "⏸ The mine waits while you read") until the text
   has had time to be read or the miner moves on. A pupil who keeps walking is not held up.
   Missions and runs do not wait.
+- A lesson need not be started again after a mistake. Most parts of a lesson are saved as
+  their task appears: after a mishap the card offers "↩️ TRY THIS PART AGAIN", and a pupil
+  who has used up a tool or blocked the way can pause (P) and choose "↩️ RETRY THIS PART".
+  Neither costs points. Lesson 6 saves in its refuge chambers instead, as the hard
+  missions do, and going back to one costs 100 points.
 
 ## Facts and sources
 

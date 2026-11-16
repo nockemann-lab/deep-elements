@@ -156,130 +156,290 @@
       }
     });
 
-    test("tutorials: water, lava and gas wait for the miner", function() {
-      var P = Game.physics, q, i;
-      function count(tile) { var n = 0; for (var y = 0; y < s.rows; y++) for (var x = 0; x < s.cols; x++) if (s.grid[y][x] === tile) n++; return n; }
-      function fluids() { return [count(T.WATER), count(T.LAVA), count(T.GAS), Object.keys(s.waterLevel).length, Object.keys(s.lavaLevel).length].join("/"); }
-      function settle(n) { for (var k = 0; k < n; k++) { P.tickWater(); P.tickLava(); P.tickGas(); P.applyGravity(); } }
-      function walk(dx, dy, n) { for (var k = 0; k < n; k++) { var want = (s.playerX + dx) + "," + (s.playerY + dy); for (var t = 0; t < 3 && pos() !== want; t++) Game.loop.movePlayer(dx, dy); if (pos() !== want) throw new Error("stuck at " + pos()); } }
-      var moved = [];
+    // ── The six lessons. `lessonStart` starts one with its timers stopped and the reading
+    //    hold over; `route("R6 U1")` walks it step by step (a wading step takes two tries). ──
+    function lessonStart(i) { s.mode = "tutorial"; window.startLevel(i); Game.loop.clearIntervals(); s.hintHoldUntil = 0; }
+    function route(legs) {
+      legs.split(" ").forEach(function(leg) {
+        var d = { R: [1, 0], L: [-1, 0], U: [0, -1], D: [0, 1] }[leg[0]], n = +leg.slice(1);
+        for (var i = 0; i < n; i++) {
+          var want = (s.playerX + d[0]) + "," + (s.playerY + d[1]);
+          for (var tries = 0; tries < 3 && pos() !== want && s.running; tries++) Game.loop.movePlayer(d[0], d[1]);
+          if (pos() !== want) throw new Error("stuck at " + pos() + " on leg " + leg + " of " + legs);
+        }
+      });
+    }
+    function tiles(tile) { var n = 0; for (var y = 0; y < s.rows; y++) for (var x = 0; x < s.cols; x++) if (s.grid[y][x] === tile) n++; return n; }
+    function got(key) { return s.collected.indexOf(key) !== -1; }
+    function cardText() { return document.getElementById("overlay-card").textContent; }
+    function pauseText() { Game.loop.togglePause(); var t = document.querySelector("#pause-overlay .pause-card").textContent; Game.loop.togglePause(); return t; }
+    // elements found in a lesson are forgotten again: later tests expect an empty notebook
+    function forgetNotebook() { var ask = window.confirm; window.confirm = function() { return true; }; try { Game.ui.resetNotebook(); Game.ui.closeNotebook(); } finally { window.confirm = ask; } }
+
+    test("lessons: nothing flows before the miner acts, and every part sets a task", function() {
+      var P = Game.physics, moved = [], untasked = [], graded = [], i;
+      function fluids() { return [tiles(T.WATER), tiles(T.LAVA), tiles(T.GAS), Object.keys(s.waterLevel).length, Object.keys(s.lavaLevel).length, Object.keys(s.gasLevel).length].join("/"); }
       for (i = 0; i < Game.tutorials.getCount(); i++) {
-        s.mode = "tutorial"; window.startLevel(i); Game.loop.clearIntervals();
-        // tutorial 4 shows one tile of lava in the pit under its vein; nothing else may move
-        var water = count(T.WATER), gas = count(T.GAS), pit = i === 3 ? 1 : 0;
-        settle(300); var early = fluids(); settle(300);
-        if (count(T.WATER) !== water || count(T.GAS) !== gas || count(T.LAVA) !== pit || fluids() !== early) moved.push(s.levelName + " " + early + " > " + fluids());
+        lessonStart(i);
+        var before = fluids();
+        for (var k = 0; k < 300; k++) { P.tickWater(); P.tickLava(); P.tickGas(); P.applyGravity(); }
+        if (fluids() !== before) moved.push(s.levelName + " " + before + " > " + fluids());
+        s.tutorialHints.slice(0, -1).forEach(function(h) { if (!h.task) untasked.push(s.levelName + ": " + h.title); });
+        if (s.difficulty !== 0) graded.push(s.levelName + " " + s.difficulty);
       }
       check("no lesson floods, burns or gasses itself while the miner stands still", moved.length === 0, moved.join("; "));
-
-      // Tutorial 4: the spring floods the basin when it is dug, and the lava chamber stays passable.
-      s.mode = "tutorial"; window.startLevel(3); Game.loop.clearIntervals();
-      walk(1, 0, 9);
-      check("tutorial 4: the basin is dry until the spring is dug", pos() === "11,2" && at(11, 3) === T.WATER_SRC && count(T.WATER) === 9, pos() + " " + count(T.WATER));
-      walk(0, 1, 2); walk(1, 0, 2); walk(0, -1, 1); settle(300);     // on to the dry shelf, out of the water's way
-      check("tutorial 4: digging down through the spring floods the basin", pos() === "13,3" && at(11, 6) === T.WATER && at(16, 6) === T.WATER && at(16, 4) === T.WATER && count(T.WATER) === 27, count(T.WATER) + " water");
-      for (q = 0; q < 400; q++) P.tickLava();
-      var rowOpen = [15, 16, 17, 18, 19, 20].every(function(x) { return at(x, 14) === T.EMPTY; });
-      check("tutorial 4: the lava fills only the pit under its vein, and the way across above it stays open",
-        at(19, 15) === T.LAVA_SRC && at(19, 16) === T.LAVA && count(T.LAVA) === 1 && rowOpen, count(T.LAVA) + " lava, row open " + rowOpen);
-      s.grid[s.playerY][s.playerX] = T.WATER; s.grid[15][19] = T.PLAYER; s.playerX = 19; s.playerY = 15; s.playerOnWater = false;
-      Game.loop.movePlayer(0, 1);
-      check("tutorial 4: a step into the lava pit is fatal", !!s.deathAnim && s.deathAnim.cause === "lava", JSON.stringify(s.deathAnim && s.deathAnim.cause));
-
-      // The pump is used on a flood that is still spreading: it must stay dry afterwards.
-      s.mode = "tutorial"; window.startLevel(3); Game.loop.clearIntervals();
-      walk(1, 0, 9); walk(0, 1, 3); walk(1, 0, 3); walk(0, -1, 1); walk(-1, 0, 1);
-      for (q = 0; q < 200 && at(12, 4) !== T.WATER; q++) P.tickWater();
-      var filling = Object.keys(s.waterLevel).length;
-      Game.loop.usePowerup(PU.PUMP);
-      for (q = 0; q < 60; q++) { P.tickWater(); if (q % 3 !== 2) Game.machines.tickPumps(); }
-      settle(300);
-      check("tutorial 4: a flood pumped while it is still spreading does not come back", pos() === "13,4" && filling > 0 && s.pumps.length === 1 && s.pumps[0].done && count(T.WATER) === 9 && count(T.WATER_SRC) === 0 && Object.keys(s.waterLevel).length === 0,
-        pos() + " " + filling + " filling, " + count(T.WATER) + " water, " + Object.keys(s.waterLevel).length + " still filling");
+      check("every hint but a lesson's last sets a task", untasked.length === 0, untasked.join("; "));
+      check("lessons run at the base difficulty, where the creatures sense as far as the hints say", graded.length === 0, graded.join("; "));
+      lessonStart(0);
+      var task = document.querySelector("#tutorial-hint .th-task");
+      check("the task stands on its own line under the hint", !!task && /^▶ Dig east/.test(task.textContent), task && task.textContent);
     });
 
-    test("tutorial 6: refuge, mask, pump and borer can be played through", function() {
-      var LESSON = 5, P = Game.physics, M = Game.machines, q;
-      function begin() { s.mode = "tutorial"; window.startLevel(LESSON); Game.loop.clearIntervals(); }
-      function count(tile) { var n = 0; for (var y = 0; y < s.rows; y++) for (var x = 0; x < s.cols; x++) if (s.grid[y][x] === tile) n++; return n; }
+    test("lessons: a part can be tried again", function() {
+      var banner = document.getElementById("tutorial-hint");
+      lessonStart(1);                         // lesson 2 opens with a hint that saves
+      check("a saving hint takes a checkpoint as it appears", !!s.checkpoint && s.checkpointHint === 0 && s.checkpoint.playerX === 1, s.checkpointHint);
+      route("R4");                            // the boulder goes one tile east
+      var pushed = at(6, 2) === T.BOULDER;
+      check("the pause card offers the part again", /RETRY THIS PART/.test(pauseText()), pauseText());
+      Game.ui.showGameOverUI(false, "boulder");
+      check("so does the death card, in place of the refuge", /TRY THIS PART AGAIN/.test(cardText()) && !/RESPAWN AT REFUGE/.test(cardText()), cardText());
+      Game.ui.hideHint();
+      window.respawnAtRefuge(); Game.loop.clearIntervals();
+      check("trying again puts the miner and the boulder back and shows the hint again",
+        pushed && pos() === "1,2" && at(5, 2) === T.BOULDER && at(6, 2) === T.EMPTY && s.running && banner.classList.contains("visible") && /HEAVY THINGS/.test(banner.textContent),
+        pushed + " " + pos() + " " + at(5, 2) + " " + banner.textContent.slice(0, 30));
+
+      // the second saving hint is reached with points in hand and a stick burning
+      s.score = 250; s.inventory[PU.DYNAMITE] = 1;
+      Game.loop.usePowerup(PU.DYNAMITE);
+      stepOnto(10, 1);
+      check("a stick still burning goes back into the pack of the saved part", s.checkpointHint === 1 && s.placedDynamite.length === 1 && s.checkpoint.inventory[PU.DYNAMITE] === 1, s.checkpointHint + " " + s.placedDynamite.length);
+      s.score = 400;
+      window.respawnAtRefuge(); Game.loop.clearIntervals();
+      check("a lesson's own checkpoint costs no points", pos() === "10,1" && s.score === 250 && s.inventory[PU.DYNAMITE] === 1 && s.placedDynamite.length === 0, pos() + " " + s.score + " " + s.inventory[PU.DYNAMITE]);
+
+      lessonStart(5);                         // lesson 6 saves only in its refuges
+      route("R9");
+      check("a hint without the flag saves nothing", !s.checkpoint && /no checkpoint|RESUME/.test(pauseText()) && !/RETRY|REFUGE/.test(pauseText()), pauseText());
+      s.score = 300;
+      route("D1");
+      check("a refuge in a lesson is an ordinary checkpoint", s.inRefuge && !!s.checkpoint && s.checkpointHint === -1, s.checkpointHint);
+      route("U1 R3");
+      check("the pause card offers the way back to it, at its price", /BACK TO THE REFUGE \(−100\)/.test(pauseText()), pauseText());
+      Game.ui.showGameOverUI(false, "gas");
+      check("the death card offers the refuge, not a free retry", /RESPAWN AT REFUGE/.test(cardText()) && !/TRY THIS PART AGAIN/.test(cardText()), cardText());
+      window.respawnAtRefuge(); Game.loop.clearIntervals();
+      check("the respawn costs 100 points", pos() === "11,6" && s.score === 200, pos() + " " + s.score);
+      Game.map.start(0); Game.loop.clearIntervals();
+      check("a mission's pause card is unchanged", !/RETRY|REFUGE/.test(pauseText()), pauseText());
+    });
+
+    test("a barred exit says why, but not on every press", function() {
+      lessonStart(0);
+      var log = document.getElementById("collection-log");
+      function barred() { return (log.innerHTML.match(/stays barred/g) || []).length; }
+      var n0 = barred();
+      stepOnto(10, 8);
+      check("the exit stays shut while elements are missing, and the log says how many",
+        s.running && pos() === "10,7" && barred() === n0 + 1 && /<strong>3 elements<\/strong> still in the mine/.test(log.innerHTML), pos() + " " + (barred() - n0));
+      Game.loop.movePlayer(0, 1);
+      check("a second press straight away adds no second line", barred() === n0 + 1, barred() - n0);
+      s.exitBarredAt = Date.now() - 3000;
+      Game.loop.movePlayer(0, 1);
+      check("a later one does", barred() === n0 + 2 && s.running, barred() - n0);
+    });
+
+    test("lesson 3: the creatures wait, and the pushed boulder deals with the bat", function() {
+      lessonStart(2);
+      function who(type) { return s.enemies.filter(function(e) { return e.type === type; })[0]; }
+      var bat = who("bat"), spider = who("spider"), snake = who("snake"), crab = who("crab");
+      check("all four creatures lie in wait at the start", [bat, spider, snake, crab].every(function(e) { return e && e.state === AI_IDLE; }));
+      route("R15");
+      check("the boulder goes down the tunnel ahead of the miner", pos() === "16,2" && at(17, 2) === T.BOULDER && bat.alive && bat.x === 18 && bat.y === 2, pos() + " bat " + bat.x + "," + bat.y);
+      Game.loop.movePlayer(1, 0);
+      check("pushed into the bat, it flattens it", !bat.alive && s.enemiesKilled === 1 && s.running, bat.alive + " " + pos());
+      if (pos() !== "17,2") route("R1");
+      route("R2 U1");
+      check("the copper in the roof is taken", got("Cu") && pos() === "19,1", pos() + " " + s.collected.join(","));
+      route("R3 D1");
+      check("the snake's part begins with a checkpoint", s.tutorialHints[2].fired && s.checkpointHint === 2 && snake.state === AI_IDLE, s.checkpointHint + " " + snake.state);
+      forgetNotebook();
+    });
+
+    test("lesson 4: ice needs the stick, the spring drowns the bat, the pump dries the way on", function() {
+      var P = Game.physics, M = Game.machines, q;
+      lessonStart(3);
+      var bat = s.enemies[0];
+      route("R3");
+      check("the stick is picked up; basalt and ice bar the tunnel", s.inventory[PU.DYNAMITE] === 1 && at(5, 2) === T.BASALT && at(7, 2) === T.ICE, s.inventory[PU.DYNAMITE]);
+      for (q = 0; q < 60 && at(5, 2) === T.BASALT; q++) P.tickBasalt();
+      check("the basalt crumbles by itself, the ice does not", at(5, 2) === T.EMPTY && at(7, 2) === T.ICE, at(5, 2) + " " + at(7, 2));
+      route("R2");
+      Game.loop.usePowerup(PU.DYNAMITE);
+      route("L2");
+      for (q = 0; q < 5 && s.placedDynamite.length; q++) P.tickDynamite();
+      check("one stick laid beside the ice breaks it, two tiles away is safe", at(7, 2) === T.EMPTY && s.running && pos() === "4,2", at(7, 2) + " " + pos());
+      route("R7");
+      check("the pump is picked up, and the spring is still shimmering earth", s.inventory[PU.PUMP] === 1 && at(11, 3) === T.WATER_SRC && tiles(T.WATER) === 7 && bat.state === AI_IDLE, s.inventory[PU.PUMP] + " " + tiles(T.WATER));
+      route("D2 U2");
+      for (q = 0; q < 600 && bat.alive; q++) P.tickWater();
+      check("dug open, the spring floods the passage and drowns the bat", !bat.alive && at(15, 5) === T.WATER && s.running && pos() === "11,2", bat.alive + " " + at(15, 5) + " after " + q);
+      for (q = 0; q < 300; q++) P.tickWater();
+      route("D3 R5 D2");
+      Game.loop.movePlayer(1, 0);
+      check("a boulder that stands in water will not be pushed", pos() === "16,7" && at(17, 7) === T.BOULDER && s.playerOnWater, pos() + " " + at(17, 7));
+      Game.loop.usePowerup(PU.PUMP);
+      for (q = 0; q < 80 && !(s.pumps[0] && s.pumps[0].done); q++) M.tickPumps();
+      check("the pump, used by the wading miner, seals the spring and drains the whole flood", s.pumps.length === 1 && s.pumps[0].done && tiles(T.WATER) === 0 && tiles(T.WATER_SRC) === 0 && !s.playerOnWater,
+        s.pumps.length + " pumps, " + tiles(T.WATER) + " water, " + tiles(T.WATER_SRC) + " springs, wading " + s.playerOnWater);
+      route("R1 D1");
+      check("on the dry floor the boulder moves off the copper", got("Cu") && at(18, 7) === T.BOULDER && pos() === "17,8", pos() + " " + s.collected.join(","));
+
+      // The pump is used on a flood that is still spreading: it must stay dry afterwards.
+      // (The two walls are taken out by hand here; the part above has dealt with them.
+      // The flood has not yet reached the pool round the boulder, whose 7 tiles stay.)
+      lessonStart(3);
+      s.grid[2][5] = T.EMPTY; s.grid[2][7] = T.EMPTY; s.basaltLife = {};
+      route("R10 D2 U2");
+      for (q = 0; q < 200 && at(13, 5) !== T.WATER; q++) P.tickWater();
+      var filling = Object.keys(s.waterLevel).length;
+      route("D2");
+      Game.loop.usePowerup(PU.PUMP);
+      for (q = 0; q < 60; q++) { P.tickWater(); if (q % 3 !== 2) M.tickPumps(); }
+      for (q = 0; q < 300; q++) { P.tickWater(); P.applyGravity(); }
+      check("a flood pumped while it is still spreading does not come back", pos() === "11,4" && filling > 0 && s.pumps.length === 1 && s.pumps[0].done && tiles(T.WATER) === 7 && at(13, 5) === T.EMPTY && at(11, 3) === T.EMPTY && tiles(T.WATER_SRC) === 0 && Object.keys(s.waterLevel).length === 0,
+        pos() + " " + filling + " filling, " + tiles(T.WATER) + " water, " + Object.keys(s.waterLevel).length + " still filling");
+      forgetNotebook();
+    });
+
+    test("the pump works for a miner who stands in the only water there is", function() {
+      scene([[5, 6, T.WATER]]);
+      stepOnto(5, 6);
+      s.inventory[PU.PUMP] = 1;
+      Game.loop.usePowerup(PU.PUMP);
+      check("the pump starts although no water lies beside the miner", pos() === "5,6" && s.pumps.length === 1 && s.inventory[PU.PUMP] === 0, pos() + " " + s.pumps.length);
+      for (var q = 0; q < 80 && !(s.pumps[0] && s.pumps[0].done); q++) Game.machines.tickPumps();
+      check("the miner's own tile is drained with the rest", s.playerOnWater === false && tiles(T.WATER) === 0, s.playerOnWater + " " + tiles(T.WATER));
+      Game.loop.movePlayer(-1, 0);
+      check("no water is left behind when they walk on", pos() === "4,6" && at(5, 6) === T.EMPTY, pos() + " " + at(5, 6));
+    });
+
+    test("lesson 5: the cart flattens the snake and carries the miner over the lava", function() {
+      var M = Game.machines, q;
+      lessonStart(4);
+      var snake = s.enemies[0];
+      Game.loop.movePlayer(-1, 0);
+      for (q = 0; q < 400; q++) M.tickRollingCarts();
+      check("pushed from the start, the cart rolls west into the dead end and the snake lives", at(1, 2) === T.CART && snake.alive && snake.state === AI_IDLE, at(1, 2) + " " + snake.alive);
+      window.respawnAtRefuge(); Game.loop.clearIntervals(); s.hintHoldUntil = 0;
+      snake = s.enemies[0];                   // the checkpoint brings its own creatures back
+      check("trying the part again brings the cart back", at(3, 2) === T.CART && pos() === "4,2" && snake.alive, at(3, 2) + " " + pos());
+      route("D1 L3 U1 R1");
+      Game.loop.movePlayer(1, 0);
+      for (q = 0; q < 400 && snake.alive; q++) M.tickRollingCarts();
+      check("pushed from behind, it rolls east and flattens the snake", !snake.alive && s.running, snake.alive + " " + pos());
+      for (q = 0; q < 400; q++) M.tickRollingCarts();
+      route("R" + (14 - s.playerX) + " D2 R1");
+      check("the helium is taken on the way to the lava", got("He") && pos() === "15,4" && at(15, 5) === T.CART && tiles(T.LAVA) === 5, pos() + " " + tiles(T.LAVA));
+      Game.loop.movePlayer(0, 1);
+      check("stepping down onto the cart boards it", !!s.riding && pos() === "15,5", pos());
+      Game.loop.movePlayer(1, 0);
+      for (q = 0; q < 400 && s.ridingRoll; q++) M.tickRidingRoll();
+      check("it carries the miner over the lava unharmed", s.running && !!s.riding && s.riding.under === T.LAVA && pos() === "20,5", pos() + " running " + s.running);
+      Game.loop.movePlayer(0, -1);
+      check("and they hop out at the far end", !s.riding && pos() === "20,4" && at(20, 5) === T.CART, pos());
+      forgetNotebook();
+    });
+
+    test("lesson 6: refuges, the mask, firedamp and the borer", function() {
+      var P = Game.physics, M = Game.machines, q;
       function borer() { return s.tbms[0]; }
       function runBorer(until, limit) { for (var i = 0; i < (limit || 4000) && !until(); i++) M.tickTBMs(); return until(); }
-      // the borer is well clear of column x (wider than its real kill zone)
-      function clearOf(x) { var m = borer(); return x < m.floatX - 1 || x > m.floatX + 3.2; }
-      // a route such as "R6 U1": each step is tried until the miner has moved (wading takes two tries).
-      // In the lane the miner first lets the borer move off the next tile, and the borer runs on between steps.
-      function go(route, inLane) {
-        route.split(" ").forEach(function(leg) {
-          var d = { R: [1, 0], L: [-1, 0], U: [0, -1], D: [0, 1] }[leg[0]], n = +leg.slice(1);
-          for (var i = 0; i < n; i++) {
-            var nx = s.playerX + d[0], ny = s.playerY + d[1], want = nx + "," + ny;
-            if (inLane && !runBorer(function() { return clearOf(nx); }, 1500)) throw new Error("the borer never left " + want);
-            for (var tries = 0; tries < 3 && pos() !== want && s.running; tries++) Game.loop.movePlayer(d[0], d[1]);
-            if (pos() !== want) throw new Error("stuck at " + pos() + " on leg " + leg + " of " + route);
-            if (inLane) { M.tickTBMs(); M.tickTBMs(); M.tickTBMs(); }
-          }
-        });
+      function toTheHall() {
+        lessonStart(5);
+        route("R9 D1 U1 R8");
+        Game.loop.usePowerup(PU.MASK);
+        route("U2 L18 U2 R22 D4 D2 L1 R1 D4 L10");
       }
+      function burn() { for (var i = 0; i < 5 && s.placedDynamite.length && s.running; i++) P.tickDynamite(); }
 
-      begin();
-      check("the lesson is tutorial 6 and asks for four elements", Game.tutorials.getCount() === 6 && /Tutorial 6/.test(s.levelName) && s.totalElements === 4, s.levelName + " / " + s.totalElements);
-      var gas0 = count(T.GAS), water0 = count(T.WATER);
-      for (q = 0; q < 300; q++) { P.tickGas(); P.tickWater(); P.applyGravity(); }
-      check("nothing leaks while the miner reads the first hint", count(T.GAS) === gas0 && count(T.WATER) === water0 && gas0 > 0 && water0 > 0, gas0 + ">" + count(T.GAS) + " " + water0 + ">" + count(T.WATER));
-
-      go("R5");
-      check("walking into the first refuge saves a checkpoint", pos() === "7,5" && s.inRefuge && !!s.checkpoint);
-      go("R5");
-      check("both gas masks are picked up", s.inventory[PU.MASK] === 2, s.inventory[PU.MASK]);
-      go("R1 U1");
-      for (q = 0; q < 300; q++) P.tickGas();
-      check("the gas stays in its chamber once the plug is dug", count(T.GAS) === gas0 && at(13, 5) !== T.GAS, count(T.GAS));
+      lessonStart(5);
+      check("the lesson is dark and asks for four elements", /Tutorial 6/.test(s.levelName) && s.totalElements === 4 && s.baseSight === 5, s.levelName + " / " + s.totalElements + " / " + s.baseSight);
+      var gas0 = tiles(T.GAS);
+      route("R1");
+      Game.loop.usePowerup(PU.LAMP);
+      check("the lamp is picked up and burns for 12 s", s.inventory[PU.LAMP] === 0 && s.activeEffects.lamp === 12, s.activeEffects.lamp);
+      route("R8 D1");
+      check("stepping into the first refuge saves a checkpoint", pos() === "11,6" && s.inRefuge && !!s.checkpoint && s.checkpointHint === -1);
+      route("U1 R5");
+      check("the mask is picked up", s.inventory[PU.MASK] === 1 && s.tutorialHints[1].fired, s.inventory[PU.MASK]);
+      route("R3");
       Game.loop.usePowerup(PU.MASK);
       check("the mask gives 20 s", s.activeEffects.mask === 20, s.activeEffects.mask);
-      go("U1 R6 U2");
-      check("the helium is reached through the gas", s.collected.indexOf("He") !== -1, s.collected.join(","));
-      go("D2 L6 D2 R8 D3 L1");
-      check("the pump is picked up", s.inventory[PU.PUMP] === 1, s.inventory[PU.PUMP]);
-      go("L2");
-      Game.loop.usePowerup(PU.PUMP);
-      check("the pump starts beside the water", s.pumps.length === 1 && s.inventory[PU.PUMP] === 0);
-      for (q = 0; q < 20; q++) M.tickPumps();
-      check("the pump drains the siphon and caps its spring", count(T.WATER) === 0 && count(T.WATER_SRC) === 0 && at(13, 11) === T.ROCK, count(T.WATER) + " water, " + count(T.WATER_SRC) + " springs");
-      go("D3 L2 U1 D1 L2 U3");
-      check("the gadolinium is collected on the dry floor", s.collected.indexOf("Gd") !== -1, s.collected.join(","));
-      go("L3");
-      check("the second refuge replaces the checkpoint", s.inRefuge && s.checkpoint.playerX === 11 && s.checkpoint.collected.length === 2, s.checkpoint.playerX + "/" + s.checkpoint.collected.length);
-      go("L2 D4");
-
+      route("U2");
+      check("the miner walks in the gas", pos() === "19,3" && s.playerOnGas === true, pos() + " " + s.playerOnGas);
+      route("L18 U2 R22 D2");
+      for (q = 0; q < 300; q++) P.tickGas();
+      check("the helium lies at the end of the gas galleries, and the gas stays in them", got("He") && pos() === "23,3" && !s.playerOnGas && tiles(T.GAS) === gas0 && gas0 === 51, pos() + " " + tiles(T.GAS));
+      route("D4 L1");
+      check("the second refuge replaces the first", s.inRefuge && s.checkpoint.playerX === 22 && s.checkpoint.playerY === 7 && s.checkpoint.collected.length === 1, s.checkpoint.playerX + "," + s.checkpoint.playerY);
+      route("R1 D4 L10");
+      check("the stick is fetched from under the gas", s.inventory[PU.DYNAMITE] === 1 && pos() === "13,11" && !s.playerOnGas && at(13, 10) === T.GAS && s.running, pos());
+      route("R7");
+      Game.loop.usePowerup(PU.DYNAMITE);
+      route("R2");
+      burn();
+      frame();
+      check("lit from the hall's mouth, the firedamp burns away with its vent", s.running && pos() === "22,11" && tiles(T.GAS) === 43 && tiles(T.GAS_SRC) === 0 && at(12, 10) === T.EMPTY, s.running + " " + tiles(T.GAS) + " gas, " + tiles(T.GAS_SRC) + " vents");
+      for (q = 0; q < 5; q++) P.tickDynamite();
+      check("the stick goes off once", s.running && s.placedDynamite.length === 0, s.placedDynamite.length);
+      route("L9 U1 L2 D2");
+      check("the way on is open, and the gadolinium is taken", got("Gd") && pos() === "11,12" && s.inventory[PU.LAMP] === 1, pos() + " " + s.collected.join(","));
       runBorer(function() { return false; }, 2400);
-      var open = true;
-      for (var lx = 5; lx <= 17; lx++) for (var ly = 13; ly <= 14; ly++) { var lt = at(lx, ly); if (lt !== T.EMPTY && lt !== T.ELEMENT) open = false; }
-      check("the borer clears its lane and spares the titanium", open && at(6, 14) === T.ELEMENT);
-      check("the borer stays between its walls", borer().floatX >= 4.95 && borer().floatX <= 15.05, borer().floatX);
-      check("the shaft above the lane is safe", s.running && pos() === "9,12");
-      check("the borer passes the shaft heading east", runBorer(function() { return borer().dir > 0 && borer().floatX > 10.2 && borer().floatX < 11; }));
-      go("D2 L3", true);
-      check("the titanium is taken from the borer's tunnel", s.collected.indexOf("Ti") !== -1 && s.running, s.collected.join(","));
-      go("R6 D1", true);
-      go("D1 R6");
+      check("the borer stays between its walls, and the shaft above it is safe", borer().floatX >= 4.95 && borer().floatX <= 15.05 && s.running && at(5, 14) === T.ELEMENT, borer().floatX);
+      check("the borer passes the shaft heading east", runBorer(function() { return borer().dir > 0 && borer().floatX > 12.2 && borer().floatX < 13; }));
+      route("D1 L6 D1");
+      check("the titanium is taken from the borer's tunnel", got("Ti") && s.running, s.collected.join(","));
+      route("R6 U2");
+      check("it passes again heading west", runBorer(function() { return borer().dir < 0 && borer().floatX < 7.8; }) && s.running);
+      route("D1 R6 D3 L3");
       check("the iron completes the set", s.collected.length === 4 && s.running, s.collected.join(","));
-      go("R4");
+      route("L4");
       check("the exit ends the lesson with a win", !s.running && !s.deathAnim && !document.getElementById("notebook-overlay").classList.contains("hidden"));
       Game.ui.closeNotebook();
 
-      // a miner who swims instead of pumping still gets through, and one the borer catches is offered the second refuge
-      begin();
-      go("R5 R5 R1 U1"); Game.loop.usePowerup(PU.MASK); go("U1 R6 U2 D2 L6 D2 R8 D3 L1 L2 D3 L2 U1 D1 L2 U3 L3 L2 D4");
-      check("the siphon can be swum without the pump", pos() === "9,12" && s.collected.length === 2 && count(T.WATER) > 0, pos() + " " + s.collected.join(","));
-      runBorer(function() { return borer().dir < 0 && borer().floatX > 8 && borer().floatX < 9; });
+      // lit from inside the hall, the fire reaches the miner; the refuge gives the stick back
+      toTheHall();
+      route("R2");
+      Game.loop.usePowerup(PU.DYNAMITE);
+      route("R3");
+      burn();
+      check("lit from under the gas, the firedamp is fatal", !s.running && s.deathAnim && s.deathAnim.cause === "gasblast", s.running + " " + (s.deathAnim && s.deathAnim.cause));
+      s.deathAnim = null; window.respawnAtRefuge(); Game.loop.clearIntervals(); s.hintHoldUntil = 0;
+      check("the respawn is at the second refuge, with the helium kept and the stick and the gas back",
+        s.running && pos() === "22,7" && got("He") && at(13, 11) === T.POWERUP && s.inventory[PU.DYNAMITE] === 0 && tiles(T.GAS) === 51 && tiles(T.GAS_SRC) === 1,
+        pos() + " " + s.collected.join(",") + " " + tiles(T.GAS));
+
+      // a stick laid too far from the gas is wasted; one laid a single step away kills
+      route("R1 D4 L10 R9");
+      Game.loop.usePowerup(PU.DYNAMITE);
+      route("L3");
+      burn();
+      check("a stick laid three tiles from the gas lights nothing", s.running && tiles(T.GAS) === 51 && s.inventory[PU.DYNAMITE] === 0 && /BACK TO THE REFUGE/.test(pauseText()), tiles(T.GAS));
+      window.respawnAtRefuge(); Game.loop.clearIntervals(); s.hintHoldUntil = 0;
+      route("R1 D4 L10 R7");
+      Game.loop.usePowerup(PU.DYNAMITE);
+      route("R2");
+      burn();
+      route("L9 U1 L2 D2");
+      runBorer(function() { return borer().dir > 0 && borer().floatX > 9.5 && borer().floatX < 10.5; });
       Game.loop.movePlayer(0, 1);
       check("stepping into the borer is fatal", !s.running && s.deathAnim && s.deathAnim.cause === "tbm", s.running);
       s.deathAnim = null; window.respawnAtRefuge();
-      check("the respawn is at the second refuge with the elements kept", s.running && s.playerX === 11 && s.playerY === 8 && s.collected.length === 2, pos() + " " + s.collected.length);
+      check("the respawn is again at the second refuge", s.running && pos() === "22,7" && s.collected.length === 1, pos() + " " + s.collected.length);
       Game.loop.clearIntervals();
-      // the later tests expect elements that have not been found yet
-      var ask = window.confirm; window.confirm = function() { return true; };
-      try { Game.ui.resetNotebook(); Game.ui.closeNotebook(); } finally { window.confirm = ask; }
+      forgetNotebook();
     });
 
     test("element run: halogen barrels wait for the miner", function() {
@@ -903,31 +1063,6 @@
       check("a footstep is never felt", pos() === "2,5" && !felt(), pos());
       Game.loop.movePlayer(-1, 0);
       check("earth dug fifteen tiles away is felt", pos() === "1,5" && felt(), pos());
-    });
-
-    test("tutorial 3: the bat is shut out, and the spider sleeps until the plug is dug", function() {
-      s.mode = "tutorial"; window.startLevel(2); Game.loop.clearIntervals();
-      function who(type) { return s.enemies.filter(function(e) { return e.type === type; })[0]; }
-      function walk(dx, dy, n) { for (var i = 0; i < n; i++) { Game.loop.movePlayer(dx, dy); Game.physics.applyGravity(); Game.enemies.moveAll(); } }
-      var bat = who("bat"), spider = who("spider"), snake = who("snake"), crab = who("crab");
-      check("all four creatures lie in wait at the start", [bat, spider, snake, crab].every(function(e) { return e && e.state === AI_IDLE; }));
-      walk(1, 0, 9);
-      check("the bat sleeps while the miner walks the gallery", pos() === "11,2" && bat.state === AI_IDLE && bat.x === 14 && bat.y === 6, pos() + " bat " + bat.state + " at " + bat.x + "," + bat.y);
-      walk(1, 0, 1);
-      check("it wakes as the miner reaches the earth under the boulder", pos() === "12,2" && bat.state !== AI_IDLE, pos() + " " + bat.state);
-      check("the boulder rests on the earth", at(13, 1) === T.BOULDER && at(13, 2) === T.EARTH);
-      walk(1, 0, 2);
-      check("the boulder falls in behind the miner", pos() === "14,2" && at(13, 2) === T.BOULDER && s.running, pos() + " " + at(13, 2));
-      walk(1, 0, 2);
-      check("the copper is taken", pos() === "16,2" && s.collected.indexOf("Cu") >= 0, pos() + " " + s.collected.join(","));
-      for (var i = 0; i < 60; i++) Game.enemies.moveAll();
-      check("the bat cannot reach the miner past the boulder", s.running && !s.deathAnim && bat.alive && (bat.x < 13 || bat.y === 6), "bat at " + bat.x + "," + bat.y);
-      check("picking up the copper does not wake the spider", spider.state === AI_IDLE && spider.x === 4 && spider.y === 9, spider.state);
-      walk(0, 1, 6); walk(-1, 0, 6);          // each of the two webs takes a step to cut
-      check("nor does walking through its webs", pos() === "12,8" && spider.state === AI_IDLE, pos() + " " + spider.state);
-      walk(0, 1, 4);
-      check("digging the plug brings it", pos() === "12,12" && spider.state === AI_CHASE, pos() + " " + spider.state);
-      check("the snake still waits", snake.state === AI_IDLE && s.running && !s.deathAnim, snake.state);
     });
 
     test("menu", function() {

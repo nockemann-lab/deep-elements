@@ -4,105 +4,100 @@
   "scenario": 0,
   "levelName": "Tutorial 1: Mining Basics",
   "timer": 240,
-  "grid": [
-    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-    7,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
-    7,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
-    7,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
-    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
-    7,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,7,
-    7,1,1,1,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,7,
-    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
-    7,2,2,2,9,9,9,9,1,1,1,1,1,1,1,1,1,1,1,7,
-    7,1,1,1,9,9,9,9,1,1,1,1,1,1,1,1,1,1,1,7,
-    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,
-    7,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,7,
-    7,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,
-    7,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,7,
-    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
-  ],
+  "difficulty": 0,
   "player": {
-    "x": 2,
-    "y": 2
+    "x": 1,
+    "y": 1
   },
   "exit": {
-    "x": 17,
-    "y": 13
+    "x": 10,
+    "y": 8
   },
+  "grid": [
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+    7,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,7,
+    7,0,0,0,1,1,1,0,1,1,2,0,0,0,0,0,0,2,2,7,
+    7,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,1,2,2,7,
+    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,7,
+    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,7,
+    7,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,7,
+    7,2,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,7,
+    7,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,2,1,1,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+  ],
   "elements": [
     {
-      "x": 8,
+      "x": 7,
       "y": 2,
       "key": "In"
     },
     {
-      "x": 4,
-      "y": 9,
+      "x": 14,
+      "y": 2,
       "key": "Au"
     },
     {
-      "x": 16,
-      "y": 10,
+      "x": 4,
+      "y": 13,
       "key": "Li"
     }
   ],
+  "hiddenElems": [],
+  "powerups": [],
   "enemies": [],
+  "pads": [],
   "hints": [
     {
-      "x": 2,
-      "y": 2,
+      "x": 1,
+      "y": 1,
       "r": 1,
       "icon": "⛏️",
       "title": "WELCOME, MINER!",
-      "text": "Use the <strong>arrow keys</strong> (or the on-screen D-pad) to move. Head <em>right</em> to start your dig."
-    },
-    {
-      "x": 4,
-      "y": 2,
-      "r": 0,
-      "icon": "🛠️",
-      "title": "DIGGING",
-      "text": "Walk into brown <strong>earth</strong> to dig a tunnel straight through it."
+      "text": "Move with the <strong>arrow keys</strong> or <strong>W A S D</strong> (on a tablet: the D-pad). Brown <strong>earth</strong> is dug simply by walking into it.",
+      "task": "Dig east to the glowing tile.",
+      "save": true
     },
     {
       "x": 6,
       "y": 2,
-      "r": 0,
+      "r": 1,
       "icon": "💎",
-      "title": "ELEMENTS",
-      "text": "Collect the glowing <strong>elements</strong> - the chemical elements that everyday technology is built from. The <em>STATUS</em> panel counts them."
+      "title": "AN ELEMENT",
+      "text": "Walk onto a glowing tile to <strong>collect the element</strong>. Its card opens beside the mine, and the clock waits while you read it.",
+      "task": "Collect it. The STATUS panel then shows 1/3."
     },
     {
-      "x": 8,
-      "y": 6,
-      "r": 2,
+      "x": 9,
+      "y": 2,
+      "r": 0,
       "icon": "🪨",
       "title": "SOLID ROCK",
-      "text": "Gray <strong>rock</strong> and walls can't be dug - not even blasted. Find a way around: try heading <em>west</em>."
-    },
-    {
-      "x": 5,
-      "y": 8,
-      "r": 2,
-      "icon": "✨",
-      "title": "RICH EARTH",
-      "text": "Golden, sparkling <strong>rich earth</strong> marks mineral-laden ground - treasure is often close by."
+      "text": "Grey <strong>rock</strong> cannot be dug. The gold lies just behind it - so close, and no way through here.",
+      "task": "Find the gap in the rock and dig your way round to the gold."
     },
     {
       "x": 10,
-      "y": 10,
-      "r": 3,
-      "icon": "⏰",
-      "title": "ON THE CLOCK",
-      "text": "Watch the <strong>⏰ timer</strong> in the STATUS panel - finishing fast means a better <em>score</em>."
+      "y": 7,
+      "r": 1,
+      "icon": "🚪",
+      "title": "THE EXIT HATCH",
+      "text": "This hatch is the way out - but it stays <strong>barred</strong> until every element of the mine is collected. Try it: walk into it.",
+      "task": "One element is still missing. Find it, then come back here.",
+      "save": true
     },
     {
-      "x": 14,
+      "x": 6,
       "y": 11,
-      "r": 2,
-      "icon": "🚪",
-      "title": "EXIT HATCH",
-      "text": "The exit opens only once <strong>ALL</strong> elements are collected. Missing one? Backtrack - something still <em>glints</em> nearby."
+      "r": 1,
+      "icon": "⏰",
+      "title": "ON THE CLOCK",
+      "text": "The <strong>⏰ clock</strong> in the STATUS panel is running. Every second left on it when you leave is worth <strong>10 points</strong>.",
+      "task": "Take the last element and go back up to the hatch."
     }
   ]
 }

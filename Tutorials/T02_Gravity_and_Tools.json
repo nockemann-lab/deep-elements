@@ -1,49 +1,142 @@
 {
-  "cols": 25, "rows": 15,
+  "cols": 25,
+  "rows": 15,
   "scenario": 7,
-  "levelName": "Tutorial 2: Gravity & Tools",
+  "levelName": "Tutorial 2: Gravity & Blasting",
   "timer": 300,
+  "difficulty": 0,
+  "player": {
+    "x": 1,
+    "y": 2
+  },
+  "exit": {
+    "x": 22,
+    "y": 13
+  },
   "grid": [
     7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-    7,2,2,2,2,2,2,3,2,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
-    7,0,0,0,0,0,0,1,1,1,0,0,0,0,3,0,0,1,1,0,0,0,2,2,7,
-    7,2,2,2,2,2,2,0,2,0,2,2,2,2,2,2,0,2,2,2,2,1,2,2,7,
-    7,2,2,2,2,2,2,0,2,0,2,2,2,2,2,2,2,2,2,2,2,1,2,2,7,
-    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,7,
-    7,2,0,1,1,0,0,0,0,0,0,0,1,1,0,8,0,0,0,0,0,0,2,2,7,
-    7,2,1,2,2,2,2,2,2,2,2,2,2,2,0,1,2,2,2,2,2,2,2,2,7,
-    7,2,1,2,2,2,2,2,2,2,2,0,9,1,0,1,2,2,2,2,2,2,2,2,7,
-    7,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,9,1,1,7,
-    7,0,0,0,0,3,3,1,1,1,0,0,0,0,0,0,0,16,0,1,1,1,1,1,7,
-    7,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,0,2,1,1,1,1,0,1,7,
-    7,2,2,2,2,2,2,2,2,2,2,2,15,2,2,2,2,2,2,1,1,1,1,2,7,
-    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,7,
+    7,0,0,0,0,3,0,0,0,2,0,0,0,3,0,0,0,0,2,2,2,2,0,2,7,
+    7,2,2,2,2,2,2,2,0,2,2,2,2,2,1,2,2,2,2,2,2,2,0,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,0,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,0,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,7,
+    7,2,2,2,2,2,3,0,0,0,0,0,0,0,0,23,0,0,0,8,0,0,0,2,7,
+    7,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,8,2,2,2,2,2,7,
+    7,2,2,2,2,2,0,0,0,0,0,0,0,0,16,0,0,0,1,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,23,2,2,2,2,2,2,2,0,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,15,2,2,2,2,2,2,2,23,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,2,7,
     7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
   ],
-  "player": {"x":2,"y":2},
-  "exit": {"x":22,"y":11},
   "elements": [
-    {"x":11,"y":2,"key":"Li"},
-    {"x":11,"y":8,"key":"Co"},
-    {"x":9,"y":10,"key":"Ni"},
-    {"x":21,"y":10,"key":"Cu"}
+    {
+      "x": 14,
+      "y": 5,
+      "key": "Li"
+    },
+    {
+      "x": 13,
+      "y": 7,
+      "key": "Co"
+    },
+    {
+      "x": 6,
+      "y": 9,
+      "key": "Ni"
+    },
+    {
+      "x": 20,
+      "y": 13,
+      "key": "Cu"
+    }
   ],
+  "hiddenElems": [],
   "powerups": [
-    {"x":6,"y":6,"type":0},
-    {"x":7,"y":6,"type":0},
-    {"x":8,"y":6,"type":0},
-    {"x":16,"y":11,"type":1}
+    {
+      "x": 9,
+      "y": 7,
+      "type": 0
+    },
+    {
+      "x": 10,
+      "y": 7,
+      "type": 0
+    },
+    {
+      "x": 8,
+      "y": 10,
+      "type": 0
+    },
+    {
+      "x": 9,
+      "y": 10,
+      "type": 0
+    }
   ],
+  "enemies": [],
+  "pads": [],
   "hints": [
-    {"x":2,"y":2,"r":2,"icon":"⛏️","title":"WELCOME BACK","text":"The deep holds dangers - this lesson covers <strong>gravity</strong> and your <strong>tools</strong>. Head right!"},
-    {"x":5,"y":2,"r":1,"icon":"🪨","title":"FALLING BOULDERS","text":"Boulders fall as soon as nothing holds them up. Dig along under these two and keep walking: each drops into the pit behind you. <strong>Never go straight down with a boulder above you</strong> - it follows and lands on you."},
-    {"x":12,"y":2,"r":1,"icon":"🫸","title":"PUSH IT","text":"Walk into a boulder to <strong>push</strong> it. Shove this one ahead - it will drop into the gap and clear your way."},
-    {"x":18,"y":6,"r":1,"icon":"☣️","title":"TOXIC BARREL","text":"Toxic barrels explode <strong>3×3</strong> when they fall or get hit. Push it into the pit and <em>stand well back</em> - the blast opens the vault below."},
-    {"x":10,"y":6,"r":1,"icon":"🧨","title":"DYNAMITE","text":"Grab the dynamite ahead! Press <strong>1</strong> to place a stick, then get clear: every step and every second burns the fuse, and it lasts for only <em>five</em>. The blast breaks earth, boulders and ice, but <strong>not solid rock</strong>."},
-    {"x":2,"y":8,"r":1,"icon":"🚧","title":"BOULDER PLUG","text":"Boulders plug the tunnel below - no room to push them. Place dynamite beside the plug and <em>retreat up this shaft</em>!"},
-    {"x":11,"y":10,"r":0,"icon":"🔑","title":"THE KEY","text":"A <strong>key</strong> lies under the earth just ahead, below the tunnel. Dig down for it - the door stays locked without one."},
-    {"x":14,"y":10,"r":0,"icon":"🔦","title":"HELMET LAMP","text":"A helmet lamp lies in the alcove ahead. Press <strong>2</strong> to light it: for 12 seconds you see twice as far. Handy in the huge deep mines!"},
-    {"x":16,"y":10,"r":0,"icon":"🚪","title":"LOCKED DOOR","text":"A door uses up one <strong>key</strong> when you walk into it. Unlock this one to enter the final vault."},
-    {"x":19,"y":10,"r":0,"icon":"🏁","title":"FINAL VAULT","text":"Dig out the last element, then step onto the <strong>exit hatch</strong> to finish the lesson."}
+    {
+      "x": 1,
+      "y": 2,
+      "r": 1,
+      "icon": "🪨",
+      "title": "HEAVY THINGS",
+      "text": "A <strong>boulder</strong> blocks the tunnel. Walk into it to <strong>push</strong> it along - sideways only, and only one at a time. Where the floor ends, it falls.",
+      "task": "Push it east into the pit, walk over it and climb out.",
+      "save": true
+    },
+    {
+      "x": 10,
+      "y": 1,
+      "r": 0,
+      "icon": "⚠️",
+      "title": "LOOSE ROCK",
+      "text": "A boulder <strong>falls</strong> as soon as nothing holds it, and on rock it <strong>rolls</strong> into a hole that opens right beside it. A falling boulder kills - and the lithium lies in a pit with no way out.",
+      "task": "Dig the earth lid only once the boulder cannot follow you down: push it clear of the hole first.",
+      "save": true
+    },
+    {
+      "x": 21,
+      "y": 7,
+      "r": 1,
+      "icon": "☣️",
+      "title": "TOXIC BARREL",
+      "text": "A barrel is pushed and falls like a boulder - but one that <strong>lands after a fall explodes</strong>, and the blast breaks the earth and <strong>ice</strong> around it. Never be underneath one.",
+      "task": "The ice ahead cannot be dug. Push the barrel into the hole at its foot.",
+      "save": true
+    },
+    {
+      "x": 11,
+      "y": 7,
+      "r": 0,
+      "icon": "🧨",
+      "title": "DYNAMITE",
+      "text": "The boulder ahead has rock behind it and cannot be pushed. Key <strong>1</strong> lays a stick where you stand; its fuse burns down with <strong>every step and every second</strong>, five in all. The blast clears boulders, ice and earth - never rock.",
+      "task": "Take the sticks, lay one right beside the boulder and get two tiles away.",
+      "save": true
+    },
+    {
+      "x": 7,
+      "y": 10,
+      "r": 0,
+      "icon": "🔑",
+      "title": "KEY AND DOOR",
+      "text": "The door ahead opens only with a <strong>key</strong>, and each key opens one door. This key is frozen in below the tunnel.",
+      "task": "Blast the ice from above, fetch the key and open the door.",
+      "save": true
+    },
+    {
+      "x": 15,
+      "y": 10,
+      "r": 0,
+      "icon": "🎓",
+      "title": "ON YOUR OWN",
+      "text": "The last element lies under the ice at the bottom of this shaft. Everything you need you have met in this lesson.",
+      "task": "Open the shaft - without being in it.",
+      "save": true
+    }
   ]
 }
