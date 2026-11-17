@@ -13,7 +13,7 @@
   var s = Game.state;
   var PROGRESS_KEY = "deepElements_missionProgress";
 
-  // ─── The 21 mines (index = mission index in the manifest) ───
+  // ─── The 31 mines (index = mission index in Levels/manifest.json) ───
   // In rising order of difficulty. A mine and its level file move together:
   // reorder both, bump ORDER_VERSION and extend migrateProgress() so that saved
   // stars follow their mines.
@@ -61,43 +61,39 @@
     { mine:"Gotthard Base Tunnel", country:"Switzerland", flag:"🇨🇭", lat:46.6, lon:8.6,   elem:"Si", diff:"medium",
       fact:"Not a mine - the world's longest rail tunnel (57 km), most of it bored through the Alps by four giant tunnel boring machines." },
 
-    // ─── Ten further mines. Free like the rest; they live in BonusLevels/ and
-    // are flagged `bonus` only so the loader knows which folder to read. ───
-    { mine:"Escondida",         country:"Chile",        flag:"🇨🇱", lat:-24.27,lon:-69.07, elem:"Cu", diff:"easy", bonus:true,
+    { mine:"Escondida",         country:"Chile",        flag:"🇨🇱", lat:-24.27,lon:-69.07, elem:"Cu", diff:"easy",
       fact:"'The hidden one' - the world's biggest copper-producing mine, high in the Atacama desert." },
-    { mine:"Kiruna",            country:"Sweden",       flag:"🇸🇪", lat:67.86, lon:20.19,  elem:"Fe", diff:"easy", bonus:true,
+    { mine:"Kiruna",            country:"Sweden",       flag:"🇸🇪", lat:67.86, lon:20.19,  elem:"Fe", diff:"easy",
       fact:"Europe's giant iron mine - the ore runs under the town, so its centre is being moved 3 km east." },
-    { mine:"Ytterby",           country:"Sweden",       flag:"🇸🇪", lat:59.43, lon:18.35,  elem:"Y",  diff:"easy", bonus:true,
+    { mine:"Ytterby",           country:"Sweden",       flag:"🇸🇪", lat:59.43, lon:18.35,  elem:"Y",  diff:"easy",
       fact:"A tiny quarry that named four elements - yttrium, ytterbium, terbium and erbium." },
-    { mine:"Salar de Atacama",  country:"Chile",        flag:"🇨🇱", lat:-23.5, lon:-68.25, elem:"Li", diff:"medium", bonus:true,
+    { mine:"Salar de Atacama",  country:"Chile",        flag:"🇨🇱", lat:-23.5, lon:-68.25, elem:"Li", diff:"medium",
       fact:"No digging here: lithium-rich brine dries in vast evaporation ponds under the desert sun." },
-    { mine:"Oyu Tolgoi",        country:"Mongolia",     flag:"🇲🇳", lat:43.01, lon:106.87, elem:"Cu", diff:"medium", bonus:true,
+    { mine:"Oyu Tolgoi",        country:"Mongolia",     flag:"🇲🇳", lat:43.01, lon:106.87, elem:"Cu", diff:"medium",
       fact:"'Turquoise Hill' - a copper giant reaching more than a kilometre beneath the Gobi desert." },
-    { mine:"Sudbury Basin",     country:"Canada",       flag:"🇨🇦", lat:46.6,  lon:-81.0,  elem:"Ni", diff:"medium", bonus:true,
+    { mine:"Sudbury Basin",     country:"Canada",       flag:"🇨🇦", lat:46.6,  lon:-81.0,  elem:"Ni", diff:"medium",
       fact:"Nickel from a 1.8-billion-year-old meteorite crater - the impact melted the rock and concentrated Earth's own metals." },
-    { mine:"Jwaneng",           country:"Botswana",     flag:"🇧🇼", lat:-24.6, lon:24.7,   elem:"C",  diff:"medium", bonus:true,
+    { mine:"Jwaneng",           country:"Botswana",     flag:"🇧🇼", lat:-24.6, lon:24.7,   elem:"C",  diff:"medium",
       fact:"The world's richest diamond mine - pure carbon under the Kalahari sands." },
-    { mine:"Grasberg",          country:"Indonesia",    flag:"🇮🇩", lat:-4.05, lon:137.11, elem:"Au", diff:"hard", bonus:true,
+    { mine:"Grasberg",          country:"Indonesia",    flag:"🇮🇩", lat:-4.05, lon:137.11, elem:"Au", diff:"hard",
       fact:"Gold and copper at 4,000 m altitude in Papua, beside the last tropical glaciers between the Himalayas and the Andes - now almost melted away." },
-    { mine:"Cigar Lake",        country:"Canada",       flag:"🇨🇦", lat:58.06, lon:-104.54,elem:"U",  diff:"hard", bonus:true,
+    { mine:"Cigar Lake",        country:"Canada",       flag:"🇨🇦", lat:58.06, lon:-104.54,elem:"U",  diff:"hard",
       fact:"Uranium ore so rich that machines mine it remotely - no human enters the ore body." },
-    { mine:"Cerro Rico",        country:"Bolivia",      flag:"🇧🇴", lat:-19.62,lon:-65.75, elem:"Ag", diff:"hard", bonus:true,
+    { mine:"Cerro Rico",        country:"Bolivia",      flag:"🇧🇴", lat:-19.62,lon:-65.75, elem:"Ag", diff:"hard",
       fact:"The 'rich mountain' of Potosí - nearly 500 years of silver that once bankrolled an empire." }
   ];
 
-  var BASE_COUNT = MINES.filter(function(m) { return !m.bonus; }).length;
-
-  // True once the BonusLevels/ files have loaded. They ship with every copy of
-  // the game; a mine only shows as unavailable if its file is actually missing.
-  function bonusAvailable() {
-    return !!(Game.bonusLevels && Game.bonusLevels.getCount() > 0);
+  // A mine only shows as unavailable if its level file is actually missing.
+  function getLevelFor(i) {
+    return Game.levels ? Game.levels.get(i) : null;
   }
   function isAvailable(i) {
-    return !MINES[i].bonus || bonusAvailable();
+    return !!getLevelFor(i);
   }
-  function getLevelFor(i) {
-    if (MINES[i].bonus) return Game.bonusLevels ? Game.bonusLevels.get(i - BASE_COUNT) : null;
-    return Game.levels.get(i);
+  function availableCount() {
+    var n = 0;
+    for (var i = 0; i < MINES.length; i++) if (isAvailable(i)) n++;
+    return n;
   }
 
   var DIFF_LABEL = { easy:"EASY", medium:"MEDIUM", hard:"HARD" };
@@ -476,7 +472,7 @@
     var detail = document.getElementById("map-detail");
     if (detail) {
       var actionHtml = locked
-        ? '<div class="md-missing-note">🔒 This mission\'s level file could not be loaded. Check that the <strong>BonusLevels</strong> folder is present, then rebuild the level bundle.</div>'
+        ? '<div class="md-missing-note">🔒 This mission\'s level file could not be loaded. Check that its file is listed in <strong>Levels/manifest.json</strong>, then rebuild the level bundle.</div>'
         :
           '<button class="overlay-btn primary" style="width:100%" data-action="startMission" data-arg="' + i + '">⛏️ ' + (prog[i] ? 'MINE AGAIN' : 'START MISSION') + '</button>';
       detail.innerHTML =
@@ -515,7 +511,7 @@
       renderList();
       var prog = getProgress();
       var done = Object.keys(prog).length;
-      var avail = bonusAvailable() ? MINES.length : BASE_COUNT;
+      var avail = availableCount();
       var counter = document.getElementById("map-progress");
       if (counter) counter.innerHTML = done >= avail
         ? '🎉 ALL ' + avail + ' MINES CONQUERED! 🎉'
@@ -577,7 +573,7 @@
       return Object.keys(getProgress()).length;
     },
 
-    total: function() { return bonusAvailable() ? MINES.length : BASE_COUNT; }
+    total: function() { return availableCount(); }
   };
 
   window.showMissionMap = function() { Game.map.show(); };

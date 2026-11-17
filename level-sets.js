@@ -1,10 +1,9 @@
 "use strict";
 
 // ═══════════════════════════════════════════════════════════════════
-// level-sets.js - loads the four sets of hand-built levels
+// level-sets.js - loads the three sets of hand-built levels
 //
-//   Game.levels       Levels/        the first 21 missions
-//   Game.bonusLevels  BonusLevels/   ten further missions (map entries 22–31)
+//   Game.levels       Levels/        the 31 missions, one per mine on the world map
 //   Game.tutorials    Tutorials/     six guided lessons
 //   Game.elementRun   ElementRun/    the three Element Runs (one level each)
 //
@@ -123,12 +122,6 @@
     label: "mission", folder: "Levels",
     manifestGlobal: "__MISSION_MANIFEST__", levelsGlobal: "__MISSION_LEVELS__",
     defaultName: function(index, fileName) { return nameFromFile(fileName) || "Mission " + (index + 1); }
-  });
-
-  Game.bonusLevels = createLevelSet({
-    label: "mission", folder: "BonusLevels", optional: true,
-    manifestGlobal: "__BONUS_MANIFEST__", levelsGlobal: "__BONUS_LEVELS__",
-    defaultName: function(index, fileName) { return nameFromFile(fileName) || "Mission " + (index + 22); }
   });
 
   Game.tutorials = createLevelSet({

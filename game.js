@@ -1110,11 +1110,7 @@
   // ═══════════════════════════════════════════════════════════════
 
   function getMissionLevel(num) {
-    if (!Game.levels) return null;
-    var base = Game.levels.getCount();
-    // Indices past the base manifest are the ten further missions in BonusLevels/
-    if (num >= base && Game.bonusLevels) return Game.bonusLevels.get(num - base);
-    return Game.levels.get(num);
+    return Game.levels ? Game.levels.get(num) : null;
   }
 
   // Enemy speed/senses for this level - decoupled from the mission's map position
@@ -1587,8 +1583,5 @@
       console.error("Failed to load element run level.", err);
       if (elementRunBtn) { elementRunBtn.disabled = true; elementRunBtn.title = "Element run level failed to load"; }
     });
-
-    // The ten further missions in BonusLevels/
-    Game.bonusLevels.loadAllLevels();
   })();
 })();

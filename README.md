@@ -43,7 +43,7 @@ each time the game is opened, so it always matches what has been found in that s
 - `state.js`, `level-sets.js`, `level-gen.js` - game state, level loading, building a level
 - `game.js`, `input.js`, `physics.js`, `enemies.js`, `machines.js` - rules, controls, gravity and fluids, creatures, machinery
 - `render*.js` - drawing; `ui.js`, `mission-map.js`, `shared-level.js`, `sound.js` - interface and audio
-- `Levels/`, `BonusLevels/`, `Tutorials/`, `ElementRun/` - level files (JSON) with a `manifest.json` each
+- `Levels/`, `Tutorials/`, `ElementRun/` - level files (JSON) with a `manifest.json` each
 - `levels-inline.js`, `docs-inline.js` - **generated** bundles, so the game also runs from `file://`
 - `Level Editor.html` - level editor with solvability validation and a live preview
 - `tests/` - smoke tests

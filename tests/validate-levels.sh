@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.." || exit 2
 command -v node >/dev/null 2>&1 || { echo "FAIL  level files validate  -- node not found"; exit 2; }
 
 STATUS=0
-for dir in Tutorials Levels BonusLevels ElementRun; do
+for dir in Tutorials Levels ElementRun; do
   COUNT=0; BAD=""
   for f in "$dir"/*.json; do
     case "$f" in */manifest.json) continue ;; esac

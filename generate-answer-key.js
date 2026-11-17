@@ -58,8 +58,8 @@ lines.push("In the game the answers are dealt onto the pads afresh every time a 
 lines.push("the key gives the element, not a pad position. A wrong pad costs thirty seconds.");
 lines.push("");
 
-var missions = levelsIn("Levels").concat(levelsIn("BonusLevels"));
-if (mines.length !== missions.length) throw new Error("mission-map.js lists " + mines.length + " mines, the manifests " + missions.length + " levels");
+var missions = levelsIn("Levels");
+if (mines.length !== missions.length) throw new Error("mission-map.js lists " + mines.length + " mines, the manifest " + missions.length + " levels");
 lines.push("## Missions");
 lines.push("");
 lines.push("| # | Mine | Device | Question | Answer | Other pads |");

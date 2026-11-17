@@ -36,7 +36,7 @@ as long as you:
 
 This covers:
 
-- the levels in `Levels/`, `BonusLevels/`, `Tutorials/` and `ElementRun/`, and
+- the levels in `Levels/`, `Tutorials/` and `ElementRun/`, and
   their bundled copy in `levels-inline.js`;
 - the element facts, device recipes, roles, glossary, supply-risk notes, hints,
   quiz questions and mine descriptions (the text held in `data.js`, in

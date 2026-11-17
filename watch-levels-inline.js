@@ -89,11 +89,3 @@ if (fs.existsSync(elementRunDir)) {
     scheduleBuild((eventType || "change") + " in ElementRun/" + fileName, elementRunDir, fileName);
   });
 }
-
-var bonusDir = path.join(generator.paths.rootDir, "BonusLevels");
-if (fs.existsSync(bonusDir)) {
-  fs.watch(bonusDir, function(eventType, fileName) {
-    if (!shouldHandle(fileName)) return;
-    scheduleBuild((eventType || "change") + " in BonusLevels/" + fileName, bonusDir, fileName);
-  });
-}

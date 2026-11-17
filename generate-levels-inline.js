@@ -10,8 +10,6 @@ var tutorialsDir = path.join(rootDir, "Tutorials");
 var tutorialManifestPath = path.join(tutorialsDir, "manifest.json");
 var elementRunDir = path.join(rootDir, "ElementRun");
 var elementRunManifestPath = path.join(elementRunDir, "manifest.json");
-var bonusDir = path.join(rootDir, "BonusLevels");
-var bonusManifestPath = path.join(bonusDir, "manifest.json");
 var outputPath = path.join(rootDir, "levels-inline.js");
 
 function readJson(filePath) {
@@ -72,15 +70,9 @@ function buildInlineBundle() {
   if (fs.existsSync(elementRunManifestPath)) {
     elementRun = readLevelSet(elementRunDir, elementRunManifestPath, "ElementRun");
   }
-  // Bonus missions ship only in the paid build - the dist script excludes the
-  // BonusLevels/ folder for the free build and this block then bundles nothing
-  var bonus = { manifest: [], levels: [] };
-  if (fs.existsSync(bonusManifestPath)) {
-    bonus = readLevelSet(bonusDir, bonusManifestPath, "Bonus");
-  }
 
-  var allManifests = missions.manifest.concat(tutorials.manifest, elementRun.manifest, bonus.manifest);
-  var allLevels = missions.levels.concat(tutorials.levels, elementRun.levels, bonus.levels);
+  var allManifests = missions.manifest.concat(tutorials.manifest, elementRun.manifest);
+  var allLevels = missions.levels.concat(tutorials.levels, elementRun.levels);
   var meta = {
     generatedAt: new Date().toISOString(),
     projectHash: buildProjectHash(allManifests, allLevels)
@@ -95,12 +87,10 @@ function buildInlineBundle() {
     "window.__TUTORIAL_LEVELS__ = " + JSON.stringify(tutorials.levels, null, 2) + ";\n" +
     "window.__ELEMENTRUN_MANIFEST__ = " + JSON.stringify(elementRun.manifest, null, 2) + ";\n" +
     "window.__ELEMENTRUN_LEVELS__ = " + JSON.stringify(elementRun.levels, null, 2) + ";\n" +
-    "window.__BONUS_MANIFEST__ = " + JSON.stringify(bonus.manifest, null, 2) + ";\n" +
-    "window.__BONUS_LEVELS__ = " + JSON.stringify(bonus.levels, null, 2) + ";\n" +
     "window.__MISSION_BUNDLE_META__ = " + JSON.stringify(meta, null, 2) + ";\n";
 
   fs.writeFileSync(outputPath, content);
-  return { count: missions.levels.length, tutorialCount: tutorials.levels.length, elementRunCount: elementRun.levels.length, bonusCount: bonus.levels.length, outputPath: outputPath };
+  return { count: missions.levels.length, tutorialCount: tutorials.levels.length, elementRunCount: elementRun.levels.length, outputPath: outputPath };
 }
 
 module.exports = {
@@ -119,7 +109,7 @@ module.exports = {
 if (require.main === module) {
   try {
     var result = buildInlineBundle();
-    console.log("Rebuilt local mission bundle with " + result.count + " levels + " + result.tutorialCount + " tutorials + " + result.elementRunCount + " element run + " + result.bonusCount + " bonus:");
+    console.log("Rebuilt local mission bundle with " + result.count + " levels + " + result.tutorialCount + " tutorials + " + result.elementRunCount + " element run:");
     console.log(result.outputPath);
   } catch (err) {
     console.error(err && err.message ? err.message : err);

@@ -16,7 +16,7 @@ loaded after `input.js`, just before `game.js`. Nothing calls them until a level
 |---|---|---|
 | Constants and content | `config.js`, `data.js` | Tile ids, creature definitions, tuning constants, ways to die; the element encyclopedia, device recipes, glossary |
 | Bundled data | `levels-inline.js`, `docs-inline.js` | **Generated.** Every level and the three documents, so the game works from `file://` |
-| Level loading | `level-sets.js` | `Game.levels`, `Game.bonusLevels`, `Game.tutorials`, `Game.elementRun` - one loader, four sets |
+| Level loading | `level-sets.js` | `Game.levels`, `Game.tutorials`, `Game.elementRun` - one loader, three sets |
 | Sound | `sound.js` | `SFX`: effects synthesised with Web Audio, the music loops, volume and mute |
 | State | `state.js` | `Game.state`: the single mutable record of a run (grid, miner, creatures, score…) |
 | Simulation | `camera.js`, `enemies.js`, `physics.js`, `machines.js`, `level-gen.js` | Viewport sizing; creature AI; gravity, blasts and fluids; carts, lifts and borers; building a level into the state |
@@ -135,10 +135,10 @@ the system's "reduce motion" setting.
 
 - **Elements, recipes, roles, glossary:** `data.js`. The level editor and the validator
   read the same tables, so a recipe is changed in one place.
-- **Levels:** JSON files in `Levels/`, `BonusLevels/`, `Tutorials/`, `ElementRun/`, each
+- **Levels:** JSON files in `Levels/`, `Tutorials/`, `ElementRun/`, each
   folder with a `manifest.json`. Format: `Tutorials/_SPEC.md`.
-- **Mines on the map:** the `MINES` list in `mission-map.js`, in the same order as the
-  level manifests (`Levels/` first, then `BonusLevels/`).
+- **Mines on the map:** the `MINES` list in `mission-map.js`, in the same order as
+  `Levels/manifest.json`.
 - **Documents:** `SOURCES.md`, `TEACHERS_GUIDE.md`, `CREDITS.md`, shown in the game by the
   small Markdown renderer in `ui.js`.
 
