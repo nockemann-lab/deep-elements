@@ -178,7 +178,9 @@
 
     test("lessons: nothing flows before the miner acts, and every part sets a task", function() {
       var P = Game.physics, moved = [], untasked = [], graded = [], i;
-      function fluids() { return [tiles(T.WATER), tiles(T.LAVA), tiles(T.GAS), Object.keys(s.waterLevel).length, Object.keys(s.lavaLevel).length, Object.keys(s.gasLevel).length].join("/"); }
+      function fluids() { return [tiles(T.WATER), tiles(T.LAVA), tiles(T.GAS), Object.keys(s.waterLevel).length, Object.keys(s.lavaLevel).length, Object.keys(s.gasLevel).length, solids()].join("/"); }
+      // where every boulder, barrel and block of ice is: none may fall, roll or be blown up unprompted
+      function solids() { var p = []; for (var y = 0; y < s.rows; y++) for (var x = 0; x < s.cols; x++) { var t = s.grid[y][x]; if (t === T.BOULDER || t === T.HAZARD || t === T.ICE) p.push(t + "@" + x + "," + y); } return p.join(" "); }
       for (i = 0; i < Game.tutorials.getCount(); i++) {
         lessonStart(i);
         var before = fluids();
@@ -187,12 +189,12 @@
         s.tutorialHints.slice(0, -1).forEach(function(h) { if (!h.task) untasked.push(s.levelName + ": " + h.title); });
         if (s.difficulty !== 0) graded.push(s.levelName + " " + s.difficulty);
       }
-      check("no lesson floods, burns or gasses itself while the miner stands still", moved.length === 0, moved.join("; "));
+      check("no lesson floods, burns, gasses or drops a boulder or barrel while the miner stands still", moved.length === 0, moved.join("; "));
       check("every hint but a lesson's last sets a task", untasked.length === 0, untasked.join("; "));
       check("lessons run at the base difficulty, where the creatures sense as far as the hints say", graded.length === 0, graded.join("; "));
       lessonStart(0);
       var task = document.querySelector("#tutorial-hint .th-task");
-      check("the task stands on its own line under the hint", !!task && /^▶ Dig east/.test(task.textContent), task && task.textContent);
+      check("the task stands on its own line under the hint", !!task && /^▶ Dig your way east/.test(task.textContent), task && task.textContent);
     });
 
     test("lessons: a part can be tried again", function() {
@@ -242,7 +244,7 @@
       var n0 = barred();
       stepOnto(10, 8);
       check("the exit stays shut while elements are missing, and the log says how many",
-        s.running && pos() === "10,7" && barred() === n0 + 1 && /<strong>3 elements<\/strong> still in the mine/.test(log.innerHTML), pos() + " " + (barred() - n0));
+        s.running && pos() === "10,7" && barred() === n0 + 1 && /<strong>5 elements<\/strong> still in the mine/.test(log.innerHTML), pos() + " " + (barred() - n0));
       Game.loop.movePlayer(0, 1);
       check("a second press straight away adds no second line", barred() === n0 + 1, barred() - n0);
       s.exitBarredAt = Date.now() - 3000;
@@ -267,21 +269,37 @@
       forgetNotebook();
     });
 
+    test("lesson 1: the aluminium first, and the boulders keep off the miner", function() {
+      lessonStart(0);
+      var P = Game.physics;
+      // a step at a walking pace: the boulders get two falls per move
+      function walk(legs) { legs.split(" ").forEach(function(leg) { for (var n = 0; n < +leg.slice(1) && s.running; n++) { route(leg[0] + "1"); P.applyGravity(); P.applyGravity(); } }); }
+      walk("D2 R2 D2 R1 D4");
+      check("the shaft below the start leads to the aluminium, under undisturbed boulders", got("Al") && s.running && s.tutorialHints[1].fired && s.tutorialHints[2].fired, pos() + " " + s.collected.join(","));
+      walk("U4 R2 U3 R1 R1 D2 R4 D1 R4 U3 L2");
+      check("indium, then gold round the rock, with the boulders falling behind the miner", got("In") && got("Au") && s.running && s.tutorialHints[3].fired, pos() + " " + s.collected.join(","));
+      walk("R2 D2 L6 D3");
+      check("the hatch hint waits in the exit chamber", s.tutorialHints[4].fired && pos() === "10,7", pos());
+      walk("R2 D1 R5 D4 L4 R4 U4 L5 L1 D1 L1 D2 L8 D2 R2 L2 U2 R8 U2");
+      check("neodymium and lithium bring the count to five", s.collected.length === 5 && s.tutorialHints[5].fired && s.running, s.collected.join(","));
+      walk("U1");
+      check("the hatch opens on all five", !s.running && pos() === "10,8", pos());
+      forgetNotebook();
+    });
+
     test("lesson 4: ice needs the stick, the spring drowns the bat, the pump dries the way on", function() {
       var P = Game.physics, M = Game.machines, q;
       lessonStart(3);
       var bat = s.enemies[0];
+      route("R1 U1 D1 R1");
+      check("the silicon and the stick are taken; ice bars the tunnel", got("Si") && s.inventory[PU.DYNAMITE] === 1 && at(7, 2) === T.ICE, s.inventory[PU.DYNAMITE] + " " + at(7, 2));
       route("R3");
-      check("the stick is picked up; basalt and ice bar the tunnel", s.inventory[PU.DYNAMITE] === 1 && at(5, 2) === T.BASALT && at(7, 2) === T.ICE, s.inventory[PU.DYNAMITE]);
-      for (q = 0; q < 60 && at(5, 2) === T.BASALT; q++) P.tickBasalt();
-      check("the basalt crumbles by itself, the ice does not", at(5, 2) === T.EMPTY && at(7, 2) === T.ICE, at(5, 2) + " " + at(7, 2));
-      route("R2");
       Game.loop.usePowerup(PU.DYNAMITE);
       route("L2");
       for (q = 0; q < 5 && s.placedDynamite.length; q++) P.tickDynamite();
       check("one stick laid beside the ice breaks it, two tiles away is safe", at(7, 2) === T.EMPTY && s.running && pos() === "4,2", at(7, 2) + " " + pos());
       route("R7");
-      check("the pump is picked up, and the spring is still shimmering earth", s.inventory[PU.PUMP] === 1 && at(11, 3) === T.WATER_SRC && tiles(T.WATER) === 7 && bat.state === AI_IDLE, s.inventory[PU.PUMP] + " " + tiles(T.WATER));
+      check("the pump and a spare stick are picked up, and the spring is still shimmering earth", s.inventory[PU.PUMP] === 1 && s.inventory[PU.DYNAMITE] === 1 && at(11, 3) === T.WATER_SRC && tiles(T.WATER) === 7 && bat.state === AI_IDLE, s.inventory.join("") + " " + tiles(T.WATER));
       route("D2 U2");
       for (q = 0; q < 600 && bat.alive; q++) P.tickWater();
       check("dug open, the spring floods the passage and drowns the bat", !bat.alive && at(15, 5) === T.WATER && s.running && pos() === "11,2", bat.alive + " " + at(15, 5) + " after " + q);
@@ -294,13 +312,31 @@
       check("the pump, used by the wading miner, seals the spring and drains the whole flood", s.pumps.length === 1 && s.pumps[0].done && tiles(T.WATER) === 0 && tiles(T.WATER_SRC) === 0 && !s.playerOnWater,
         s.pumps.length + " pumps, " + tiles(T.WATER) + " water, " + tiles(T.WATER_SRC) + " springs, wading " + s.playerOnWater);
       route("R1 D1");
-      check("on the dry floor the boulder moves off the copper", got("Cu") && at(18, 7) === T.BOULDER && pos() === "17,8", pos() + " " + s.collected.join(","));
+      check("on the dry floor the boulder moves off the copper", got("Cu") && pos() === "17,8", pos() + " " + s.collected.join(","));
+
+      // The west part: the barrel on its ledge waits until the miner digs past it, then drops
+      // down the shaft and blows the ice box open; the key it held opens the door to the exit.
+      s.grid[s.playerY][s.playerX] = T.EMPTY; s.playerX = 8; s.playerY = 14; s.grid[14][8] = T.PLAYER;
+      route("U1");
+      check("the key hint takes a checkpoint at the foot of the west part", s.tutorialHints[4].fired && s.checkpointHint === 4, s.checkpointHint);
+      route("U5 L3 U2");
+      for (q = 0; q < 10; q++) P.applyGravity();
+      check("with earth dug beside it but the miner still there, the barrel stays on its ledge", at(4, 6) === T.HAZARD && at(5, 9) === T.ICE, at(4, 6) + " " + at(5, 9));
+      route("U1");
+      for (q = 0; q < 20; q++) P.applyGravity();
+      check("once the miner climbs on, it drops and blasts the ice box open, out of the miner's reach", at(4, 6) === T.EMPTY && at(5, 9) === T.EMPTY && s.running && pos() === "5,5", at(4, 6) + " " + at(5, 9) + " " + pos());
+      route("L2 R2 D5 R1");
+      check("the tellurium and the freed key are taken", got("Te") && s.keysCollected === 1, s.collected.join(",") + " keys " + s.keysCollected);
+      route("L1 U1 L2 D3 L1 D2 R1 D2");
+      check("the last hint waits at the foot of the gap", s.tutorialHints[5].fired && pos() === "3,16", pos());
+      route("R9 R4 R1");
+      check("the tin is on the way, and the key opens the door before the exit", got("Sn") && pos() === "17,16" && s.keysCollected === 0, pos() + " keys " + s.keysCollected);
 
       // The pump is used on a flood that is still spreading: it must stay dry afterwards.
       // (The two walls are taken out by hand here; the part above has dealt with them.
       // The flood has not yet reached the pool round the boulder, whose 7 tiles stay.)
       lessonStart(3);
-      s.grid[2][5] = T.EMPTY; s.grid[2][7] = T.EMPTY; s.basaltLife = {};
+      s.grid[2][7] = T.EMPTY;
       route("R10 D2 U2");
       for (q = 0; q < 200 && at(13, 5) !== T.WATER; q++) P.tickWater();
       var filling = Object.keys(s.waterLevel).length;

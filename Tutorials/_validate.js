@@ -318,7 +318,7 @@ function bfs(passFn) {
       if (!inBounds(nx2, ny2) || vis[ny2][nx2]) return;
       if (!passFn(eff[ny2][nx2], nx2, ny2)) return;
       vis[ny2][nx2] = true;
-      q.push([nx2, ny2]);
+      if (eff[ny2][nx2] !== T.EXIT) q.push([nx2, ny2]);   // the exit stays shut until every element is in: nothing lies beyond it
     });
   }
   return vis;

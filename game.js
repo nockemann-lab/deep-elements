@@ -1347,7 +1347,7 @@
     every(600, P.tickGas);
     every(600, M.tickPumps);
     every(5000, Game.enemies.tickSpiderNests);
-    every(2000, P.tickBasalt);
+    every(1000, P.tickBasalt);
     every(GRAVITY_TICK_MS, function() { P.applyGravity(); Game.render.frame(); });
     every(100, M.tickRollingBarrels);
 

@@ -52,7 +52,7 @@ carry. Tutorials are loaded by `level-sets.js` and played in manifest order from
 | 24 | LAVA | instant death; spreads slowly |
 | 25 | LAVA_SRC | looks like earth; digging it turns it to LAVA and the miner stays where they are - the next step into it is death. It also fills any EMPTY cell below or beside it without being dug |
 | 26 | SPIDER_NEST | solid; every 5 s it has a one-in-three chance of putting a spider on an adjacent empty tile; dynamite destroys it |
-| 27 | BASALT | solid; crumbles away on its own (~30–50 s); dynamite clears it |
+| 27 | BASALT | solid; cracks and crumbles away on its own 8–12 s into the level; dynamite clears it. Use it as a timed release (a pile of boulders, a pocket of gas), not as a wall to wait at |
 | 28 | SHAFT_LIFT | becomes a vertically bouncing lift entity - DEADLY on touch |
 | 29 | TBM | tunnel borer marker (TOP-LEFT of 3×2): patrols horizontally, grinds all but walls/doors/pads/refuges, spares collectibles, deadly cutter |
 | 30 | REFUGE | refuge chamber marker (TOP-LEFT of 3×3): corner posts + safe floor; entering saves a respawn checkpoint (−100 on respawn); blocks enemies/machines/floods |
@@ -127,6 +127,11 @@ the hint's; the pause card then offers "⛑️ BACK TO THE REFUGE (−100)", so 
 wasted a tool can go back without dying first. Outside Tutorial mode `save` does nothing.
 Put `save` on a hint only where the miner is safe at the moment it fires: a retry starts
 there, with the mine as it was.
+
+The level editor places and edits hints: choose the **Hint** tool, click a cell to add one,
+click its number to select it, drag to move it, right-click to delete it. Its validator
+warns about a hint the miner can never reach, one that fires right under a boulder, a
+lesson with no hint at the start, and a lesson hint without a task.
 
 - ALWAYS include a welcome hint that fires at the player spawn.
 - Place hints a couple of tiles BEFORE the thing they explain, so the player reads first,

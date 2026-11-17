@@ -71,6 +71,12 @@ the same warnings as you type.
 
 Levels are plain JSON; the format is documented in `Tutorials/_SPEC.md`.
 
+In the level editor, **Load JSON** opens a level file and **Save JSON** writes it back to
+the same file under the same name (in Chrome or Edge directly; other browsers download
+it under that name). A new level is saved under a name you choose. Each folder's
+`manifest.json` lists which files the game loads, in order: a renamed or added level must
+be listed there too. Lessons' hint banners are placed and edited with the editor's **Hint** tool.
+
 After changing any level file, regenerate the bundle, or the game will keep loading the
 old version:
 

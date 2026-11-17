@@ -15,18 +15,18 @@
   },
   "grid": [
     7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-    7,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,7,
-    7,0,0,0,1,1,1,0,1,1,2,0,0,0,0,0,0,2,2,7,
-    7,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,1,2,2,7,
+    7,0,0,0,3,3,1,3,1,3,2,2,2,2,2,2,2,2,2,7,
+    7,0,0,1,3,3,1,0,1,1,2,0,0,0,0,0,0,2,2,7,
+    7,0,0,0,1,3,1,1,1,1,2,2,2,2,2,2,1,2,2,7,
+    7,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,1,1,2,7,
     7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,7,
-    7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,7,
-    7,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,7,
-    7,2,2,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,2,7,
-    7,2,2,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,2,7,
-    7,2,2,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,2,7,
-    7,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,7,
-    7,2,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,7,
-    7,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,2,2,2,1,2,2,2,2,2,1,2,2,2,2,2,2,2,2,7,
+    7,2,2,2,1,2,2,2,0,0,0,0,0,2,2,2,2,2,2,7,
+    7,2,2,2,1,2,2,2,0,0,0,0,0,1,1,1,1,1,2,7,
+    7,2,2,2,0,2,2,2,0,0,0,0,0,2,2,2,2,1,2,7,
+    7,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,1,2,7,
+    7,2,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,2,7,
+    7,2,1,2,2,2,2,2,2,2,2,2,2,0,1,1,1,1,2,7,
     7,2,1,1,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
     7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
   ],
@@ -45,6 +45,16 @@
       "x": 4,
       "y": 13,
       "key": "Li"
+    },
+    {
+      "x": 13,
+      "y": 12,
+      "key": "Nd"
+    },
+    {
+      "x": 4,
+      "y": 9,
+      "key": "Al"
     }
   ],
   "hiddenElems": [],
@@ -59,26 +69,36 @@
       "icon": "⛏️",
       "title": "WELCOME, MINER!",
       "text": "Move with the <strong>arrow keys</strong> or <strong>W A S D</strong> (on a tablet: the D-pad). Brown <strong>earth</strong> is dug simply by walking into it.",
-      "task": "Dig east to the glowing tile.",
+      "task": "Dig your way east, towards the glowing tiles.",
       "save": true
     },
     {
-      "x": 6,
-      "y": 2,
+      "x": 3,
+      "y": 3,
+      "r": 1,
+      "icon": "🪨",
+      "title": "BOULDERS",
+      "text": "Grey <strong>boulders</strong> are heavy. Dig away the ground under one and it falls; one resting on rock or on another boulder rolls off sideways into an open hole beside it. A boulder that lands on you is fatal, so never wait in a hole or a shaft below one.",
+      "task": "Dig down the shaft below you to the first glowing tile, before you dig near any boulder.",
+      "save": true
+    },
+    {
+      "x": 4,
+      "y": 7,
       "r": 1,
       "icon": "💎",
       "title": "AN ELEMENT",
       "text": "Walk onto a glowing tile to <strong>collect the element</strong>. Its card opens beside the mine, and the clock waits while you read it.",
-      "task": "Collect it. The STATUS panel then shows 1/3."
+      "task": "Collect it. The STATUS panel then shows 1/5."
     },
     {
-      "x": 9,
-      "y": 2,
-      "r": 0,
+      "x": 10,
+      "y": 4,
+      "r": 1,
       "icon": "🪨",
       "title": "SOLID ROCK",
       "text": "Grey <strong>rock</strong> cannot be dug. The gold lies just behind it - so close, and no way through here.",
-      "task": "Find the gap in the rock and dig your way round to the gold."
+      "task": "Take the indium, then find the way round the rock to the gold."
     },
     {
       "x": 10,
@@ -87,7 +107,7 @@
       "icon": "🚪",
       "title": "THE EXIT HATCH",
       "text": "This hatch is the way out - but it stays <strong>barred</strong> until every element of the mine is collected. Try it: walk into it.",
-      "task": "One element is still missing. Find it, then come back here.",
+      "task": "Find every element still missing - the STATUS panel counts them - then come back here.",
       "save": true
     },
     {
@@ -97,7 +117,7 @@
       "icon": "⏰",
       "title": "ON THE CLOCK",
       "text": "The <strong>⏰ clock</strong> in the STATUS panel is running. Every second left on it when you leave is worth <strong>10 points</strong>.",
-      "task": "Take the last element and go back up to the hatch."
+      "task": "Take the last elements and go back up to the hatch."
     }
   ]
 }

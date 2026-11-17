@@ -1,0 +1,175 @@
+{
+  "cols": 25,
+  "rows": 18,
+  "scenario": 3,
+  "levelName": "Tutorial 4: Water, Ice & Lava",
+  "timer": 360,
+  "difficulty": 0,
+  "player": {
+    "x": 1,
+    "y": 2
+  },
+  "exit": {
+    "x": 18,
+    "y": 16
+  },
+  "grid": [
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+    7,2,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,0,0,0,0,0,0,23,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,14,2,2,2,2,2,2,0,0,0,2,2,2,7,
+    7,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,0,0,0,2,2,2,7,
+    7,2,2,0,0,0,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,2,2,2,7,
+    7,2,2,0,8,1,2,2,2,2,2,2,2,2,2,2,12,12,12,2,2,2,2,2,7,
+    7,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,12,3,12,12,2,2,2,2,7,
+    7,2,2,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,2,12,2,2,2,2,7,
+    7,2,2,0,23,23,23,23,0,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,7,
+    7,2,2,0,23,0,15,23,0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,2,7,
+    7,2,2,0,23,23,23,23,0,2,2,25,1,1,25,1,1,1,25,1,2,2,2,2,7,
+    7,2,0,0,0,0,0,0,0,2,2,1,1,25,1,1,1,25,1,1,2,2,2,2,7,
+    7,2,0,2,2,2,2,2,0,2,2,0,1,1,0,1,1,1,0,1,2,2,2,2,7,
+    7,2,0,0,2,2,2,2,0,0,0,1,1,1,1,1,1,1,1,1,2,2,2,2,7,
+    7,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,
+    7,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,2,2,2,2,2,7,
+    7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+  ],
+  "elements": [
+    {
+      "x": 2,
+      "y": 1,
+      "key": "Si"
+    },
+    {
+      "x": 17,
+      "y": 8,
+      "key": "Cu"
+    },
+    {
+      "x": 12,
+      "y": 14,
+      "key": "Ag"
+    },
+    {
+      "x": 12,
+      "y": 16,
+      "key": "Sn"
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "key": "Te"
+    }
+  ],
+  "hiddenElems": [
+    {
+      "x": 15,
+      "y": 13,
+      "key": "Ge"
+    },
+    {
+      "x": 17,
+      "y": 14,
+      "key": "Nd"
+    }
+  ],
+  "powerups": [
+    {
+      "x": 3,
+      "y": 2,
+      "type": 0
+    },
+    {
+      "x": 9,
+      "y": 2,
+      "type": 4
+    },
+    {
+      "x": 19,
+      "y": 10,
+      "type": 2
+    },
+    {
+      "x": 3,
+      "y": 8,
+      "type": 0
+    },
+    {
+      "x": 10,
+      "y": 2,
+      "type": 0
+    },
+    {
+      "x": 19,
+      "y": 4,
+      "type": 0
+    }
+  ],
+  "enemies": [
+    {
+      "x": 16,
+      "y": 5,
+      "type": "bat",
+      "wait": true
+    }
+  ],
+  "pads": [],
+  "hints": [
+    {
+      "x": 1,
+      "y": 2,
+      "r": 0,
+      "icon": "🧊",
+      "title": "ICE",
+      "text": "A wall of blue <strong>ice</strong> bars this tunnel. Ice never gives way: only a blast breaks it. You know the stick: its fuse burns down with <strong>every step and every second</strong>, five in all, and the blast clears the tiles right around it, never rock. Two tiles away you are safe.",
+      "task": "Take the silicon above you and the stick. Lay the stick beside the ice (key 1) and step back two tiles.",
+      "save": true
+    },
+    {
+      "x": 9,
+      "y": 2,
+      "r": 0,
+      "icon": "💧",
+      "title": "GROUNDWATER",
+      "text": "You have picked up a <strong>pump</strong>: keep it for now. The shimmering earth in the floor at the end of this tunnel hides a <strong>spring</strong>. Water falls and spreads sideways, never climbs, and does you no harm: you only wade at half speed. A <strong>bat</strong> cannot fly through water. One sleeps in the passage below, the only way on, and it drowns if the passage floods.",
+      "task": "Take the spare stick, then dig down through the spring and the earth under it, climb straight back out and wait up here until the water has reached the bat.",
+      "save": true
+    },
+    {
+      "x": 16,
+      "y": 6,
+      "r": 0,
+      "icon": "🚰",
+      "title": "THE PUMP",
+      "text": "A boulder that stands in water will not be pushed. Press <strong>5</strong> in or beside a flood: the pump seals the spring and drains every flooded tile joined to it.",
+      "task": "Pump the water away, push the boulder east off the copper and dig down."
+    },
+    {
+      "x": 17,
+      "y": 10,
+      "r": 0,
+      "icon": "🌋",
+      "title": "LAVA VEINS",
+      "text": "The glowing seams in the earth below are <strong>lava veins</strong>. Break one open and lava pours out, and it stays: it falls and creeps sideways, never climbs, and one step into it is fatal. A tunnel dug beside or under a vein fills with lava behind you. The <strong>Geiger counter</strong> (key <strong>3</strong>) shows for 15 seconds the bonus elements hidden in plain-looking earth.",
+      "task": "Take the Geiger counter and scan. Dig to the silver and the two glowing spots without breaking a vein, then head west along the bottom. Never walk back into a tunnel that lava has reached.",
+      "save": true
+    },
+    {
+      "x": 8,
+      "y": 13,
+      "r": 0,
+      "icon": "🗝️",
+      "title": "A KEY IN THE ICE",
+      "text": "A locked <strong>door</strong> stands before the exit, and its <strong>key</strong> is frozen into the ice box ahead. A <strong>toxic barrel</strong> that falls and lands explodes like a stick of dynamite. One rests on a ledge beside the shaft up to the tellurium: dig past it and it rolls off into the shaft and drops onto the ice.",
+      "task": "Climb the shaft to the tellurium without stopping beside the barrel, wait at the top for the blast, then take the key.",
+      "save": true
+    },
+    {
+      "x": 3,
+      "y": 16,
+      "r": 0,
+      "icon": "🎓",
+      "title": "THE GROUND READ",
+      "text": "Ice, water, lava and a falling barrel: each follows its own rule, and you have now used every one of them. Walk into the <strong>door</strong> with the key and it opens. Next come the <strong>machines</strong> of the old mine. Take the tin and the exit!"
+    }
+  ]
+}

@@ -580,7 +580,8 @@
           if (s.grid[y][x] !== T.BASALT) continue;
           var key = y + "," + x;
           if (s.basaltLife[key] === undefined) s.basaltLife[key] = 100;
-          s.basaltLife[key] -= 4 + Math.floor(Math.random() * 5);
+          // ticked every second: gone after 8-12 s, cracking visibly as it goes
+          s.basaltLife[key] -= 9 + Math.floor(Math.random() * 5);
           if (s.basaltLife[key] <= 0) {
             s.grid[y][x] = T.EMPTY;
             delete s.basaltLife[key];

@@ -74,6 +74,24 @@ canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 .validate-results .vr-ok{color:#4ae87a;font-weight:600}
 .validate-results .vr-err{color:#e85454;border-left:3px solid #e85454;padding-left:7px;margin:3px 0}
 .validate-results .vr-warn{color:#e8b84b;border-left:3px solid #e8b84b;padding-left:7px;margin:3px 0}
+.source-file{text-align:center;font-size:12px;color:#8a8fa0;margin:-4px 0 8px}
+.hint-list{display:flex;flex-direction:column;gap:3px;margin-bottom:6px;max-height:180px;overflow-y:auto}
+.hint-item{display:flex;gap:6px;align-items:center;padding:4px 6px;border-radius:4px;background:#1a1e28;border:1px solid #2a2e3a;font-size:.72em;color:#c8ccd8;cursor:pointer;text-align:left}
+.hint-item:hover{border-color:#5a5e6a}
+.hint-item.sel{border-color:var(--gold);background:#2a2618}
+.hint-item .hn{font-family:'Press Start 2P',monospace;font-size:.75em;color:var(--gold);min-width:16px}
+.hint-item .hp{margin-left:auto;color:#6a7080;font-size:.9em}
+.hint-empty{font-size:.7em;color:#6a7080}
+.hint-edit{display:flex;flex-direction:column;gap:5px}
+.hint-edit textarea{font-family:inherit;font-size:.8em;resize:vertical}
+.hint-row{display:flex;gap:6px;align-items:center}
+.hint-icon{width:44px!important;text-align:center;flex:none}
+.hint-lab{font-size:.65em;color:#8a90a0}
+.hint-lab span{color:#5a6070}
+.hint-small{font-size:.7em;color:#8a90a0;flex-wrap:wrap}
+.hint-small input[type=number]{width:52px;padding:3px;margin-left:3px}
+.hint-pos{margin-left:auto;color:#6a7080}
+.hint-small button{padding:4px 9px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -135,6 +153,7 @@ canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
         <button class="tool-btn" data-tool="pad" title="Answer pad for the quiz (the right one opens the logic doors)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Pad</span></button>
         <button class="tool-btn" data-tool="logic_door" title="Logic door (opened by the right answer pad)"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Logic Dr</span></button>
         <button class="tool-btn" data-tool="trivia_pos" title="Where the quiz question is written on the cave wall"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Q-Pos</span></button>
+        <button class="tool-btn" data-tool="hint" title="Hint banner: click a cell to add one, click a numbered hint to select it, drag it to move it, right-click it to delete it"><canvas class="t-icon-cv" width="28" height="28"></canvas><span class="t-label">Hint</span></button>
       </div>
     </div>
 
@@ -171,6 +190,7 @@ canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
       <button onclick="validateLevel()">✅ Validate</button>
       <button onclick="showPreview()">🖼️ Preview</button>
     </div>
+    <div class="source-file" id="source-file">New level (not saved yet)</div>
 
     <div class="validate-results" id="validate-results" style="display:none"></div>
 
@@ -226,6 +246,29 @@ canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
       <div class="prop-help">Give one pad this symbol and the others wrong ones. The right pad opens the logic doors; a wrong pad costs 30 seconds. The game deals the answers onto the pads afresh each time the level loads.</div>
     </div>
   
+    <div class="prop-box">
+      <h3>💬 HINT BANNERS</h3>
+      <div class="prop-help" style="margin:0 0 6px">A banner appears when the miner comes within its radius. Choose the <b>Hint</b> tool, click a cell to add one, click a number to select it, drag to move it. Hints fire in list order.</div>
+      <div id="hint-list" class="hint-list"></div>
+      <div id="hint-edit" class="hint-edit" style="display:none">
+        <div class="hint-row"><input type="text" class="prop-input hint-icon" id="h-icon" maxlength="4" title="Icon (an emoji)"><input type="text" class="prop-input" id="h-title" maxlength="40" placeholder="TITLE"></div>
+        <label class="hint-lab">Text <span>(a rule; &lt;strong&gt; shows gold, &lt;em&gt; cyan)</span></label>
+        <textarea class="prop-input" id="h-text" rows="5"></textarea>
+        <label class="hint-lab">Task <span>(the one thing to do next, shown with ▶)</span></label>
+        <textarea class="prop-input" id="h-task" rows="2" placeholder="Leave empty on the last hint"></textarea>
+        <div class="hint-row hint-small">
+          <label>Radius <input type="number" class="prop-input" id="h-r" min="0" max="5" title="0 = only on the cell itself"></label>
+          <label title="In a lesson, a retry of this part starts here"><input type="checkbox" id="h-save"> Checkpoint</label>
+          <span id="h-pos" class="hint-pos"></span>
+        </div>
+        <div class="hint-row hint-small">
+          <button type="button" onclick="moveHint(-1)" title="Earlier in the list">↑</button>
+          <button type="button" onclick="moveHint(1)" title="Later in the list">↓</button>
+          <button type="button" class="btn-danger" onclick="deleteHint()">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>
+
     <div class="prop-box">
       <h3>📊 LEVEL STATS</h3>
       <div class="prop-row" id="stat-elements"><span>Elements</span><span class="pval">0 / 9</span></div>
@@ -386,7 +429,7 @@ var ENTITY_ARRAYS = ["elements", "hiddenElems", "powerups", "enemies", "pads"];
 var canvas = document.getElementById("editor-canvas"), ctx = canvas.getContext("2d");
 
 function freshEntities() {
-  return {player:null, exit:null, elements:[], hiddenElems:[], powerups:[], enemies:[], pads:[], triviaPos:null};
+  return {player:null, exit:null, elements:[], hiddenElems:[], powerups:[], enemies:[], pads:[], triviaPos:null, hints:[]};
 }
 
 function initGrid() {
@@ -394,7 +437,7 @@ function initGrid() {
   for (var y = 0; y < ROWS; y++) { grid[y] = []; for (var x = 0; x < COLS; x++) grid[y][x] = (x === 0 || x === COLS-1 || y === 0 || y === ROWS-1) ? T.WALL : T.EARTH; }
   entities = freshEntities();
   undoStack = [];
-  importedHints = null; importedRun = {};
+  importedRun = {}; selectedHint = -1;
   validationMarks = [];
   var vbox = document.getElementById("validate-results");
   if (vbox) { vbox.style.display = "none"; vbox.innerHTML = ""; }
@@ -412,6 +455,7 @@ window.applyResize = function() {
   var inBounds = function(e) { return e.x < newC && e.y < newR; };
   for (var i = 0; i < ENTITY_ARRAYS.length; i++) entities[ENTITY_ARRAYS[i]] = entities[ENTITY_ARRAYS[i]].filter(inBounds);
   entities.triviaPos = (entities.triviaPos && entities.triviaPos.x < newC && entities.triviaPos.y < newR) ? entities.triviaPos : null;
+  entities.hints = entities.hints.filter(inBounds); selectedHint = -1;
   COLS = newC; ROWS = newR; canvas.width = COLS * TSIZE; canvas.height = ROWS * TSIZE; render(); updateStats(); toast("Resized");
 };
 
@@ -430,7 +474,9 @@ function doUndo() {
   if (undoStack.length === 0) return;
   var snap = undoStack.pop();
   if(snap.c !== COLS || snap.r !== ROWS) { COLS = snap.c; ROWS = snap.r; document.getElementById("grid-cols").value = COLS; document.getElementById("grid-rows").value = ROWS; canvas.width = COLS * TSIZE; canvas.height = ROWS * TSIZE; }
-  grid = snap.grid; entities = snap.entities; render(); updateStats(); toast("Undo ↩");
+  grid = snap.grid; entities = snap.entities; if (!entities.hints) entities.hints = [];
+  if (selectedHint >= entities.hints.length) selectedHint = -1;
+  render(); updateStats(); toast("Undo ↩");
 }
 window.doUndo = doUndo;
 
@@ -439,7 +485,7 @@ function applyTool(x, y) {
   validationMarks = [];
   if (currentTool === "trivia_pos") { entities.triviaPos = {x:x, y:y}; render(); updateStats(); return; }
   if (TOOL_TO_TILE[currentTool] !== undefined && currentTool !== "pad") { grid[y][x] = TOOL_TO_TILE[currentTool]; removeEntitiesAt(x, y); render(); updateStats(); return; }
-  if (currentTool === "eraser") { removeEntitiesAt(x, y); var t = grid[y][x]; if (t === T.ELEMENT || t === T.HIDDEN_ELEM || t === T.POWERUP || t === T.PLAYER || t === T.EXIT || t === T.PAD || t === T.LOGIC_DOOR || t === T.WEB || t === T.CART || t === T.CART_BOUNCE || t === T.SHAFT_LIFT || t === T.TBM || t === T.REFUGE || t === T.GAS || t === T.GAS_SRC) grid[y][x] = T.EMPTY; render(); updateStats(); return; }
+  if (currentTool === "eraser") { removeEntitiesAt(x, y); removeHintAt(x, y); var t = grid[y][x]; if (t === T.ELEMENT || t === T.HIDDEN_ELEM || t === T.POWERUP || t === T.PLAYER || t === T.EXIT || t === T.PAD || t === T.LOGIC_DOOR || t === T.WEB || t === T.CART || t === T.CART_BOUNCE || t === T.SHAFT_LIFT || t === T.TBM || t === T.REFUGE || t === T.GAS || t === T.GAS_SRC) grid[y][x] = T.EMPTY; render(); updateStats(); return; }
   if (currentTool === "player") { if (entities.player && grid[entities.player.y][entities.player.x] === T.PLAYER) grid[entities.player.y][entities.player.x] = T.EMPTY; entities.player = {x:x, y:y}; grid[y][x] = T.PLAYER; render(); updateStats(); return; }
   if (currentTool === "exit") { if (entities.exit && grid[entities.exit.y][entities.exit.x] === T.EXIT) grid[entities.exit.y][entities.exit.x] = T.EMPTY; entities.exit = {x:x, y:y}; grid[y][x] = T.EXIT; render(); updateStats(); return; }
   if (currentTool === "element") { showElementPicker(x, y, "element"); return; }
@@ -504,6 +550,123 @@ function pickPowerup(type) { if (!pendingPickerTile) return; saveUndo(); removeE
 function closePickers() { document.getElementById("elem-picker").classList.remove("visible"); document.getElementById("pu-picker").classList.remove("visible"); pendingPickerTile = null; }
 document.addEventListener("click", function(e) { if (!e.target.closest(".elem-picker") && !e.target.closest(".pu-picker") && !e.target.closest(".canvas-wrap") && !e.target.closest(".tool-btn")) closePickers(); });
 
+// ─── Hint banners ───
+// Hints live with the other placed things in `entities`, so undo, resize and export
+// handle them. They are drawn over the map as numbered markers with their trigger
+// area (a square of radius r round the cell: the game fires a hint within
+// Chebyshev distance r of it).
+var selectedHint = -1, draggingHint = null;
+var HINT_FIELDS = ["x", "y", "r", "icon", "title", "text", "task", "save"];
+
+function cleanHint(h) {
+  var out = { x: h.x, y: h.y, r: typeof h.r === "number" ? h.r : 1, icon: h.icon || "💡", title: h.title || "", text: h.text || "" };
+  if (h.task) out.task = h.task;
+  if (h.save) out.save = true;
+  for (var k in h) if (HINT_FIELDS.indexOf(k) === -1 && h[k] !== undefined) out[k] = h[k];   // keep fields the editor does not know
+  return out;
+}
+function hintIndexAt(x, y) {
+  if (selectedHint >= 0 && entities.hints[selectedHint] && entities.hints[selectedHint].x === x && entities.hints[selectedHint].y === y) return selectedHint;
+  for (var i = 0; i < entities.hints.length; i++) if (entities.hints[i].x === x && entities.hints[i].y === y) return i;
+  return -1;
+}
+function removeHintAt(x, y) {
+  var i = hintIndexAt(x, y);
+  if (i === -1) return;
+  entities.hints.splice(i, 1);
+  selectedHint = -1;
+  refreshHintPanel();
+}
+function selectHint(i) { selectedHint = i; refreshHintPanel(); render(); }
+window.selectHint = selectHint;
+
+function hintPointerDown(pos, button) {
+  var i = hintIndexAt(pos.x, pos.y);
+  if (button === 2) { if (i !== -1) { saveUndo(); removeHintAt(pos.x, pos.y); render(); updateStats(); } return; }
+  if (button !== 0) return;
+  if (i !== -1) { selectHint(i); draggingHint = { index: i, moved: false }; return; }
+  saveUndo();
+  entities.hints.push({ x: pos.x, y: pos.y, r: 1, icon: "💡", title: "NEW HINT", text: "", task: "" });
+  selectHint(entities.hints.length - 1);
+  updateStats();
+  var title = document.getElementById("h-title"); title.focus(); title.select();
+}
+function hintDrag(pos) {
+  var h = entities.hints[draggingHint.index];
+  if (!h || (h.x === pos.x && h.y === pos.y)) return;
+  if (!draggingHint.moved) { saveUndo(); draggingHint.moved = true; }
+  h.x = pos.x; h.y = pos.y;
+  refreshHintPanel(); render(); updateStats();
+}
+
+window.moveHint = function(d) {
+  var i = selectedHint, j = i + d;
+  if (i < 0 || j < 0 || j >= entities.hints.length) return;
+  saveUndo();
+  var t = entities.hints[i]; entities.hints[i] = entities.hints[j]; entities.hints[j] = t;
+  selectHint(j); updateStats();
+};
+window.deleteHint = function() {
+  if (selectedHint < 0) return;
+  saveUndo();
+  entities.hints.splice(selectedHint, 1);
+  selectHint(-1); updateStats();
+};
+
+function escText(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function refreshHintPanel() {
+  var list = document.getElementById("hint-list"), edit = document.getElementById("hint-edit");
+  if (!list) return;
+  if (!entities.hints.length) list.innerHTML = '<div class="hint-empty">No hints yet.</div>';
+  else list.innerHTML = entities.hints.map(function(h, i) {
+    return '<button type="button" class="hint-item' + (i === selectedHint ? " sel" : "") + '" onclick="selectHint(' + i + ')">' +
+      '<span class="hn">' + (i + 1) + '</span><span>' + escText(h.icon || "") + " " + escText(h.title || "(no title)") + '</span><span class="hp">' + h.x + "," + h.y + '</span></button>';
+  }).join("");
+  var h = entities.hints[selectedHint];
+  edit.style.display = h ? "" : "none";
+  if (!h) return;
+  var set = function(id, v) { var el = document.getElementById(id); if (document.activeElement !== el) el.value = v; };
+  set("h-icon", h.icon || ""); set("h-title", h.title || ""); set("h-text", h.text || ""); set("h-task", h.task || "");
+  set("h-r", typeof h.r === "number" ? h.r : 1);
+  document.getElementById("h-save").checked = !!h.save;
+  document.getElementById("h-pos").textContent = "at " + h.x + ", " + h.y;
+}
+
+// Typing edits the selected hint at once; one undo step per field visit
+[["h-icon", "icon"], ["h-title", "title"], ["h-text", "text"], ["h-task", "task"], ["h-r", "r"], ["h-save", "save"]].forEach(function(f) {
+  var el = document.getElementById(f[0]);
+  el.addEventListener("focus", function() { if (selectedHint >= 0) saveUndo(); });
+  el.addEventListener(el.type === "checkbox" ? "change" : "input", function() {
+    var h = entities.hints[selectedHint]; if (!h) return;
+    if (f[1] === "r") { var r = parseInt(el.value, 10); h.r = isNaN(r) ? 1 : Math.max(0, Math.min(5, r)); }
+    else if (f[1] === "save") { if (el.checked) h.save = true; else delete h.save; }
+    else h[f[1]] = el.value;
+    if (f[1] === "title" || f[1] === "icon") refreshHintPanel();
+    render(); updateJSONPreview();
+  });
+});
+
+function drawHints() {
+  for (var i = 0; i < entities.hints.length; i++) {
+    var h = entities.hints[i], r = typeof h.r === "number" ? h.r : 1, sel = i === selectedHint;
+    var x0 = Math.max(0, h.x - r), y0 = Math.max(0, h.y - r), x1 = Math.min(COLS - 1, h.x + r), y1 = Math.min(ROWS - 1, h.y + r);
+    ctx.fillStyle = sel ? "rgba(232,184,75,0.16)" : "rgba(232,184,75,0.07)";
+    ctx.fillRect(x0 * TSIZE, y0 * TSIZE, (x1 - x0 + 1) * TSIZE, (y1 - y0 + 1) * TSIZE);
+    ctx.strokeStyle = sel ? "rgba(255,214,110,0.95)" : "rgba(232,184,75,0.55)";
+    ctx.lineWidth = sel ? 2 : 1; ctx.setLineDash([4, 3]);
+    ctx.strokeRect(x0 * TSIZE + 1, y0 * TSIZE + 1, (x1 - x0 + 1) * TSIZE - 2, (y1 - y0 + 1) * TSIZE - 2);
+    ctx.setLineDash([]);
+    // numbered marker in the hint's own cell
+    var cx = h.x * TSIZE + TSIZE / 2, cy = h.y * TSIZE + TSIZE / 2;
+    ctx.fillStyle = sel ? "#ffd66e" : "#e8b84b";
+    ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx - 4, cy + 6); ctx.lineTo(cx - 8, cy + 13); ctx.lineTo(cx + 1, cy + 8); ctx.fill();
+    ctx.strokeStyle = "#1a1408"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = "#1a1408"; ctx.font = "bold 10px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(String(i + 1), cx, cy + 0.5); ctx.textBaseline = "alphabetic";
+  }
+}
+
 function renderScene() {
   for (var y = 0; y < ROWS; y++) { for (var x = 0; x < COLS; x++) drawTile(x * TSIZE, y * TSIZE, grid[y][x], x, y); }
   drawPlacedMarkers();
@@ -546,6 +709,7 @@ var hoverGhost = null;
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   renderScene();
+  drawHints();
   // 3×2 placement ghost while the Borer tool is hovering
   if (hoverGhost && (currentTool === "tbm" || currentTool === "refuge")) {
     var gw = 3, gh = currentTool === "tbm" ? 2 : 3;
@@ -759,6 +923,7 @@ function updateStats() {
   document.getElementById("stat-bonus").querySelector(".pval").textContent = entities.hiddenElems.length;
   document.getElementById("stat-powerups").querySelector(".pval").textContent = entities.powerups.length;
   document.getElementById("stat-enemies").querySelector(".pval").textContent = entities.enemies.length;
+  refreshHintPanel();
   updateJSONPreview();
 }
 
@@ -775,7 +940,7 @@ function buildLevelJSON() {
     timer: (timerVal > 0 ? timerVal : undefined),
     sight: (function() { var sv = parseInt(document.getElementById("p-sight").value, 10); return sv >= 3 && sv <= 14 ? sv : undefined; })(),
     difficulty: (function() { var dv = parseInt(document.getElementById("p-difficulty").value, 10); return dv >= 0 && dv <= 7 ? dv : undefined; })(),
-    hints: importedHints || undefined,
+    hints: entities.hints.length ? entities.hints.map(cleanHint) : undefined,
     run: importedRun.run, gates: importedRun.gates, families: importedRun.families,
     grid: flatGrid,
     triviaQuestion: document.getElementById("p-trivia-q").value,
@@ -873,55 +1038,73 @@ function sanitizeFileSegment(value) {
     .replace(/^_+|_+$/g, "") || "Mission";
 }
 
-function normaliseLevelNumber(value) {
-  var digits = String(value || "").replace(/[^0-9]/g, "");
-  if (!digits) return "";
-  if (digits.length < 2) return ("0" + digits).slice(-2);
-  return digits;
+// The file a level was opened from. Saving writes back to it under the same name, so an
+// edited lesson or mission keeps the name its manifest lists. Where the browser allows
+// (Chrome, Edge), the file is written in place; elsewhere it is downloaded under that name.
+var sourceFile = { name: null, handle: null };
+function setSourceFile(name, handle) {
+  sourceFile = { name: name || null, handle: handle || null };
+  var el = document.getElementById("source-file");
+  if (el) el.textContent = sourceFile.name ? "File: " + sourceFile.name : "New level (not saved yet)";
+}
+
+function writeToHandle(handle, json) {
+  return handle.createWritable().then(function(w) { return w.write(json).then(function() { return w.close(); }); });
 }
 
 window.saveJSON = function() {
-  var levelNumberInput = prompt("Level number:", "01");
-  if (levelNumberInput === null) return;
-
-  var defaultName = document.getElementById("p-level-name").value.trim() || EDITOR_SCENARIOS[currentScenario].name || "Mission";
-  var levelName = prompt("Level name:", defaultName);
-  if (levelName === null) return;
-
-  var levelNumber = normaliseLevelNumber(levelNumberInput);
-  levelName = levelName.trim();
-  if (!levelNumber) { toast("❌ Level number is required"); return; }
-  if (!levelName) { toast("❌ Level name is required"); return; }
-
-  document.getElementById("p-level-name").value = levelName;
+  var levelName = document.getElementById("p-level-name").value.trim();
+  if (!levelName) { toast("❌ Give the level a name first"); document.getElementById("p-level-name").focus(); return; }
   updateJSONPreview();
-
   var json = buildLevelJSON();
-  var blob = new Blob([json], { type: "application/json" });
-  var a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = levelNumber + "_" + sanitizeFileSegment(levelName) + ".json";
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast("💾 Saved: " + a.download);
+  var fileName = sourceFile.name || sanitizeFileSegment(levelName) + ".json";
+  function saved(where) { toast("💾 Saved " + where); refreshBundleSyncStatus(); }
+  function failed(err) { if (!err || err.name !== "AbortError") toast("❌ Could not save: " + (err && err.message ? err.message : err)); }
+
+  if (sourceFile.handle) {
+    writeToHandle(sourceFile.handle, json).then(function() { saved("over " + fileName); }).catch(failed);
+  } else if (window.showSaveFilePicker) {
+    window.showSaveFilePicker({ suggestedName: fileName, types: [{ description: "Level JSON", accept: { "application/json": [".json"] } }] })
+      .then(function(handle) { return writeToHandle(handle, json).then(function() { setSourceFile(handle.name, handle); saved(handle.name); }); })
+      .catch(failed);
+  } else {
+    var blob = new Blob([json], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("💾 Downloaded " + fileName + " - move it into the level folder");
+  }
 };
 
 function showImport() {
   var json = prompt("Paste level JSON:"); if (!json) return;
-  try { var data = JSON.parse(json); importLevel(data); toast("📂 Level imported!"); } catch(e) { toast("❌ Invalid JSON"); }
+  try { var data = JSON.parse(json); importLevel(data); setSourceFile(null); toast("📂 Level imported!"); } catch(e) { toast("❌ Invalid JSON"); }
 }
 window.showImport = showImport;
 
 window.loadJSONFile = function() {
+  // Where the browser can, open the file so that Save can write back to it in place
+  if (window.showOpenFilePicker) {
+    window.showOpenFilePicker({ types: [{ description: "Level JSON", accept: { "application/json": [".json"] } }] })
+      .then(function(handles) {
+        var handle = handles[0];
+        return handle.getFile().then(function(file) { return file.text(); }).then(function(text) {
+          importLevel(JSON.parse(text));
+          setSourceFile(handle.name, handle);
+          toast("📂 Loaded: " + handle.name);
+        });
+      })
+      .catch(function(err) { if (!err || err.name !== "AbortError") toast("❌ Invalid JSON file"); });
+    return;
+  }
   var input = document.getElementById("json-file-input");
   if (!input) return;
   input.value = "";
   input.click();
 };
 
-// Hint banners (tutorial levels) aren't editable here, but must survive a
-// round-trip through the editor instead of being silently dropped
-var importedHints = null;
 // The Element Runs' own fields (the list card, the quiz doors, the groups that
 // win time) are kept the same way. They name cells of the grid, so moving
 // those cells here would leave them pointing at the wrong place.
@@ -932,8 +1115,8 @@ function importLevel(data) {
   importedRun = {};
   ["run", "gates", "families"].forEach(function(k) { if (data[k]) importedRun[k] = data[k]; });
   if (importedRun.gates || importedRun.families) toast("ℹ️ Element Run level: its quiz doors and groups are preserved on export (not editable here)");
-  importedHints = Array.isArray(data.hints) && data.hints.length ? data.hints : null;
-  if (importedHints) toast("ℹ️ Level has " + importedHints.length + " hint banners - preserved on export (not editable here)");
+  entities.hints = Array.isArray(data.hints) ? JSON.parse(JSON.stringify(data.hints)) : [];
+  selectedHint = -1;
   if (data.cols && data.rows) { COLS = data.cols; ROWS = data.rows; document.getElementById("grid-cols").value = COLS; document.getElementById("grid-rows").value = ROWS; canvas.width = COLS * TSIZE; canvas.height = ROWS * TSIZE; }
   if (data.grid) { grid = []; for (var y = 0; y < ROWS; y++) { grid[y] = []; for (var x = 0; x < COLS; x++) grid[y][x] = data.grid[y * COLS + x]; } }
   if (typeof data.scenario === "number" && data.scenario >= 0 && data.scenario < EDITOR_SCENARIOS.length) {
@@ -1111,6 +1294,8 @@ function deepValidateCore(state) {
         for (var di = 0; di < 4; di++) {
           var nx = cx + dirs[di][0], ny = cy + dirs[di][1];
           if (!inB(nx, ny) || vis[ny][nx]) continue;
+          // the exit stays shut until every element is in, so nothing lies beyond it
+          if (state.exit && nx === state.exit.x && ny === state.exit.y) { vis[ny][nx] = true; continue; }
           if (soft && tbmLane[ny] && tbmLane[ny][nx]) { vis[ny][nx] = true; q.push([nx, ny]); continue; }
           var tt = eff[ny][nx], pass;
           switch (tt) {
@@ -1160,6 +1345,21 @@ function deepValidateCore(state) {
     state.elements.forEach(function(e) { target("Element " + e.key, e.x, e.y, true); });
     state.hiddenElems.forEach(function(e) { target("Hidden " + e.key, e.x, e.y, false); });
     state.powerups.forEach(function(p) { target("Powerup", p.x, p.y, false); });
+
+    // Hints: each must be reachable, and a lesson's should start at the spawn and set tasks
+    var hints = state.hints || [], tasked = hints.some(function(h) { return h.task; });
+    hints.forEach(function(h, i) {
+      var name = "Hint " + (i + 1) + (h.title ? " (" + h.title + ")" : ""), r = typeof h.r === "number" ? h.r : 1, seen = false;
+      if (!inB(h.x, h.y)) { err(name + " lies outside the map"); return; }
+      for (var yy = Math.max(0, h.y - r); yy <= Math.min(R - 1, h.y + r) && !seen; yy++)
+        for (var xx = Math.max(0, h.x - r); xx <= Math.min(C - 1, h.x + r) && !seen; xx++) if (visSoft[yy][xx]) seen = true;
+      if (!seen) warn(name + " never fires: the miner cannot reach any cell within its radius", h.x, h.y);
+      if (!h.text) warn(name + " has no text", h.x, h.y);
+      if (r === 0 && h.y > 0 && state.grid2D[h.y - 1][h.x] === 3) warn(name + " fires right under a boulder, where the miner stops to read", h.x, h.y);
+      if (tasked && i < hints.length - 1 && !h.task) warn(name + " sets no task (a lesson gives one on every hint but the last)", h.x, h.y);
+    });
+    if (hints.length && !hints.some(function(h) { var r = typeof h.r === "number" ? h.r : 1; return Math.abs(h.x - state.player.x) <= r && Math.abs(h.y - state.player.y) <= r; }))
+      warn("No hint fires at the start - a lesson should open with a welcome hint", state.player.x, state.player.y);
   }
 
   return { errors: errors, warnings: warnings, marks: marks };
@@ -1180,6 +1380,7 @@ window.validateLevel = function() {
     triviaTrap: document.getElementById("p-trivia-trap").value.trim(),
     triviaPos: entities.triviaPos,
     timer: parseInt(document.getElementById("p-timer").value, 10) || 0,
+    hints: entities.hints,
     scenarioElements: sc.elements, scenarioBonus: sc.bonus
   });
 
@@ -1205,11 +1406,11 @@ window.clearAll = function() { if (!confirm("Clear entirely?")) return; saveUndo
 window.toggleGridLines = function() { showGrid = !showGrid; render(); };
 
 function getTileCoords(e) { var rect = canvas.getBoundingClientRect(); var x = Math.floor((e.clientX - rect.left) / TSIZE); var y = Math.floor((e.clientY - rect.top) / TSIZE); return {x: Math.max(0, Math.min(COLS-1, x)), y: Math.max(0, Math.min(ROWS-1, y))}; }
-canvas.addEventListener("pointerdown", function(e) { try { canvas.setPointerCapture(e.pointerId); } catch (err) {} e.preventDefault(); closePickers(); var pos = getTileCoords(e); if (e.button === 2) { saveUndo(); removeEntitiesAt(pos.x, pos.y); grid[pos.y][pos.x] = T.EMPTY; render(); updateStats(); return; } if (e.button === 0) { if (currentTool === "element" || currentTool === "hidden_elem" || currentTool === "powerup" || currentTool === "pad" || currentTool === "trivia_pos") { saveUndo(); applyTool(pos.x, pos.y); return; } saveUndo(); isDrawing = true; lastDrawX = pos.x; lastDrawY = pos.y; applyTool(pos.x, pos.y); } });
-canvas.addEventListener("pointermove", function(e) { var pos = getTileCoords(e); document.getElementById("coords").textContent = pos.x + ", " + pos.y; if ((currentTool === "tbm" || currentTool === "refuge") && (!hoverGhost || hoverGhost.x !== pos.x || hoverGhost.y !== pos.y)) { hoverGhost = pos; render(); } if (isDrawing && (pos.x !== lastDrawX || pos.y !== lastDrawY)) { applyTool(pos.x, pos.y); lastDrawX = pos.x; lastDrawY = pos.y; } });
-canvas.addEventListener("pointerup", function() { isDrawing = false; });
-canvas.addEventListener("pointercancel", function() { isDrawing = false; });
-canvas.addEventListener("pointerleave", function() { isDrawing = false; if (hoverGhost) { hoverGhost = null; render(); } });
+canvas.addEventListener("pointerdown", function(e) { try { canvas.setPointerCapture(e.pointerId); } catch (err) {} e.preventDefault(); closePickers(); var pos = getTileCoords(e); if (currentTool === "hint") { hintPointerDown(pos, e.button); return; } if (e.button === 2) { saveUndo(); removeEntitiesAt(pos.x, pos.y); grid[pos.y][pos.x] = T.EMPTY; render(); updateStats(); return; } if (e.button === 0) { if (currentTool === "element" || currentTool === "hidden_elem" || currentTool === "powerup" || currentTool === "pad" || currentTool === "trivia_pos") { saveUndo(); applyTool(pos.x, pos.y); return; } saveUndo(); isDrawing = true; lastDrawX = pos.x; lastDrawY = pos.y; applyTool(pos.x, pos.y); } });
+canvas.addEventListener("pointermove", function(e) { var pos = getTileCoords(e); document.getElementById("coords").textContent = pos.x + ", " + pos.y; if ((currentTool === "tbm" || currentTool === "refuge") && (!hoverGhost || hoverGhost.x !== pos.x || hoverGhost.y !== pos.y)) { hoverGhost = pos; render(); } if (draggingHint) { hintDrag(pos); return; } if (isDrawing && (pos.x !== lastDrawX || pos.y !== lastDrawY)) { applyTool(pos.x, pos.y); lastDrawX = pos.x; lastDrawY = pos.y; } });
+canvas.addEventListener("pointerup", function() { isDrawing = false; draggingHint = null; });
+canvas.addEventListener("pointercancel", function() { isDrawing = false; draggingHint = null; });
+canvas.addEventListener("pointerleave", function() { isDrawing = false; draggingHint = null; if (hoverGhost) { hoverGhost = null; render(); } });
 canvas.addEventListener("contextmenu", function(e) { e.preventDefault(); });
 
 document.addEventListener("keydown", function(e) {
@@ -1281,6 +1482,7 @@ document.getElementById("json-file-input").addEventListener("change", function(e
   file.text().then(function(text) {
     var data = JSON.parse(text);
     importLevel(data);
+    setSourceFile(file.name);
     toast("📂 Loaded: " + file.name);
   }).catch(function() {
     toast("❌ Invalid JSON file");
@@ -1337,6 +1539,12 @@ function renderToolIcons() {
         ic.fillStyle = "#454c58"; ic.fillRect(2,2,7,7); ic.fillRect(TSIZE-9,2,7,7); ic.fillRect(2,TSIZE-9,7,7); ic.fillRect(TSIZE-9,TSIZE-9,7,7);
         ic.fillStyle = "#e8e8ec"; ic.beginPath(); ic.arc(TSIZE/2,TSIZE/2,6,0,Math.PI*2); ic.fill();
         ic.fillStyle = "#3fae5a"; ic.fillRect(TSIZE/2-1.5,TSIZE/2-4.5,3,9); ic.fillRect(TSIZE/2-4.5,TSIZE/2-1.5,9,3);
+        break;
+      case "hint":
+        ic.fillStyle = "#0e0e16"; ic.fillRect(0,0,TSIZE,TSIZE);
+        ic.fillStyle = "#e8b84b"; ic.beginPath(); ic.arc(TSIZE/2, TSIZE/2-2, 10, 0, Math.PI*2); ic.fill();
+        ic.beginPath(); ic.moveTo(TSIZE/2-5, TSIZE/2+5); ic.lineTo(TSIZE/2-9, TSIZE/2+12); ic.lineTo(TSIZE/2+1, TSIZE/2+7); ic.fill();
+        ic.fillStyle = "#1a1408"; ic.font = "bold 13px monospace"; ic.textAlign = "center"; ic.fillText("!", TSIZE/2, TSIZE/2+3);
         break;
       case "trivia_pos":
         ic.fillStyle = "#0e0e16"; ic.fillRect(0,0,TSIZE,TSIZE);
