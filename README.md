@@ -1,5 +1,7 @@
 # Deep Elements
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24346235.svg)](https://doi.org/10.5281/zenodo.24346235)
+
 A browser mining puzzle game about the periodic table and the supply chains behind
 everyday technology. Dig, dodge cave creatures and falling boulders, and collect the real
 elements inside a smartphone, a wind turbine or an MRI scanner - each one comes with a
@@ -124,16 +126,18 @@ Found a factual error? It is treated as a bug - please open an issue.
 
 - Website: https://nockemann-lab.github.io/deep-elements/ (GitHub Pages, from the `main` branch)
 - Source: https://github.com/nockemann-lab/deep-elements
-- DOI: archived on Zenodo; each GitHub release is archived automatically. The record's
-  metadata comes from `.zenodo.json` (which Zenodo reads in preference to `CITATION.cff`).
+- DOI: https://doi.org/10.5281/zenodo.24346235 (Zenodo). This "concept" DOI always points
+  to the latest version; each GitHub release is archived by Zenodo automatically and also
+  gets its own version DOI (v1.0.0: 10.5281/zenodo.24346236). The record's metadata comes
+  from `.zenodo.json` (which Zenodo reads in preference to `CITATION.cff`).
 - For a new version: update `version` and `date-released` in `CITATION.cff` and `version`
   in `.zenodo.json`, then create a GitHub release with a new tag (e.g. `v1.1.0`).
 
 ## How to cite
 
 > Nockemann, P. (2026). *Deep Elements: A Mining Puzzle Game about the Periodic Table and
-> Critical Raw Materials* (Version 1.0.0) [Computer software].
-> https://github.com/nockemann-lab/deep-elements
+> Critical Raw Materials* (Version 1.0.0) [Computer software]. Zenodo.
+> https://doi.org/10.5281/zenodo.24346235
 
 Author: Peter Nockemann, Queen's University Belfast
 ([ORCID 0000-0001-9864-9702](https://orcid.org/0000-0001-9864-9702)) - p.nockemann@qub.ac.uk

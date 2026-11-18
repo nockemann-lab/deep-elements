@@ -20,6 +20,7 @@ contact:
     affiliation: "Queen's University Belfast"
     email: p.nockemann@qub.ac.uk
 version: "1.0.0"
+doi: 10.5281/zenodo.24346235
 date-released: "2026-11-18"
 license:
   - MIT
