@@ -32,6 +32,8 @@ var AI_IDLE = 0, AI_PATROL = 1, AI_ALERT = 2, AI_CHASE = 3, AI_SEARCH = 4;
 // How far away (in steps, not through the air) a spider feels a tremor: breaking ground,
 // a blast or the borer, and the much smaller one of picking something up off the floor
 var TREMOR_RADIUS = 15, PICKUP_TREMOR_RADIUS = 5;
+// A spider nest breeds until this many of its spiders are alive at once
+var SPIDER_NEST_MAX = 3;
 
 // ─── Enemy Type Definitions ───
 var ENEMY_TYPES = {

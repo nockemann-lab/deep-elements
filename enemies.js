@@ -243,6 +243,8 @@
       for (var y = 1; y < s.rows - 1; y++) {
         for (var x = 1; x < s.cols - 1; x++) {
           if (s.grid[y][x] !== T.SPIDER_NEST) continue;
+          var nest = y + "," + x;
+          if (s.enemies.filter(function(e) { return e.alive && e.nest === nest; }).length >= SPIDER_NEST_MAX) continue;
           if (Math.random() > 0.33) continue;
           // Shuffle dirs
           var sd = dirs.slice();
@@ -254,7 +256,9 @@
             if (t !== T.EMPTY && t !== T.WEB) continue;
             if (s.enemies.some(function(e) { return e.alive && e.x === nx && e.y === ny; })) continue;
             if (nx === s.playerX && ny === s.playerY) continue;
-            s.enemies.push(Game.enemies.create("spider", nx, ny));
+            var hatchling = Game.enemies.create("spider", nx, ny);
+            hatchling.nest = nest;
+            s.enemies.push(hatchling);
             Game.ui.addLog("\ud83d\udd77\ufe0f", "A spider crawled out of a nest!", "crush-log");
             break;
           }

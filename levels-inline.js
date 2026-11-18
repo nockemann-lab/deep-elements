@@ -9045,7 +9045,7 @@ window.__MISSION_LEVELS__ = [
       2,
       2,
       2,
-      27,
+      2,
       2,
       2,
       0,
@@ -9080,7 +9080,7 @@ window.__MISSION_LEVELS__ = [
       24,
       24,
       24,
-      27,
+      24,
       24,
       24,
       1,
@@ -9115,7 +9115,7 @@ window.__MISSION_LEVELS__ = [
       2,
       2,
       2,
-      27,
+      2,
       2,
       2,
       1,
@@ -14324,7 +14324,7 @@ window.__MISSION_LEVELS__ = [
       23,
       23,
       23,
-      27,
+      1,
       23,
       23,
       23,
@@ -14746,7 +14746,7 @@ window.__MISSION_LEVELS__ = [
       23,
       23,
       23,
-      27,
+      1,
       23,
       23,
       23,
@@ -15248,7 +15248,7 @@ window.__MISSION_LEVELS__ = [
       1,
       9,
       1,
-      27,
+      1,
       1,
       3,
       1,
@@ -15926,7 +15926,7 @@ window.__MISSION_LEVELS__ = [
       2,
       8,
       9,
-      27,
+      1,
       0,
       0,
       0,
@@ -19228,7 +19228,7 @@ window.__MISSION_LEVELS__ = [
       1,
       1,
       1,
-      27,
+      1,
       1,
       1,
       1,
@@ -19423,7 +19423,7 @@ window.__MISSION_LEVELS__ = [
       2,
       2,
       2,
-      27,
+      1,
       2,
       2,
       2,
@@ -19437,7 +19437,7 @@ window.__MISSION_LEVELS__ = [
       2,
       2,
       2,
-      27,
+      1,
       2,
       2,
       2,
@@ -19450,7 +19450,7 @@ window.__MISSION_LEVELS__ = [
       2,
       2,
       2,
-      27,
+      1,
       2,
       2,
       2,
@@ -21551,8 +21551,8 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 20,
-      "y": 14
+      "x": 1,
+      "y": 13
     },
     "elements": [
       {
@@ -21643,11 +21643,6 @@ window.__MISSION_LEVELS__ = [
         "x": 11,
         "y": 10,
         "type": 2
-      },
-      {
-        "x": 3,
-        "y": 13,
-        "type": 0
       }
     ],
     "enemies": [
@@ -21935,7 +21930,7 @@ window.__MISSION_LEVELS__ = [
       1,
       7,
       7,
-      9,
+      0,
       9,
       9,
       9,
@@ -22100,8 +22095,8 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 2,
-      "y": 18
+      "x": 1,
+      "y": 12
     },
     "elements": [
       {
@@ -22189,8 +22184,8 @@ window.__MISSION_LEVELS__ = [
         "type": 0
       },
       {
-        "x": 2,
-        "y": 12,
+        "x": 1,
+        "y": 3,
         "type": 2
       }
     ],
@@ -22479,7 +22474,7 @@ window.__MISSION_LEVELS__ = [
       1,
       7,
       7,
-      9,
+      0,
       9,
       9,
       9,
@@ -22544,8 +22539,8 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 17,
-      "y": 13
+      "x": 1,
+      "y": 12
     },
     "elements": [
       {
@@ -23128,7 +23123,7 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 22,
+      "x": 11,
       "y": 16
     },
     "elements": [
@@ -23220,11 +23215,6 @@ window.__MISSION_LEVELS__ = [
         "x": 23,
         "y": 9,
         "type": 1
-      },
-      {
-        "x": 11,
-        "y": 16,
-        "type": 0
       },
       {
         "x": 4,
@@ -23499,11 +23489,11 @@ window.__MISSION_LEVELS__ = [
       1,
       1,
       0,
-      27,
+      1,
       9,
       9,
       9,
-      27,
+      1,
       1,
       1,
       1,
@@ -23524,11 +23514,11 @@ window.__MISSION_LEVELS__ = [
       1,
       0,
       0,
-      27,
+      1,
       9,
       9,
       9,
-      27,
+      1,
       1,
       1,
       1,
@@ -23549,11 +23539,11 @@ window.__MISSION_LEVELS__ = [
       1,
       1,
       28,
-      27,
+      1,
       9,
       9,
       9,
-      27,
+      1,
       0,
       0,
       0,
@@ -23591,7 +23581,7 @@ window.__MISSION_LEVELS__ = [
       1,
       1,
       1,
-      27,
+      1,
       1,
       1,
       1,
@@ -23616,7 +23606,7 @@ window.__MISSION_LEVELS__ = [
       1,
       1,
       1,
-      27,
+      1,
       1,
       1,
       1,
@@ -23792,7 +23782,7 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 22,
+      "x": 8,
       "y": 18
     },
     "elements": [
@@ -23888,11 +23878,6 @@ window.__MISSION_LEVELS__ = [
       {
         "x": 22,
         "y": 12,
-        "type": 0
-      },
-      {
-        "x": 8,
-        "y": 18,
         "type": 0
       }
     ],
@@ -24062,7 +24047,7 @@ window.__MISSION_LEVELS__ = [
       1,
       2,
       2,
-      27,
+      1,
       2,
       2,
       1,
@@ -24181,7 +24166,7 @@ window.__MISSION_LEVELS__ = [
       1,
       1,
       1,
-      27,
+      1,
       9,
       9,
       9,
@@ -24193,7 +24178,7 @@ window.__MISSION_LEVELS__ = [
       9,
       9,
       9,
-      27,
+      1,
       1,
       1,
       1,
@@ -24312,7 +24297,7 @@ window.__MISSION_LEVELS__ = [
       1,
       2,
       2,
-      27,
+      1,
       2,
       2,
       1,
@@ -24406,7 +24391,7 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 22,
+      "x": 9,
       "y": 16
     },
     "elements": [
@@ -24497,11 +24482,6 @@ window.__MISSION_LEVELS__ = [
       {
         "x": 19,
         "y": 10,
-        "type": 0
-      },
-      {
-        "x": 9,
-        "y": 16,
         "type": 0
       }
     ],
@@ -25065,8 +25045,8 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 22,
-      "y": 18
+      "x": 19,
+      "y": 10
     },
     "elements": [
       {
@@ -25132,14 +25112,14 @@ window.__MISSION_LEVELS__ = [
         "key": "Mo"
       },
       {
-        "x": 19,
-        "y": 10,
-        "key": "Cu"
-      },
-      {
         "x": 21,
         "y": 10,
         "key": "Si"
+      },
+      {
+        "x": 20,
+        "y": 10,
+        "key": "Cu"
       }
     ],
     "powerups": [
@@ -25171,11 +25151,6 @@ window.__MISSION_LEVELS__ = [
       {
         "x": 6,
         "y": 14,
-        "type": 0
-      },
-      {
-        "x": 20,
-        "y": 10,
         "type": 0
       }
     ],
@@ -25834,7 +25809,7 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 26,
+      "x": 3,
       "y": 18
     },
     "elements": [
@@ -25901,14 +25876,14 @@ window.__MISSION_LEVELS__ = [
         "key": "Ge"
       },
       {
-        "x": 3,
-        "y": 18,
-        "key": "Y"
-      },
-      {
         "x": 5,
         "y": 18,
         "key": "Ag"
+      },
+      {
+        "x": 4,
+        "y": 18,
+        "key": "Y"
       }
     ],
     "powerups": [
@@ -25941,11 +25916,6 @@ window.__MISSION_LEVELS__ = [
         "x": 26,
         "y": 16,
         "type": 1
-      },
-      {
-        "x": 4,
-        "y": 18,
-        "type": 0
       }
     ],
     "enemies": [
@@ -25998,8 +25968,7 @@ window.__MISSION_LEVELS__ = [
     "triviaPos": {
       "x": 4,
       "y": 16
-    },
-    "sight": 5
+    }
   },
   {
     "cols": 30,
@@ -26614,7 +26583,7 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 25,
+      "x": 3,
       "y": 18
     },
     "elements": [
@@ -26689,6 +26658,11 @@ window.__MISSION_LEVELS__ = [
         "x": 22,
         "y": 11,
         "key": "Si"
+      },
+      {
+        "x": 4,
+        "y": 18,
+        "key": "U"
       }
     ],
     "powerups": [
@@ -26711,16 +26685,6 @@ window.__MISSION_LEVELS__ = [
         "x": 7,
         "y": 17,
         "type": 2
-      },
-      {
-        "x": 3,
-        "y": 18,
-        "type": 0
-      },
-      {
-        "x": 4,
-        "y": 18,
-        "type": 1
       },
       {
         "x": 5,
@@ -26784,7 +26748,6 @@ window.__MISSION_LEVELS__ = [
       "x": 10,
       "y": 18
     },
-    "sight": 5,
     "hints": [
       {
         "x": 16,
@@ -27469,7 +27432,7 @@ window.__MISSION_LEVELS__ = [
       "y": 1
     },
     "exit": {
-      "x": 26,
+      "x": 6,
       "y": 20
     },
     "elements": [
@@ -27536,14 +27499,14 @@ window.__MISSION_LEVELS__ = [
         "key": "Ge"
       },
       {
-        "x": 6,
-        "y": 20,
-        "key": "P"
-      },
-      {
         "x": 8,
         "y": 20,
         "key": "Nd"
+      },
+      {
+        "x": 7,
+        "y": 20,
+        "key": "P"
       }
     ],
     "powerups": [
@@ -27576,11 +27539,6 @@ window.__MISSION_LEVELS__ = [
         "x": 23,
         "y": 16,
         "type": 2
-      },
-      {
-        "x": 7,
-        "y": 20,
-        "type": 0
       }
     ],
     "enemies": [
@@ -41253,6 +41211,6 @@ window.__ELEMENTRUN_LEVELS__ = [
   }
 ];
 window.__MISSION_BUNDLE_META__ = {
-  "generatedAt": "2026-11-17T22:41:33.720Z",
-  "projectHash": "8a76b6b3"
+  "generatedAt": "2026-11-18T00:41:02.458Z",
+  "projectHash": "65117455"
 };

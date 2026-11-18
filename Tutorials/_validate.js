@@ -91,7 +91,7 @@ elements.forEach(function(e, idx) {
   if (scen && scen.req.indexOf(e.key) < 0) err("elements[" + idx + "] key '" + e.key + "' not in scenario required set [" + scen.req + "]");
 });
 hiddenElems.forEach(function(e, idx) {
-  if (scen && scen.bonus.indexOf(e.key) < 0) err("hiddenElems[" + idx + "] key '" + e.key + "' not in scenario bonus set [" + scen.bonus + "]");
+  if (scen && scen.bonus.indexOf(e.key) < 0) warn("hiddenElems[" + idx + "] key '" + e.key + "' not in scenario bonus set [" + scen.bonus + "] - fine if the mine itself is known for it");
 });
 
 // ── entity coordinate checks + overlap ──

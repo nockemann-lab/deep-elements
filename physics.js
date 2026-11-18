@@ -578,9 +578,12 @@
       for (var y = 1; y < s.rows - 1; y++) {
         for (var x = 1; x < s.cols - 1; x++) {
           if (s.grid[y][x] !== T.BASALT) continue;
+          // it starts to crack only once the miner has seen it, so whatever
+          // it holds back is released in front of the player, not off-screen
+          if (!s.explored || !s.explored[y] || !s.explored[y][x]) continue;
           var key = y + "," + x;
           if (s.basaltLife[key] === undefined) s.basaltLife[key] = 100;
-          // ticked every second: gone after 8-12 s, cracking visibly as it goes
+          // ticked every second: gone 8-12 s after it is first seen, cracking visibly as it goes
           s.basaltLife[key] -= 9 + Math.floor(Math.random() * 5);
           if (s.basaltLife[key] <= 0) {
             s.grid[y][x] = T.EMPTY;

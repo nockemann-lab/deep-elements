@@ -318,7 +318,11 @@
       elems.forEach(function(e) { s.elementMap[e.y + "," + e.x] = e.key; s.grid[e.y][e.x] = T.ELEMENT; });
 
       var hidElems = levelData.hiddenElems || [];
-      hidElems.forEach(function(e) { s.hiddenElementMap[e.y + "," + e.x] = e.key; s.grid[e.y][e.x] = T.HIDDEN_ELEM; });
+      hidElems.forEach(function(e) {
+        s.hiddenElementMap[e.y + "," + e.x] = e.key; s.grid[e.y][e.x] = T.HIDDEN_ELEM;
+        // a level may hide an element outside its device's bonus set (uranium at Cigar Lake)
+        if (s.bonusElements && !s.bonusElements[e.key] && ALL_ELEMENTS[e.key]) s.bonusElements[e.key] = ALL_ELEMENTS[e.key];
+      });
 
       var powerups = levelData.powerups || [];
       powerups.forEach(function(p) { s.powerupMap[p.y + "," + p.x] = p.type; s.grid[p.y][p.x] = T.POWERUP; });

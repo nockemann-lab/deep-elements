@@ -845,7 +845,7 @@
     test("hard missions have a refuge the miner can reach", function() {
       var hard = [];
       for (var i = 0; Game.map.difficultyLabel(i); i++) if (Game.map.difficultyLabel(i) === "hard") hard.push(i);
-      check("thirteen missions are labelled hard", hard.length === 13, hard.join(","));
+      check("eleven missions are labelled hard", hard.length === 11, hard.join(","));
       var none = [], cut = [], unsaved = [];
       hard.forEach(function(i) {
         s.mode = "custom"; window.startLevel(i);
@@ -1099,6 +1099,53 @@
       check("a footstep is never felt", pos() === "2,5" && !felt(), pos());
       Game.loop.movePlayer(-1, 0);
       check("earth dug fifteen tiles away is felt", pos() === "1,5" && felt(), pos());
+    });
+
+    test("basalt waits until the miner has seen it", function() {
+      scene([[10, 3, T.BASALT]]);
+      for (var y = 0; y < s.rows; y++) for (var x = 0; x < s.cols; x++) s.explored[y][x] = false;
+      for (var t = 0; t < 30; t++) Game.physics.tickBasalt();
+      check("unseen basalt stands for 30 s", at(10, 3) === T.BASALT);
+      s.explored[3][10] = true;
+      for (t = 0; t < 7; t++) Game.physics.tickBasalt();
+      check("seen basalt still stands after 7 s", at(10, 3) === T.BASALT);
+      for (t = 0; t < 5; t++) Game.physics.tickBasalt();
+      check("and is gone 12 s after it was first seen", at(10, 3) === T.EMPTY, at(10, 3));
+    });
+
+    test("a spider nest stops breeding at three live spiders", function() {
+      scene([[8, 4, T.SPIDER_NEST]]);
+      var real = Math.random; Math.random = function() { return 0; };
+      try { for (var t = 0; t < 20; t++) Game.enemies.tickSpiderNests(); } finally { Math.random = real; }
+      var mine = s.enemies.filter(function(e) { return e.alive && e.nest === "4,8"; });
+      check("three spiders and no more", SPIDER_NEST_MAX === 3 && mine.length === 3 && s.enemies.length === 3, s.enemies.length);
+      mine[0].alive = false;
+      Math.random = function() { return 0; };
+      try { Game.enemies.tickSpiderNests(); } finally { Math.random = real; }
+      check("one dies, the nest replaces it", s.enemies.filter(function(e) { return e.alive && e.nest === "4,8"; }).length === 3);
+    });
+
+    test("every mission's exit lies behind its quiz door", function() {
+      var open = [], noQuiz = [];
+      for (var i = 0; i < Game.levels.getCount(); i++) {
+        s.mode = "custom"; window.startLevel(i);
+        if (!s.triviaQuestion) noQuiz.push(i + 1);
+        // flood from the start through everything but walls, rock and the quiz door
+        var seen = {}, queue = [[s.playerX, s.playerY]], blocked = [T.WALL, T.ROCK, T.REFUGE_POST, T.LOGIC_DOOR];
+        seen[s.playerY + "," + s.playerX] = true;
+        while (queue.length) {
+          var q = queue.pop();
+          [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function(d) {
+            var x = q[0] + d[0], y = q[1] + d[1], k = y + "," + x;
+            if (seen[k] || !s.grid[y] || s.grid[y][x] === undefined || blocked.indexOf(s.grid[y][x]) >= 0) return;
+            seen[k] = true; queue.push([x, y]);
+          });
+        }
+        // Gotthard's borers cut through rock, so the flood cannot judge it
+        if (seen[s.exitY + "," + s.exitX] && s.levelName !== "Gotthard Base Tunnel") open.push(i + 1);
+      }
+      check("every mission asks a question", noQuiz.length === 0, noQuiz.join(","));
+      check("no exit can be reached round the quiz door", open.length === 0, open.join(","));
     });
 
     test("menu", function() {

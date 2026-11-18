@@ -22,10 +22,10 @@
     7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
   ],
   "player": {"x":1,"y":1},
-  "exit": {"x":20,"y":14},
+  "exit": {"x":1,"y":13},
   "elements": [{"x":3,"y":2,"key":"Fe"},{"x":10,"y":2,"key":"Cu"},{"x":19,"y":2,"key":"Sn"},{"x":4,"y":5,"key":"Ag"},{"x":17,"y":5,"key":"Ni"},{"x":11,"y":8,"key":"Si"},{"x":19,"y":8,"key":"Au"},{"x":7,"y":11,"key":"Pd"},{"x":16,"y":12,"key":"Br"}],
   "hiddenElems": [{"x":14,"y":2,"key":"Ga"},{"x":3,"y":8,"key":"In"},{"x":13,"y":11,"key":"Ge"},{"x":2,"y":14,"key":"Ta"},{"x":4,"y":14,"key":"Pt"}],
-  "powerups": [{"x":16,"y":4,"type":0},{"x":5,"y":7,"type":0},{"x":11,"y":10,"type":2},{"x":3,"y":13,"type":0}],
+  "powerups": [{"x":16,"y":4,"type":0},{"x":5,"y":7,"type":0},{"x":11,"y":10,"type":2}],
   "enemies": [{"x":15,"y":7,"type":"bat"},{"x":5,"y":10,"type":"bat"}],
   "pads": [{"x":8,"y":14,"key":"Cu"},{"x":10,"y":14,"key":"Ag"},{"x":12,"y":14,"key":"Fe"}],
   "triviaQuestion": "Escondida means 'the hidden one' - which metal was hiding in its ore?",

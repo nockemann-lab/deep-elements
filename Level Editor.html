@@ -1167,7 +1167,8 @@ function deepValidateCore(state) {
       if (state.scenarioElements.indexOf(e.key) < 0) err("Element " + e.key + " is not in this scenario - it would be uncollectable", e.x, e.y);
     });
     state.hiddenElems.forEach(function(e) {
-      if (state.scenarioBonus.indexOf(e.key) < 0) err("Hidden element " + e.key + " is not in this scenario's bonus set", e.x, e.y);
+      if (!ALL_ELEMS[e.key]) err("Hidden element " + e.key + " is not an element the game knows", e.x, e.y);
+      else if (state.scenarioBonus.indexOf(e.key) < 0) warn("Hidden element " + e.key + " is not in this device's usual bonus set - fine if the mine itself is known for it", e.x, e.y);
     });
   }
 
