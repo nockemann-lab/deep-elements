@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use Deep Elements in teaching, outreach or research, please cite it as below."
 type: software
-title: "Deep Elements"
+title: "Deep Elements: A Mining Puzzle Game about the Periodic Table and Critical Raw Materials"
 abstract: >-
   A browser mining puzzle game about the periodic table and the supply chains
   behind everyday technology. Players collect the real elements inside devices
@@ -20,11 +20,12 @@ contact:
     affiliation: "Queen's University Belfast"
     email: p.nockemann@qub.ac.uk
 version: "1.0.0"
-date-released: "2026-10-11"
+date-released: "2026-11-18"
 license:
   - MIT
   - CC-BY-NC-SA-4.0
 repository-code: "https://github.com/nockemann-lab/deep-elements"
+url: "https://nockemann-lab.github.io/deep-elements/"
 keywords:
   - chemistry education
   - periodic table

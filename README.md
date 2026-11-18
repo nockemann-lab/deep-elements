@@ -9,7 +9,9 @@ sourced fact about what it does and where it really comes from.
 
 ## Play
 
-There is no build step. Either:
+Play online: **https://nockemann-lab.github.io/deep-elements/**
+
+To run it from a copy, there is no build step. Either:
 
 - open `index.html` directly in a browser, or
 - serve the folder and open it over HTTP:
@@ -118,9 +120,19 @@ Found a factual error? It is treated as a bug - please open an issue.
   AI-generated images, the NASA world map and the fonts have their own terms. Details are
   in `LICENSE-CONTENT.md` and `CREDITS.md`.
 
+## Website and DOI
+
+- Website: https://nockemann-lab.github.io/deep-elements/ (GitHub Pages, from the `main` branch)
+- Source: https://github.com/nockemann-lab/deep-elements
+- DOI: archived on Zenodo; each GitHub release is archived automatically. The record's
+  metadata comes from `.zenodo.json` (which Zenodo reads in preference to `CITATION.cff`).
+- For a new version: update `version` and `date-released` in `CITATION.cff` and `version`
+  in `.zenodo.json`, then create a GitHub release with a new tag (e.g. `v1.1.0`).
+
 ## How to cite
 
-> Nockemann, P. (2026). *Deep Elements* (Version 1.0.0) [Computer software].
+> Nockemann, P. (2026). *Deep Elements: A Mining Puzzle Game about the Periodic Table and
+> Critical Raw Materials* (Version 1.0.0) [Computer software].
 > https://github.com/nockemann-lab/deep-elements
 
 Author: Peter Nockemann, Queen's University Belfast
