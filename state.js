@@ -41,10 +41,11 @@ var GAME_STATE = {
   moveRepeatMs: 90,
   // pause between the first and second step of a held key (a tap = one tile)
   moveFirstRepeatMs: 130,
-  // a touch (the mine or the D-pad) waits longer before it repeats: see tickInput
-  touchFirstRepeatMs: 320,
+  // the touch joystick waits longer before it repeats, then walks more gently: see tickInput
+  touchFirstRepeatMs: 400,
+  touchRepeatMs: 150,
   touchHeld: false,
-  // the cell the next touch step enters, outlined on the mine while a finger is down
+  // the cell the joystick is steering the miner into, outlined on the mine
   /** @type {{x:number,y:number}|null} */
   touchAim: null,
   moveStreak: 0,

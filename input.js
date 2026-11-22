@@ -1,7 +1,7 @@
 "use strict";
 
 // ═══════════════════════════════════════════════════════════════════
-// input.js - Keyboard, touch, and D-pad event handlers
+// input.js - Keyboard, touch joystick, and button handlers
 // ═══════════════════════════════════════════════════════════════════
 
 (function() {
@@ -80,12 +80,15 @@
     if (document.hidden) clearMoveKeys();
   });
 
-  // ─── Touch controls ───
-  // Both the D-pad and the mine itself feed the same held-key state the
-  // keyboard uses. A touch steps at once, then waits TOUCH_FIRST_REPEAT_MS
-  // before it repeats (s.touchHeld), so a tap is always exactly one tile:
-  // a finger rests on the glass far longer than a key is struck.
+  // ─── Touch controls: the joystick ───
+  // The joystick feeds the same held-key state the keyboard uses. Pushing it
+  // takes one step at once; kept pushed, the miner walks on - but only after
+  // touchFirstRepeatMs, and then at touchRepeatMs a step (s.touchHeld), slower
+  // than a held key, because a thumb rests and wavers where a key is struck.
+  // The mine itself does not take touches: a finger resting on it, or a palm,
+  // must never move the miner.
   var MOVE_NAMES = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+  var STEP = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
 
   function holdDirection(key) {
     var st = Game.state, wasHeld = st.keys[key];
@@ -93,90 +96,79 @@
     st.lastMoveKey = key;
     st.touchHeld = true;
     if (!wasHeld) st.pressSeq++;
-    // take the first step at once, so even a quick tap always moves
+    // take the first step at once, so even a quick push always moves
     if (!wasHeld && Game.loop && Game.loop.tickInput) Game.loop.tickInput(performance.now());
   }
 
-  // D-pad (switched on in the pause card or the menu): press and hold to keep walking
-  Array.prototype.forEach.call(document.querySelectorAll(".dpad-btn[data-key]"), function(btn) {
-    var key = btn.getAttribute("data-key");
-    btn.addEventListener("pointerdown", function(ev) {
-      ev.preventDefault();
-      if (key === "pause") { Game.loop.togglePause(); return; }
-      try { btn.setPointerCapture(ev.pointerId); } catch (e) {}
-      btn.classList.add("held");
-      holdDirection(key);
-    });
-    ["pointerup", "pointercancel", "lostpointercapture"].forEach(function(type) {
-      btn.addEventListener(type, function() {
-        btn.classList.remove("held");
-        if (key !== "pause" && Game.state.keys[key]) clearMoveKeys();
-      });
-    });
-    btn.addEventListener("contextmenu", function(ev) { ev.preventDefault(); });
-  });
-
-  // Mine: touch it on the side of the miner you want to go. A tap is one step
-  // that way; holding keeps walking towards the finger, and sliding it steers.
-  // (The view scrolls with the miner, so a finger held still mostly stays
-  // ahead of them; near the edge of the mine they reach it and stop.) The
-  // finger may be anywhere on that side, so it need not hide the cell being dug.
   (function() {
-    var canvas = Game.state.canvas, active = null, raf = 0;
+    var joy = document.getElementById("joystick"), knob = document.getElementById("joy-knob");
+    if (!joy || !knob) return;
+    // a push must reach ENGAGE of the way to the rim to count, and is let go below RELEASE;
+    // turning to the other axis needs that axis to lead by TURN, so a wavering thumb
+    // near a diagonal does not flick the miner from one way to the other
+    var ENGAGE = 0.32, RELEASE = 0.22, TURN = 1.35, TRAVEL = 0.6;
+    var active = null, raf = 0;
+    ["up", "down", "left", "right"].forEach(function(d) {
+      var a = document.createElement("span"); a.className = "joy-arrow joy-" + d; joy.insertBefore(a, knob);
+    });
 
-    // the way from the miner to the finger, or "" while it rests on the miner's own cell
-    function aimAt(clientX, clientY) {
-      var st = Game.state, r = canvas.getBoundingClientRect();
-      if (!canvas.clientWidth || !st.tile) return "";
-      var cell = canvas.clientWidth / (canvas.width / st.tile);      // one cell, as shown
-      var camX = st.camSmoothX !== undefined ? st.camSmoothX : st.camX;
-      var camY = st.camSmoothY !== undefined ? st.camSmoothY : st.camY;
-      var dx = (clientX - r.left - canvas.clientLeft) / cell + camX - (st.playerX + 0.5);
-      var dy = (clientY - r.top - canvas.clientTop) / cell + camY - (st.playerY + 0.5);
-      var adx = Math.abs(dx), ady = Math.abs(dy);
-      if (adx < 0.5 && ady < 0.5) return "";
-      return adx > ady ? (dx > 0 ? "ArrowRight" : "ArrowLeft") : (dy > 0 ? "ArrowDown" : "ArrowUp");
+    function directionFor(nx, ny, current) {
+      var ax = Math.abs(nx), ay = Math.abs(ny), mag = Math.sqrt(nx * nx + ny * ny);
+      if (mag < (current ? RELEASE : ENGAGE)) return "";
+      var horiz = nx > 0 ? "ArrowRight" : "ArrowLeft", vert = ny > 0 ? "ArrowDown" : "ArrowUp";
+      if (current === "ArrowLeft" || current === "ArrowRight") return ay > ax * TURN ? vert : horiz;
+      if (current === "ArrowUp" || current === "ArrowDown") return ax > ay * TURN ? horiz : vert;
+      return ax >= ay ? horiz : vert;
     }
-    function showAim(key) {
-      var st = Game.state, m = key ? { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[key] : null;
+    function showAim() {
+      var st = Game.state, m = active && active.key ? STEP[active.key] : null;
       st.touchAim = m ? { x: st.playerX + m[0], y: st.playerY + m[1] } : null;
     }
-    function steer() {
-      if (!active) return;
-      var key = aimAt(active.x, active.y);
+    function move(ev) {
+      var r = joy.getBoundingClientRect(), rad = r.width / 2 || 1;
+      var dx = ev.clientX - (r.left + rad), dy = ev.clientY - (r.top + rad);
+      var nx = dx / rad, ny = dy / rad, mag = Math.sqrt(nx * nx + ny * ny);
+      // the knob follows the thumb, but no further than its travel
+      var k = mag > TRAVEL ? TRAVEL / mag : 1;
+      knob.style.transform = "translate(" + (dx * k).toFixed(1) + "px," + (dy * k).toFixed(1) + "px)";
+      var key = directionFor(nx, ny, active.key);
       if (key !== active.key) {
         active.key = key;
+        joy.setAttribute("data-dir", key ? key.slice(5).toLowerCase() : "");
         if (key) holdDirection(key); else clearMoveKeys();
       }
-      showAim(key);
+      showAim();
     }
-    // the miner walks under a still finger, so the aim is taken again every frame
-    function follow() { raf = 0; if (!active) return; steer(); raf = requestAnimationFrame(follow); }
-
-    canvas.addEventListener("pointerdown", function(ev) {
-      if (ev.pointerType === "mouse" || active) return;
-      ev.preventDefault();
-      active = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, key: "" };
-      try { canvas.setPointerCapture(ev.pointerId); } catch (e) {}
-      steer();
-      if (!raf) raf = requestAnimationFrame(follow);
-    });
-    canvas.addEventListener("pointermove", function(ev) {
-      if (!active || ev.pointerId !== active.id) return;
-      ev.preventDefault();
-      active.x = ev.clientX; active.y = ev.clientY;
-      steer();
-    });
+    // the miner walks on under a still thumb, so the outline is moved every frame
+    function follow() { raf = 0; if (!active) return; showAim(); raf = requestAnimationFrame(follow); }
     function end(ev) {
       if (!active || ev.pointerId !== active.id) return;
       active = null;
+      knob.style.transform = "";
+      joy.classList.remove("held");
+      joy.setAttribute("data-dir", "");
       Game.state.touchAim = null;
       clearMoveKeys();
     }
-    canvas.addEventListener("pointerup", end);
-    canvas.addEventListener("pointercancel", end);
-    canvas.addEventListener("lostpointercapture", end);
-    canvas.addEventListener("contextmenu", function(ev) { ev.preventDefault(); });
+    joy.addEventListener("pointerdown", function(ev) {
+      if (active) return;
+      ev.preventDefault();
+      active = { id: ev.pointerId, key: "" };
+      try { joy.setPointerCapture(ev.pointerId); } catch (e) {}
+      joy.classList.add("held");
+      move(ev);
+      if (!raf) raf = requestAnimationFrame(follow);
+    });
+    joy.addEventListener("pointermove", function(ev) {
+      if (!active || ev.pointerId !== active.id) return;
+      ev.preventDefault();
+      move(ev);
+    });
+    joy.addEventListener("pointerup", end);
+    joy.addEventListener("pointercancel", end);
+    joy.addEventListener("lostpointercapture", end);
+    joy.addEventListener("contextmenu", function(ev) { ev.preventDefault(); });
+    Game.state.canvas.addEventListener("contextmenu", function(ev) { if (document.body.classList.contains("is-touch")) ev.preventDefault(); });
   })();
 
   // the notebook card is sized to its longest page; re-measure if the window changes
@@ -223,7 +215,7 @@
     cycleVolume: function() { window.cycleVolume(); },
     toggleReducedFx: function() { window.toggleReducedFx(); },
     cycleZoom: function() { Game.camera.cycleZoom(); Game.ui.syncTouchButtons(); },
-    toggleDpad: function() { Game.camera.toggleDpad(); Game.ui.syncTouchButtons(); },
+    toggleJoySide: function() { Game.camera.toggleJoystickSide(); Game.ui.syncTouchButtons(); },
     // the teacher survey, loaded into the guide only when asked for
     loadSurvey: function(url, el) {
       if (!/^https:\/\//.test(url || "")) return;

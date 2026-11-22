@@ -9,8 +9,8 @@
   var DESKTOP_COLS = 20, DESKTOP_ROWS = 15;
 
   // Touch-screen preferences, kept in this browser: how close the camera sits
-  // and whether the D-pad is shown (the mine itself always takes taps).
-  var ZOOM_KEY = "deepElements_zoom", DPAD_KEY = "deepElements_dpad";
+  // and which side of the screen the joystick is on.
+  var ZOOM_KEY = "deepElements_zoom", JOY_KEY = "deepElements_joystickLeft";
   // cells across a phone held upright, and cells down a phone on its side
   var ZOOM_COLS = [7, 9, 11], ZOOM_ROWS = [6, 8, 10], ZOOM_NAMES = ["Close", "Medium", "Far"];
   function readPref(key, fallback) {
@@ -19,7 +19,7 @@
   function writePref(key, value) { try { localStorage.setItem(key, String(value)); } catch (e) {} }
   var zoom = +readPref(ZOOM_KEY, 1);
   if (!(zoom >= 0 && zoom < ZOOM_COLS.length)) zoom = 1;
-  var dpad = readPref(DPAD_KEY, "0") === "1";
+  var joyLeft = readPref(JOY_KEY, "0") === "1";
 
   // the height of an element as laid out, margins included
   function outerH(el) {
@@ -53,12 +53,12 @@
       Game.camera.resize();
       return ZOOM_NAMES[zoom];
     },
-    dpadShown: function() { return dpad; },
-    toggleDpad: function() {
-      dpad = !dpad;
-      writePref(DPAD_KEY, dpad ? "1" : "0");
+    joystickLeft: function() { return joyLeft; },
+    toggleJoystickSide: function() {
+      joyLeft = !joyLeft;
+      writePref(JOY_KEY, joyLeft ? "1" : "0");
       Game.camera.resize();
-      return dpad;
+      return joyLeft;
     },
 
     // duringLoad: a level is being built, so size the canvas but do not draw -
@@ -71,12 +71,12 @@
       body.classList.toggle("is-landscape", L.landscape);
       body.classList.toggle("is-tablet", L.tablet);
       body.classList.toggle("is-touch", L.touch);
-      body.classList.toggle("show-dpad", L.touch && dpad);
+      body.classList.toggle("joystick-left", joyLeft);
 
       var availW, availH, cap = 9999;
       if (L.mobile) {
         // what lies above and below the mine (status strip, message band, tools,
-        // D-pad) is measured, so the mine gets exactly the room that is left
+        // joystick) is measured, so the mine gets exactly the room that is left
         var hud = document.getElementById("mobile-hud"), band = document.getElementById("msg-band");
         var controls = document.querySelector(".mobile-controls");
         var pad = 4 + 6 + 4 + (parseFloat(getComputedStyle(body).paddingBottom) || 6);   // body padding, canvas border
@@ -87,7 +87,7 @@
           VP_ROWS = Math.max(5, Math.floor(availH / tileL));
           VP_COLS = Math.max(7, Math.min(DESKTOP_COLS, Math.floor(availW / tileL)));
         } else {
-          // mine on top; status strip above it, messages, tools (and D-pad) underneath
+          // mine on top; status strip above it, messages, tools and joystick underneath
           availW = L.winW - 10;
           availH = L.winH - pad - outerH(hud) - outerH(band) - outerH(controls) - 6;
           var tileP = Math.floor(availW / (L.tablet ? ZOOM_COLS[zoom] + 4 : ZOOM_COLS[zoom]));
@@ -98,7 +98,7 @@
       } else {
         VP_COLS = DESKTOP_COLS; VP_ROWS = DESKTOP_ROWS;
         availW = Math.min(L.winW - 420, 960);
-        availH = L.winH - 120 - (L.touch ? (dpad ? 215 : 80) : 0);   // tablets: leave room for the tools (and D-pad)
+        availH = L.winH - 120 - (L.touch ? 150 : 0);   // tablets: leave room for the tools and joystick
       }
       var viewCols = Math.min(s.cols, VP_COLS);
       var viewRows = Math.min(s.rows, VP_ROWS);

@@ -269,12 +269,12 @@ caption cannot do justice - students may find it when they search, so be prepare
   from Microsoft Forms when a teacher chooses to open it.
 - Fully keyboard-playable: arrow keys or WASD to move, 1–5 to use tools, P to pause,
   R to restart (R asks for confirmation, so a stray keypress does not lose a level).
-- On tablets and phones the mine itself is the controller: a tap beside the miner takes
-  exactly one step that way, and holding a finger down keeps the miner walking towards it.
-  Tools are used by tapping them. An on-screen D-pad can be switched on in the pause menu,
-  where the 🔍 zoom can also be set (the 🔍 button above the mine changes it too). A
-  keyboard is still easier in the tight spots of the hard mines, so prefer keyboards where
-  you have them.
+- On tablets and phones the miner is steered with a small on-screen joystick: a push
+  takes exactly one step, and keeping it pushed walks on at a steady pace. Tools are used
+  by tapping them. The pause menu can move the joystick to the left for left-handed
+  players and set the 🔍 zoom (the 🔍 button above the mine changes it too). A keyboard is
+  still easier in the tight spots of the hard mines, so prefer keyboards where you have
+  them.
 - Element identification never relies on colour alone - every element shows its chemical
   symbol; the periodic-table tracker labels cells with symbols.
 - *Effects: Full / Reduced* on the main menu is for motion- and flash-sensitive players.

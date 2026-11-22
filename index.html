@@ -73,11 +73,7 @@
     </div>
     <div class="mobile-controls">
       <div class="mobile-items" id="mobile-items"></div>
-      <div class="mobile-dpad"><div class="dpad-grid">
-        <div class="dpad-btn dpad-empty"></div><button class="dpad-btn" data-key="ArrowUp" aria-label="Up">&#9650;</button><div class="dpad-btn dpad-empty"></div>
-        <button class="dpad-btn" data-key="ArrowLeft" aria-label="Left">&#9664;</button><button class="dpad-btn dpad-mid" data-key="pause" aria-label="Pause">&#9208;</button><button class="dpad-btn" data-key="ArrowRight" aria-label="Right">&#9654;</button>
-        <div class="dpad-btn dpad-empty"></div><button class="dpad-btn" data-key="ArrowDown" aria-label="Down">&#9660;</button><div class="dpad-btn dpad-empty"></div>
-      </div></div>
+      <div class="joystick" id="joystick" role="application" aria-label="Joystick: push it the way the miner should go"><div class="joy-knob" id="joy-knob"></div></div>
     </div>
   </div>
   <div class="side-panel">
@@ -252,11 +248,11 @@
           <div class="how-key"><span><kbd>P</kbd> or <kbd>Esc</kbd></span><em>Pause</em></div>
           <div class="how-key"><span><kbd>R</kbd></span><em>Restart the level (asks first)</em></div>
           <h5 class="how-sub">TOUCH SCREEN</h5>
-          <div class="how-key"><span>Tap beside the miner</span><em>One step that way</em></div>
-          <div class="how-key"><span>Keep holding</span><em>Keep walking</em></div>
+          <div class="how-key"><span>Push the joystick</span><em>One step that way</em></div>
+          <div class="how-key"><span>Keep it pushed</span><em>Keep walking</em></div>
           <div class="how-key"><span>Tap a tool</span><em>Use it</em></div>
           <div class="how-key"><span>&#128269; button</span><em>Zoom in or out</em></div>
-          <div class="how-key"><span>&#9208; button</span><em>Pause (and switch the D-pad on)</em></div>
+          <div class="how-key"><span>&#9208; button</span><em>Pause (and move the joystick to the left)</em></div>
         </div>
         <div class="how-box">
           <h4>GOOD TO KNOW</h4>
@@ -314,7 +310,7 @@
       <button class="lb-clear" data-action="clearScores">Clear Scores</button>
     </div>
     </div>
-      <div class="menu-toggles"><button class="menu-btn" data-action="toggleMute" id="menu-mute-btn">&#128266; Sound ON</button> <button class="menu-btn" data-action="cycleVolume" id="volume-btn" title="Change the volume">&#128265; Volume 100%</button> <button class="menu-btn" data-action="toggleReducedFx" id="fx-btn">&#10024; Effects: Full</button> <button class="menu-btn touch-only" data-action="toggleDpad" id="dpad-btn">&#127918; D-pad: Off</button></div>
+      <div class="menu-toggles"><button class="menu-btn" data-action="toggleMute" id="menu-mute-btn">&#128266; Sound ON</button> <button class="menu-btn" data-action="cycleVolume" id="volume-btn" title="Change the volume">&#128265; Volume 100%</button> <button class="menu-btn" data-action="toggleReducedFx" id="fx-btn">&#10024; Effects: Full</button> <button class="menu-btn touch-only" data-action="toggleJoySide" id="joy-side-btn">&#128377;&#65039; Joystick: Right</button></div>
       <p class="menu-foot">Every element fact and mine location is researched and sourced: <a href="SOURCES.md" data-action="openDoc" data-arg="sources">sources</a> &middot; <a href="TEACHERS_GUIDE.md" data-action="openDoc" data-arg="guide">teacher&rsquo;s guide</a> &middot; <a href="CREDITS.md" data-action="openDoc" data-arg="credits">credits</a></p>
   </div>
 </div>

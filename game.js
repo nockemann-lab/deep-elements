@@ -126,8 +126,8 @@
   //  - The first step is taken at once; the second only after a slightly longer
   //    pause (moveFirstRepeatMs), like keyboard auto-repeat. A tap therefore
   //    always means exactly one tile, even if the key is held a moment too long.
-  //    A finger on a touch screen rests longer than a key is struck, so a touch
-  //    waits longer still (touchFirstRepeatMs) before it repeats.
+  //    The touch joystick waits longer still (touchFirstRepeatMs) and then
+  //    walks at a gentler pace (touchRepeatMs): a thumb rests and wavers.
   //  - After that, steps repeat at the running pace.
   //  - Changing direction mid-run takes effect at the next tile boundary; it
   //    never cuts the current step short.
@@ -153,7 +153,7 @@
       s.moveCooldownUntil = Math.min(s.moveCooldownUntil, (s.lastStepAt || 0) + s.moveRepeatMs);
       if (tap && now >= s.moveCooldownUntil) {
         var tapMove = keyToMove(tap);
-        if (tapMove) { movePlayer(tapMove.dx, tapMove.dy); s.lastStepAt = now; s.moveCooldownUntil = now + s.moveRepeatMs; }
+        if (tapMove) { s.lastStepAt = now; s.moveCooldownUntil = now + s.moveRepeatMs; movePlayer(tapMove.dx, tapMove.dy); }
       }
       return;
     }
@@ -165,10 +165,14 @@
     var move = keyToMove(moveKey);
     if (!move) return;
 
-    movePlayer(move.dx, move.dy);
+    // The step is booked before it is taken: a step can draw a frame at once,
+    // and the frame asks for input again - it must find the pause already set,
+    // or one press would take two steps
     s.lastStepAt = now;
     s.moveStreak = (s.moveStreak || 0) + 1;
-    s.moveCooldownUntil = now + (s.moveStreak === 1 ? (s.touchHeld ? s.touchFirstRepeatMs : s.moveFirstRepeatMs) : s.moveRepeatMs);
+    if (s.touchHeld) s.moveCooldownUntil = now + (s.moveStreak === 1 ? s.touchFirstRepeatMs : s.touchRepeatMs);
+    else s.moveCooldownUntil = now + (s.moveStreak === 1 ? s.moveFirstRepeatMs : s.moveRepeatMs);
+    movePlayer(move.dx, move.dy);
   }
 
   function usePowerup(slot) {
@@ -1391,11 +1395,11 @@
       '<button class="overlay-btn secondary" data-action="quitToMenu">MENU</button>' +
       '</div>' + touchSettingsHtml() + '<span class="pause-keys">Press <kbd>P</kbd>, or click anywhere else, to resume</span>';
   }
-  // Touch screens: the D-pad and the zoom can be changed without leaving the mine
+  // Touch screens: the joystick's side and the zoom can be changed without leaving the mine
   function touchSettingsHtml() {
-    if (!document.body.classList.contains("is-touch") || !Game.camera.dpadShown) return '';
+    if (!document.body.classList.contains("is-touch") || !Game.camera.joystickLeft) return '';
     return '<div class="pause-btns pause-touch">' +
-      '<button class="overlay-btn secondary" data-action="toggleDpad" id="pause-dpad-btn">&#127918; D-PAD: ' + (Game.camera.dpadShown() ? 'ON' : 'OFF') + '</button>' +
+      '<button class="overlay-btn secondary" data-action="toggleJoySide" id="pause-joy-btn">&#128377;&#65039; JOYSTICK: ' + (Game.camera.joystickLeft() ? 'LEFT' : 'RIGHT') + '</button>' +
       '<button class="overlay-btn secondary" data-action="cycleZoom" id="pause-zoom-btn">&#128269; ZOOM: ' + Game.camera.zoomName().toUpperCase() + '</button>' +
       '</div>';
   }

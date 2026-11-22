@@ -1190,13 +1190,13 @@
   applyReducedFx();
   window.resetPTProgress = function() { Game.ui.resetPTProgress(); };
 
-  // ─── Touch screens: D-pad on or off, and how close the camera sits (kept by camera.js) ───
+  // ─── Touch screens: the joystick's side, and how close the camera sits (kept by camera.js) ───
   Game.ui.syncTouchButtons = function() {
-    var on = Game.camera.dpadShown(), zoom = Game.camera.zoomName();
-    var b = document.getElementById("dpad-btn");
-    if (b) b.textContent = "🎮 D-pad: " + (on ? "On" : "Off");
-    var pb = document.getElementById("pause-dpad-btn");
-    if (pb) pb.textContent = "🎮 D-PAD: " + (on ? "ON" : "OFF");
+    var left = Game.camera.joystickLeft(), zoom = Game.camera.zoomName();
+    var b = document.getElementById("joy-side-btn");
+    if (b) b.textContent = "🕹️ Joystick: " + (left ? "Left" : "Right");
+    var pb = document.getElementById("pause-joy-btn");
+    if (pb) pb.textContent = "🕹️ JOYSTICK: " + (left ? "LEFT" : "RIGHT");
     var pz = document.getElementById("pause-zoom-btn");
     if (pz) pz.textContent = "🔍 ZOOM: " + zoom.toUpperCase();
     var hz = document.getElementById("mh-zoom");

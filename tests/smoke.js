@@ -1215,63 +1215,58 @@
           setTimeout(function() {
             frame();
             check("the camera is still once the miner stops", s.camSmoothX === c1);
-            var btn = document.querySelector('.dpad-btn[data-key="ArrowLeft"]'), x0 = s.playerX;
-            btn.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 3, pointerType: "touch", bubbles: true, cancelable: true }));
-            setTimeout(function() {
-              btn.dispatchEvent(new PointerEvent("pointerup", { pointerId: 3, pointerType: "touch", bubbles: true }));
-              check("holding the D-pad keeps walking", x0 - s.playerX >= 3, x0 - s.playerX);
-              touchMine(done);
-            }, 450);
+            joystick(done);
           }, 120);
         });
       });
     } catch (e) { check("timed input tests", false, e); done(); }
     }
-    // Touch on the mine: a finger some cells to the right of the miner
-    function touchMine(done) {
+    // The touch joystick: a thumb pushed some way towards the rim
+    function joystick(done) {
       try {
-        var cv = s.canvas;
-        function fingerAt(cellsRight) {
-          var r = cv.getBoundingClientRect(), cell = cv.clientWidth / (cv.width / s.tile);
-          return {
-            clientX: r.left + cv.clientLeft + (s.playerX + cellsRight + 0.5 - s.camSmoothX) * cell,
-            clientY: r.top + cv.clientTop + (s.playerY + 0.5 - s.camSmoothY) * cell
-          };
+        var joy = document.getElementById("joystick");
+        joy.style.display = "block";   // shown only on touch screens; the test page is a desktop one
+        function thumb(type, fx, fy) {
+          var r = joy.getBoundingClientRect(), rad = r.width / 2;
+          joy.dispatchEvent(new PointerEvent(type, { pointerId: 9, pointerType: "touch", bubbles: true, cancelable: true,
+            clientX: r.left + rad + fx * rad, clientY: r.top + rad + fy * rad }));
         }
-        function touch(type, at) {
-          cv.dispatchEvent(new PointerEvent(type, { pointerId: 7, pointerType: "touch", bubbles: true, cancelable: true, clientX: at.clientX, clientY: at.clientY }));
-        }
-        frame();
-        var x0 = s.playerX, at = fingerAt(3);
-        touch("pointerdown", at);
-        // a finger rests far longer than a key is struck: still one step
+        var x0 = s.playerX, y0 = s.playerY;
+        thumb("pointerdown", 0.7, 0);
+        // a thumb rests longer than a key is struck: still one step (the test page's
+        // timers run late under load, so this stays well inside the 400 ms pause)
         setTimeout(function() {
-          touch("pointerup", at);
-          check("a tap beside the miner is exactly one step, however far away", s.playerX === x0 + 1, s.playerX - x0);
+          thumb("pointerup", 0.7, 0);
+          check("a push of the joystick is exactly one step", s.playerX === x0 + 1 && s.playerY === y0, (s.playerX - x0) + "," + (s.playerY - y0));
+          var x1 = s.playerX;
+          thumb("pointerdown", 0.12, 0.1);
           setTimeout(function() {
-            frame();
-            var x1 = s.playerX, at2 = fingerAt(4);
-            touch("pointerdown", at2);
+            thumb("pointerup", 0.12, 0.1);
+            check("a touch near the joystick's middle takes no step", s.playerX === x1);
+            thumb("pointerdown", 0.8, 0);
+            // a wavering thumb near the diagonal keeps its way
+            setTimeout(function() { thumb("pointermove", 0.6, 0.5); }, 200);
             setTimeout(function() {
-              touch("pointerup", at2);
+              thumb("pointerup", 0.6, 0.5);
+              var walked = s.playerX - x1;
+              check("kept pushed, the joystick walks on at a gentle pace", walked >= 4 && walked <= 10 && s.playerY === y0, walked + " steps, y " + (s.playerY - y0));
+              check("the joystick outline is gone once the thumb lifts", s.touchAim === null);
               var x2 = s.playerX;
-              check("holding beside the miner keeps walking", x2 - x1 >= 4, x2 - x1);
-              check("the touch outline is gone once the finger lifts", s.touchAim === null);
               setTimeout(function() {
-                check("and the miner stops when the finger lifts", s.playerX === x2, s.playerX - x2);
-                frame();
-                var x3 = s.playerX, onMiner = fingerAt(0);
-                touch("pointerdown", onMiner);
+                check("and the miner stops when the thumb lifts", s.playerX === x2, s.playerX - x2);
+                var cv = s.canvas, r = cv.getBoundingClientRect(), x3 = s.playerX;
+                cv.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 11, pointerType: "touch", bubbles: true, cancelable: true, clientX: r.left + r.width - 20, clientY: r.top + r.height / 2 }));
                 setTimeout(function() {
-                  touch("pointerup", onMiner);
-                  check("a touch on the miner itself takes no step", s.playerX === x3 && s.playerY === 3, s.playerX - x3);
+                  cv.dispatchEvent(new PointerEvent("pointerup", { pointerId: 11, pointerType: "touch", bubbles: true, clientX: r.left + r.width - 20, clientY: r.top + r.height / 2 }));
+                  check("a finger on the mine itself never moves the miner", s.playerX === x3);
+                  joy.style.display = "";
                   done();
-                }, 400);
+                }, 500);
               }, 300);
-            }, 1400);
-          }, 200);
-        }, 230);
-      } catch (e) { check("touch tests", false, e); done(); }
+            }, 1200);
+          }, 300);
+        }, 180);
+      } catch (e) { check("joystick tests", false, e); done(); }
     }
   }
 
