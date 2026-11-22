@@ -137,7 +137,7 @@ Found a factual error? It is treated as a bug - please open an issue.
 ## How to cite
 
 > Nockemann, P. (2026). *Deep Elements: A Mining Puzzle Game about the Periodic Table and
-> Critical Raw Materials* (Version 1.0.0) [Computer software]. Zenodo.
+> Critical Raw Materials* (Version 1.1.0) [Computer software]. Zenodo.
 > https://doi.org/10.5281/zenodo.24346235
 
 Author: Peter Nockemann, Queen's University Belfast

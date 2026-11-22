@@ -1,8 +1,8 @@
 {
   "title": "Deep Elements: A Mining Puzzle Game about the Periodic Table and Critical Raw Materials",
   "upload_type": "software",
-  "version": "1.0.0",
-  "publication_date": "2026-11-18",
+  "version": "1.1.0",
+  "publication_date": "2026-11-22",
   "description": "<p>Deep Elements is a free browser game about the periodic table and the supply chains behind everyday technology, for learners aged about 11 and up and for general audiences. Players dig through a mine, dodge cave creatures and falling boulders, and collect the real elements inside devices such as a smartphone, a wind turbine or an MRI scanner. Each element comes with a sourced fact about what it does, where it comes from and how secure its supply is.</p><p>The game has 31 missions set at real mines on a world map, each with a quiz question; six guided tutorial lessons; procedurally generated Endless Depths; and three timed Element Runs through the periodic table. It includes a level editor, a teacher's guide with learning objectives, curriculum links and discussion questions, an answer key, and a list of sources for every factual claim.</p><p>It runs in any modern browser on computers, tablets and phones, with no installation and no build step. Play online: <a href=\"https://nockemann-lab.github.io/deep-elements/\">https://nockemann-lab.github.io/deep-elements/</a>.</p><p><strong>Licences:</strong> the program code is under the MIT License; the educational content (levels, element facts, quiz questions, the teacher's guide and the sources) is under CC BY-NC-SA 4.0. The music is licensed to the author personally and is not relicensed; the fonts (SIL Open Font License 1.1), the NASA world map (public domain) and the AI-generated images have their own terms. See LICENSE, LICENSE-CONTENT.md and CREDITS.md in the archive.</p>",
   "creators": [
     {
