@@ -1289,6 +1289,15 @@
         toast.querySelector(".ft-sym").dispatchEvent(new MouseEvent("click", { bubbles: true }));
         check("a deliberate tap on the symbol opens its notebook page", nbOpen());
         Game.ui.closeNotebook();
+        // a hint in the middle of a mission goes straight into the strip; an idle miner gets it in full
+        var hint = document.getElementById("tutorial-hint");
+        s.lastActionAt = Date.now();
+        Game.ui.showHint({ title: "THE DOOR ASKS", text: "Which metal?", silent: true });
+        check("in the middle of play a hint opens in the strip, not over the mine", hint.classList.contains("visible") && !hint.classList.contains("expanded"));
+        s.lastActionAt = Date.now() - HINT_EXPAND_IDLE_MS - 10;
+        Game.ui.showHint({ title: "THE DOOR ASKS", text: "Which metal?", silent: true });
+        check("while the miner stands idle it opens in full", hint.classList.contains("expanded"));
+        Game.ui.hideHint();
       } catch (e) { check("fact slip tests", false, e); }
       body.className = had;
       done();

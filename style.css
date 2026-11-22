@@ -582,7 +582,7 @@ body.is-tablet .mobile-controls .mobile-items{max-width:260px}
    Hints, fact slips and the latest log line live here instead of over the mine.
    A new hint opens in full over the foot of the mine (.expanded) and folds back
    into the band as soon as the miner moves on; tapping the band opens it again. */
-body.is-mobile .msg-band{display:block;position:relative;width:100%;max-width:560px;height:54px;margin:5px auto 0}
+body.is-mobile .msg-band{display:block;position:relative;width:100%;max-width:560px;height:64px;margin:5px auto 0}
 body.is-mobile .band-idle{display:flex;align-items:center;gap:8px;height:100%;padding:4px 10px;border:1px solid var(--border);border-radius:8px;background:var(--panel);font-size:12px;line-height:1.35;color:#8a92a6;overflow:hidden}
 body.is-mobile .band-idle:empty{display:none}
 .band-idle .bi-ico{flex:0 0 auto;font-size:15px}
@@ -590,11 +590,13 @@ body.is-mobile .band-idle:empty{display:none}
 .band-idle strong{color:#c8ccd8}
 .band-idle em{color:var(--cyan);font-style:normal}
 body.is-mobile .tutorial-hint{position:absolute;left:0;right:0;top:0;bottom:0;width:auto;margin:0;z-index:20;padding:6px 10px;background:#0e1018;cursor:pointer;overflow:hidden}
-body.is-mobile .tutorial-hint .th-title{font-size:9px;line-height:1.5;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.is-mobile .tutorial-hint:not(.expanded) .th-text,body.is-mobile .tutorial-hint:not(.expanded) .th-wait{display:none}
-body.is-mobile .tutorial-hint:not(.expanded) .th-task{margin:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.is-mobile .tutorial-hint:not(.expanded) .th-more{display:block;font-family:'DM Sans',sans-serif;font-size:12px;color:#9aa3b8}
-body.is-mobile .tutorial-hint:not(.expanded) .th-task + .th-wait + .th-more{display:none}
+body.is-mobile .tutorial-hint .th-title{font-size:9px;line-height:1.5;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* folded: the title, then the task - or, without one, the start of the text - and a "more" mark */
+body.is-mobile .tutorial-hint:not(.expanded) .th-wait{display:none}
+body.is-mobile .tutorial-hint:not(.expanded) .th-title{padding-right:52px}
+body.is-mobile .tutorial-hint:not(.expanded) .th-text,body.is-mobile .tutorial-hint:not(.expanded) .th-task{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin:0;font-size:13px;line-height:1.3;overflow:hidden}
+body.is-mobile .tutorial-hint:not(.expanded) .th-text:has(~ .th-task){display:none}
+body.is-mobile .tutorial-hint:not(.expanded) .th-more{display:block;position:absolute;top:5px;right:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;color:var(--gold)}
 body.is-mobile .tutorial-hint.expanded{top:auto;bottom:calc(100% + 5px);max-height:58vh;overflow-y:auto;padding:10px 12px;box-shadow:0 -4px 18px rgba(0,0,0,.6)}
 body.is-mobile .tutorial-hint.expanded .th-title{white-space:normal;font-size:10px}
 body.is-mobile .tutorial-hint.expanded .th-text,body.is-mobile .tutorial-hint.expanded .th-task{font-size:14px}
@@ -615,7 +617,8 @@ body.is-landscape #game{grid-column:1;grid-row:1 / span 3}
 body.is-landscape .mobile-hud{grid-column:2;grid-row:1;max-width:220px;margin:0 0 6px}
 /* the band sits in the side column; a hint opened in full lies over the top of the mine */
 body.is-landscape .msg-band{grid-column:2;grid-row:2;height:78px;margin:0 0 6px}
-body.is-landscape .tutorial-hint:not(.expanded) .th-task{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+body.is-landscape .tutorial-hint:not(.expanded) .th-task,body.is-landscape .tutorial-hint:not(.expanded) .th-text{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+body.is-landscape .tutorial-hint:not(.expanded) .th-text:has(~ .th-task){display:none}
 body.is-landscape .tutorial-hint.expanded{left:auto;right:calc(100% + 12px);top:-42px;bottom:auto;width:min(440px,calc(100vw - 264px));max-height:calc(100vh - 20px)}
 body.is-landscape .fact-toast .ft-txt{-webkit-line-clamp:3}
 body.is-landscape .mobile-controls{grid-column:2;grid-row:3;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;margin:0;padding:0;max-width:220px}

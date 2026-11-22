@@ -37,11 +37,17 @@
         '<span class="th-text">' + (h.text || "") + '</span>' +
         (h.task ? '<span class="th-task">▶ ' + h.task + '</span>' : '') +
         '<span class="th-wait">⏸ The mine waits while you read - move to go on</span>' +
-        '<span class="th-more">▴ Tap to read again</span>';
+        '<span class="th-more">▴ more</span>';
       el.classList.remove("waiting");
-      // phones: shown in full over the foot of the mine, folded into the strip
-      // under it once the miner moves on (minerActed); tapping it toggles
-      el.classList.add("visible", "expanded");
+      // Phones: a hint opens in full over the foot of the mine only where that
+      // interrupts nothing - in a lesson, where the mine waits for its reader, or
+      // while the miner stands idle (a level just begun). In the middle of play it
+      // goes straight into the strip under the mine, so nothing flashes up over
+      // the game. A full hint folds into the strip once the miner moves on
+      // (minerActed); a tap on the strip opens it again.
+      var calm = s.mode === "tutorial" || Date.now() - (s.lastActionAt || 0) >= HINT_EXPAND_IDLE_MS;
+      el.classList.add("visible");
+      el.classList.toggle("expanded", calm);
       Game.ui._hintShownAt = Date.now();
       el.onclick = function() {
         if (document.body.classList.contains("is-mobile") && !Game.ui.thumbJustOnJoystick()) el.classList.toggle("expanded");
