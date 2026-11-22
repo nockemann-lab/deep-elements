@@ -45,6 +45,9 @@ var GAME_STATE = {
   touchFirstRepeatMs: 400,
   touchRepeatMs: 150,
   touchHeld: false,
+  // when a thumb was last on the joystick (performance.now), so a slip from it onto the
+  // strip under the mine is not taken for a tap there (Game.ui.thumbJustOnJoystick)
+  lastJoystickAt: -1e9,
   // the cell the joystick is steering the miner into, outlined on the mine
   /** @type {{x:number,y:number}|null} */
   touchAim: null,

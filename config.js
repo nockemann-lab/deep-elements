@@ -142,6 +142,8 @@ var READ_FREEZE_SECONDS = 8;
 var HINT_READ_BASE_MS = 2000, HINT_READ_MS_PER_WORD = 350;
 var HINT_IDLE_MS = 400, HINT_MIN_HOLD_MS = 2500;
 // A hint banner stays at least this long, and longer when its text needs it
+// Phones: taps on the message strip this soon after the joystick was touched are ignored
+var JOYSTICK_SLIP_MS = 1200;
 var HINT_SHOW_MS = 14000, HINT_SHOW_AFTER_READ_MS = 5000;
 
 // ─── Quiz ───

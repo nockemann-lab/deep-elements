@@ -125,6 +125,7 @@
       st.touchAim = m ? { x: st.playerX + m[0], y: st.playerY + m[1] } : null;
     }
     function move(ev) {
+      Game.state.lastJoystickAt = performance.now();
       var r = joy.getBoundingClientRect(), rad = r.width / 2 || 1;
       var dx = ev.clientX - (r.left + rad), dy = ev.clientY - (r.top + rad);
       var nx = dx / rad, ny = dy / rad, mag = Math.sqrt(nx * nx + ny * ny);
@@ -144,6 +145,7 @@
     function end(ev) {
       if (!active || ev.pointerId !== active.id) return;
       active = null;
+      Game.state.lastJoystickAt = performance.now();
       knob.style.transform = "";
       joy.classList.remove("held");
       joy.setAttribute("data-dir", "");

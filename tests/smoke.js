@@ -1260,13 +1260,38 @@
                   cv.dispatchEvent(new PointerEvent("pointerup", { pointerId: 11, pointerType: "touch", bubbles: true, clientX: r.left + r.width - 20, clientY: r.top + r.height / 2 }));
                   check("a finger on the mine itself never moves the miner", s.playerX === x3);
                   joy.style.display = "";
-                  done();
+                  factSlip(done);
                 }, 500);
               }, 300);
             }, 1200);
           }, 300);
         }, 180);
       } catch (e) { check("joystick tests", false, e); done(); }
+    }
+    // Phones: the fact slip under the mine opens the notebook only from its symbol,
+    // and not while the thumb has just been on the joystick below it
+    function factSlip(done) {
+      var body = document.body, had = body.className;
+      try {
+        Game.map.start(0); Game.loop.clearIntervals();
+        body.classList.add("is-mobile", "is-touch");   // after the start, which sizes the page for this desktop window
+        var k = Object.keys(s.elementMap)[0], c = cellOf(k);
+        Game.loop.collectElement(s.elementMap[k], c.x, c.y);
+        var toast = document.getElementById("fact-toast"), nb = document.getElementById("notebook-overlay");
+        function nbOpen() { return !nb.classList.contains("hidden"); }
+        check("a found element shows its slip under the mine", toast.classList.contains("visible"));
+        toast.querySelector(".ft-txt").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        check("a tap on the slip's text does not open the notebook", !nbOpen() && !s.paused);
+        s.lastJoystickAt = performance.now();
+        toast.querySelector(".ft-sym").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        check("nor does a tap on its symbol straight after the joystick", !nbOpen() && !s.paused);
+        s.lastJoystickAt = performance.now() - JOYSTICK_SLIP_MS - 50; s.touchHeld = false;
+        toast.querySelector(".ft-sym").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        check("a deliberate tap on the symbol opens its notebook page", nbOpen());
+        Game.ui.closeNotebook();
+      } catch (e) { check("fact slip tests", false, e); }
+      body.className = had;
+      done();
     }
   }
 

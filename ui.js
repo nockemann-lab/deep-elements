@@ -43,7 +43,9 @@
       // under it once the miner moves on (minerActed); tapping it toggles
       el.classList.add("visible", "expanded");
       Game.ui._hintShownAt = Date.now();
-      el.onclick = function() { if (document.body.classList.contains("is-mobile")) el.classList.toggle("expanded"); };
+      el.onclick = function() {
+        if (document.body.classList.contains("is-mobile") && !Game.ui.thumbJustOnJoystick()) el.classList.toggle("expanded");
+      };
       el.style.top = ""; Game.ui.placeOverMine(el);
       if (!h.silent && SFX.collectPowerup) SFX.collectPowerup();
       // "WELCOME, MINER!" needs no colon after it
@@ -65,6 +67,12 @@
       var el = document.getElementById("tutorial-hint");
       if (el) el.classList.toggle("waiting", !!on);
       Game.ui.updateHUD();
+    },
+
+    // Phones: a tap on the strip under the mine within a moment of using the
+    // joystick is a thumb that slipped, not a choice - it is ignored
+    thumbJustOnJoystick: function() {
+      return document.body.classList.contains("is-touch") && (!!s.touchHeld || performance.now() - s.lastJoystickAt < JOYSTICK_SLIP_MS);
     },
 
     // The miner moved or used a tool: a hint shown in full folds away - at
@@ -254,8 +262,12 @@
       var toast = document.getElementById("fact-toast");
       if (toast && document.body.classList.contains("is-mobile")) {
         toast.innerHTML = '<span class="ft-sym" style="background:' + (Game.ui._ptGroupColor[Game.ui._ptGroupMap[elem.symbol] || "transition"] || "#4a9ee8") + '">' + elem.symbol + '</span>' +
-          '<span class="ft-txt"><strong>' + elem.name + '</strong>' + (Game.ui._lastRole || Game.ui.elementBlurb(elem.symbol)) + '<em>Tap to read its page</em></span>';
-        toast.onclick = function() {
+          '<span class="ft-txt"><strong>' + elem.name + '</strong>' + (Game.ui._lastRole || Game.ui.elementBlurb(elem.symbol)) + '<em>Tap ' + elem.symbol + ' for its page</em></span>';
+        // Only the symbol opens the notebook (it pauses the dig): it sits on the far
+        // side from the joystick, and a thumb fresh from the joystick is ignored
+        toast.onclick = function(ev) {
+          var hit = /** @type {Element} */ (ev.target);
+          if (!hit || !hit.closest || !hit.closest(".ft-sym") || Game.ui.thumbJustOnJoystick()) return;
           toast.classList.remove("visible");
           if (s.running && !s.paused) Game.loop.togglePause();
           Game.ui.openNotebook(elem.symbol);
