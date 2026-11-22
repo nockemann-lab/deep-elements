@@ -24,8 +24,9 @@ To run it from a copy, there is no build step. Either:
   ```
 
 Controls: arrow keys or WASD to move and dig, `1`–`5` to use a tool, `P` to pause, `R` to
-restart. On a touch screen, use the on-screen D-pad or drag a finger across the mine (keep
-holding to keep walking), and tap a tool to use it.
+restart. On a touch screen, tap the mine beside the miner to take one step that way (keep
+holding to keep walking), and tap a tool to use it. The 🔍 button zooms; an on-screen
+D-pad can be switched on in the pause menu.
 
 ## Modes
 

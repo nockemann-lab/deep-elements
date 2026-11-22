@@ -68,7 +68,7 @@
       "r": 1,
       "icon": "⛏️",
       "title": "WELCOME, MINER!",
-      "text": "Move with the <strong>arrow keys</strong> or <strong>W A S D</strong> (on a tablet: the D-pad). Brown <strong>earth</strong> is dug simply by walking into it.",
+      "text": "Move with the <strong>arrow keys</strong> or <strong>W A S D</strong> (on a touch screen: tap the mine beside the miner). Brown <strong>earth</strong> is dug simply by walking into it.",
       "task": "Dig your way east, towards the glowing tiles.",
       "save": true
     },

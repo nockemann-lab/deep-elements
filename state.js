@@ -41,6 +41,12 @@ var GAME_STATE = {
   moveRepeatMs: 90,
   // pause between the first and second step of a held key (a tap = one tile)
   moveFirstRepeatMs: 130,
+  // a touch (the mine or the D-pad) waits longer before it repeats: see tickInput
+  touchFirstRepeatMs: 320,
+  touchHeld: false,
+  // the cell the next touch step enters, outlined on the mine while a finger is down
+  /** @type {{x:number,y:number}|null} */
+  touchAim: null,
   moveStreak: 0,
   tapQueued: "",
   // counts fresh presses of a direction (not auto-repeat), and where a lava vein was just broken open

@@ -56,11 +56,15 @@
       <span class="mh-stat"><span class="mh-ico">&#128142;</span><b id="mh-elems">0/9</b></span>
       <span class="mh-timer"><span class="mh-ico" id="mh-clock">&#9200;</span><span class="mh-track"><span class="mh-fill" id="mh-fill"></span></span><b id="mh-time">90</b></span>
       <span class="mh-stat mh-score"><b id="mh-score">0</b></span>
+      <button class="mh-btn mh-zoom" data-action="cycleZoom" aria-label="Zoom: Medium" id="mh-zoom">&#128269;</button>
       <button class="mh-btn" data-action="togglePause" aria-label="Pause">&#9208;&#65039;</button>
     </div>
     <canvas id="game"></canvas>
-    <button class="fact-toast" id="fact-toast"></button>
-    <div class="tutorial-hint" id="tutorial-hint"></div>
+    <div class="msg-band" id="msg-band">
+      <div class="band-idle" id="band-idle"></div>
+      <div class="tutorial-hint" id="tutorial-hint"></div>
+      <button class="fact-toast" id="fact-toast"></button>
+    </div>
     <div class="controls-hint">
       <span class="key-hint"><kbd>&#8593;</kbd><kbd>&#8595;</kbd><kbd>&#8592;</kbd><kbd>&#8594;</kbd> Move</span>
       <span class="key-hint"><kbd>1</kbd>&#8211;<kbd>5</kbd> Use a tool (or click it)</span>
@@ -248,10 +252,11 @@
           <div class="how-key"><span><kbd>P</kbd> or <kbd>Esc</kbd></span><em>Pause</em></div>
           <div class="how-key"><span><kbd>R</kbd></span><em>Restart the level (asks first)</em></div>
           <h5 class="how-sub">TOUCH SCREEN</h5>
-          <div class="how-key"><span>D-pad, or drag on the mine</span><em>Move and dig</em></div>
+          <div class="how-key"><span>Tap beside the miner</span><em>One step that way</em></div>
           <div class="how-key"><span>Keep holding</span><em>Keep walking</em></div>
           <div class="how-key"><span>Tap a tool</span><em>Use it</em></div>
-          <div class="how-key"><span>&#9208; button</span><em>Pause</em></div>
+          <div class="how-key"><span>&#128269; button</span><em>Zoom in or out</em></div>
+          <div class="how-key"><span>&#9208; button</span><em>Pause (and switch the D-pad on)</em></div>
         </div>
         <div class="how-box">
           <h4>GOOD TO KNOW</h4>
@@ -309,7 +314,7 @@
       <button class="lb-clear" data-action="clearScores">Clear Scores</button>
     </div>
     </div>
-      <div class="menu-toggles"><button class="menu-btn" data-action="toggleMute" id="menu-mute-btn">&#128266; Sound ON</button> <button class="menu-btn" data-action="cycleVolume" id="volume-btn" title="Change the volume">&#128265; Volume 100%</button> <button class="menu-btn" data-action="toggleReducedFx" id="fx-btn">&#10024; Effects: Full</button></div>
+      <div class="menu-toggles"><button class="menu-btn" data-action="toggleMute" id="menu-mute-btn">&#128266; Sound ON</button> <button class="menu-btn" data-action="cycleVolume" id="volume-btn" title="Change the volume">&#128265; Volume 100%</button> <button class="menu-btn" data-action="toggleReducedFx" id="fx-btn">&#10024; Effects: Full</button> <button class="menu-btn touch-only" data-action="toggleDpad" id="dpad-btn">&#127918; D-pad: Off</button></div>
       <p class="menu-foot">Every element fact and mine location is researched and sourced: <a href="SOURCES.md" data-action="openDoc" data-arg="sources">sources</a> &middot; <a href="TEACHERS_GUIDE.md" data-action="openDoc" data-arg="guide">teacher&rsquo;s guide</a> &middot; <a href="CREDITS.md" data-action="openDoc" data-arg="credits">credits</a></p>
   </div>
 </div>

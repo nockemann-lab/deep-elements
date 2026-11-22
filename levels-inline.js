@@ -27959,7 +27959,7 @@ window.__TUTORIAL_LEVELS__ = [
         "r": 1,
         "icon": "⛏️",
         "title": "WELCOME, MINER!",
-        "text": "Move with the <strong>arrow keys</strong> or <strong>W A S D</strong> (on a tablet: the D-pad). Brown <strong>earth</strong> is dug simply by walking into it.",
+        "text": "Move with the <strong>arrow keys</strong> or <strong>W A S D</strong> (on a touch screen: tap the mine beside the miner). Brown <strong>earth</strong> is dug simply by walking into it.",
         "task": "Dig your way east, towards the glowing tiles.",
         "save": true
       },
@@ -41211,6 +41211,6 @@ window.__ELEMENTRUN_LEVELS__ = [
   }
 ];
 window.__MISSION_BUNDLE_META__ = {
-  "generatedAt": "2026-11-18T00:41:02.458Z",
-  "projectHash": "65117455"
+  "generatedAt": "2026-11-21T23:32:46.120Z",
+  "projectHash": "935d0316"
 };

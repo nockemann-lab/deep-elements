@@ -1,7 +1,7 @@
 "use strict";
 
 // ═══════════════════════════════════════════════════════════════════
-// input.js - Keyboard, touch, and d-pad event handlers
+// input.js - Keyboard, touch, and D-pad event handlers
 // ═══════════════════════════════════════════════════════════════════
 
 (function() {
@@ -21,6 +21,7 @@
     for (var key in keys) keys[key] = false;
     Game.state.lastMoveKey = "";
     Game.state.activeMoveKey = "";
+    Game.state.touchHeld = false;
   }
 
   document.addEventListener("keydown", function(ev) {
@@ -31,6 +32,7 @@
       ev.preventDefault();
       Game.state.keys[moveKey] = true;
       Game.state.lastMoveKey = moveKey;
+      Game.state.touchHeld = false;
       if (!ev.repeat) { Game.state.tapQueued = moveKey; Game.state.pressSeq++; }
       return;
     }
@@ -79,20 +81,23 @@
   });
 
   // ─── Touch controls ───
-  // Both the D-pad and dragging on the mine feed the same held-key state the
-  // keyboard uses, so a held direction repeats at exactly the keyboard's pace.
+  // Both the D-pad and the mine itself feed the same held-key state the
+  // keyboard uses. A touch steps at once, then waits TOUCH_FIRST_REPEAT_MS
+  // before it repeats (s.touchHeld), so a tap is always exactly one tile:
+  // a finger rests on the glass far longer than a key is struck.
   var MOVE_NAMES = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
 
   function holdDirection(key) {
     var st = Game.state, wasHeld = st.keys[key];
     MOVE_NAMES.forEach(function(k) { st.keys[k] = (k === key); });
     st.lastMoveKey = key;
+    st.touchHeld = true;
     if (!wasHeld) st.pressSeq++;
-    // take the first step at once, so even a quick tap or flick always moves
+    // take the first step at once, so even a quick tap always moves
     if (!wasHeld && Game.loop && Game.loop.tickInput) Game.loop.tickInput(performance.now());
   }
 
-  // D-pad: press and hold to keep walking
+  // D-pad (switched on in the pause card or the menu): press and hold to keep walking
   Array.prototype.forEach.call(document.querySelectorAll(".dpad-btn[data-key]"), function(btn) {
     var key = btn.getAttribute("data-key");
     btn.addEventListener("pointerdown", function(ev) {
@@ -111,38 +116,67 @@
     btn.addEventListener("contextmenu", function(ev) { ev.preventDefault(); });
   });
 
-  // Mine: put a finger down anywhere and drag - the miner walks the way you
-  // drag for as long as you hold, and turns when you change direction.
+  // Mine: touch it on the side of the miner you want to go. A tap is one step
+  // that way; holding keeps walking towards the finger, and sliding it steers.
+  // (The view scrolls with the miner, so a finger held still mostly stays
+  // ahead of them; near the edge of the mine they reach it and stop.) The
+  // finger may be anywhere on that side, so it need not hide the cell being dug.
   (function() {
-    var canvas = Game.state.canvas, active = null, DEAD = 14, LEASH = 46;
+    var canvas = Game.state.canvas, active = null, raf = 0;
+
+    // the way from the miner to the finger, or "" while it rests on the miner's own cell
+    function aimAt(clientX, clientY) {
+      var st = Game.state, r = canvas.getBoundingClientRect();
+      if (!canvas.clientWidth || !st.tile) return "";
+      var cell = canvas.clientWidth / (canvas.width / st.tile);      // one cell, as shown
+      var camX = st.camSmoothX !== undefined ? st.camSmoothX : st.camX;
+      var camY = st.camSmoothY !== undefined ? st.camSmoothY : st.camY;
+      var dx = (clientX - r.left - canvas.clientLeft) / cell + camX - (st.playerX + 0.5);
+      var dy = (clientY - r.top - canvas.clientTop) / cell + camY - (st.playerY + 0.5);
+      var adx = Math.abs(dx), ady = Math.abs(dy);
+      if (adx < 0.5 && ady < 0.5) return "";
+      return adx > ady ? (dx > 0 ? "ArrowRight" : "ArrowLeft") : (dy > 0 ? "ArrowDown" : "ArrowUp");
+    }
+    function showAim(key) {
+      var st = Game.state, m = key ? { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[key] : null;
+      st.touchAim = m ? { x: st.playerX + m[0], y: st.playerY + m[1] } : null;
+    }
+    function steer() {
+      if (!active) return;
+      var key = aimAt(active.x, active.y);
+      if (key !== active.key) {
+        active.key = key;
+        if (key) holdDirection(key); else clearMoveKeys();
+      }
+      showAim(key);
+    }
+    // the miner walks under a still finger, so the aim is taken again every frame
+    function follow() { raf = 0; if (!active) return; steer(); raf = requestAnimationFrame(follow); }
+
     canvas.addEventListener("pointerdown", function(ev) {
-      if (ev.pointerType === "mouse") return;
+      if (ev.pointerType === "mouse" || active) return;
       ev.preventDefault();
-      active = { id: ev.pointerId, ox: ev.clientX, oy: ev.clientY, key: "" };
+      active = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, key: "" };
       try { canvas.setPointerCapture(ev.pointerId); } catch (e) {}
+      steer();
+      if (!raf) raf = requestAnimationFrame(follow);
     });
     canvas.addEventListener("pointermove", function(ev) {
       if (!active || ev.pointerId !== active.id) return;
       ev.preventDefault();
-      var dx = ev.clientX - active.ox, dy = ev.clientY - active.oy;
-      var adx = Math.abs(dx), ady = Math.abs(dy), far = Math.max(adx, ady);
-      if (far < DEAD) return;
-      var key = adx > ady ? (dx > 0 ? "ArrowRight" : "ArrowLeft") : (dy > 0 ? "ArrowDown" : "ArrowUp");
-      if (key !== active.key) { active.key = key; holdDirection(key); }
-      // keep the anchor on a short leash so reversing never needs a long drag back
-      if (far > LEASH) {
-        var pull = (far - LEASH) / far;
-        active.ox += dx * pull; active.oy += dy * pull;
-      }
+      active.x = ev.clientX; active.y = ev.clientY;
+      steer();
     });
     function end(ev) {
       if (!active || ev.pointerId !== active.id) return;
       active = null;
+      Game.state.touchAim = null;
       clearMoveKeys();
     }
     canvas.addEventListener("pointerup", end);
     canvas.addEventListener("pointercancel", end);
     canvas.addEventListener("lostpointercapture", end);
+    canvas.addEventListener("contextmenu", function(ev) { ev.preventDefault(); });
   })();
 
   // the notebook card is sized to its longest page; re-measure if the window changes
@@ -188,6 +222,8 @@
     toggleMute: function() { window.toggleMute(); },
     cycleVolume: function() { window.cycleVolume(); },
     toggleReducedFx: function() { window.toggleReducedFx(); },
+    cycleZoom: function() { Game.camera.cycleZoom(); Game.ui.syncTouchButtons(); },
+    toggleDpad: function() { Game.camera.toggleDpad(); Game.ui.syncTouchButtons(); },
     // the teacher survey, loaded into the guide only when asked for
     loadSurvey: function(url, el) {
       if (!/^https:\/\//.test(url || "")) return;

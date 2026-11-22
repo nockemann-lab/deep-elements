@@ -36,9 +36,14 @@
       el.innerHTML = '<span class="th-title">' + (h.icon || "💡") + ' ' + (h.title || "HINT") + '</span>' +
         '<span class="th-text">' + (h.text || "") + '</span>' +
         (h.task ? '<span class="th-task">▶ ' + h.task + '</span>' : '') +
-        '<span class="th-wait">⏸ The mine waits while you read - move to go on</span>';
+        '<span class="th-wait">⏸ The mine waits while you read - move to go on</span>' +
+        '<span class="th-more">▴ Tap to read again</span>';
       el.classList.remove("waiting");
-      el.classList.add("visible");
+      // phones: shown in full over the foot of the mine, folded into the strip
+      // under it once the miner moves on (minerActed); tapping it toggles
+      el.classList.add("visible", "expanded");
+      Game.ui._hintShownAt = Date.now();
+      el.onclick = function() { if (document.body.classList.contains("is-mobile")) el.classList.toggle("expanded"); };
       el.style.top = ""; Game.ui.placeOverMine(el);
       if (!h.silent && SFX.collectPowerup) SFX.collectPowerup();
       // "WELCOME, MINER!" needs no colon after it
@@ -62,9 +67,20 @@
       Game.ui.updateHUD();
     },
 
+    // The miner moved or used a tool: a hint shown in full folds away - at
+    // once in a mission, and in a lesson only once the mine has stopped waiting
+    // for its reader (a key still held from before the hint does not count)
+    _hintShownAt: 0,
+    minerActed: function() {
+      var el = document.getElementById("tutorial-hint");
+      if (!el || !el.classList.contains("expanded") || !el.classList.contains("visible")) return;
+      var hold = s.mode === "tutorial" ? HINT_MIN_HOLD_MS : 1000;
+      if (Date.now() - Game.ui._hintShownAt >= hold) el.classList.remove("expanded");
+    },
+
     hideHint: function() {
       var el = document.getElementById("tutorial-hint");
-      if (el) el.classList.remove("visible", "waiting");
+      if (el) el.classList.remove("visible", "waiting", "expanded");
       clearTimeout(Game.ui._hintTimeout);
       Game.ui._hintTimeout = null;
     },
@@ -72,9 +88,11 @@
     // On touch layouts the hint and the fact slip lie over the mine (they are
     // position:absolute there). They sit along its top edge - unless the miner
     // is under them: then they move to the bottom edge, and back the same way.
+    // (Phones have the strip under the mine instead: see .msg-band in style.css.)
     placeOverMine: function(el) {
       var cv = /** @type {HTMLCanvasElement} */ (document.getElementById("game"));
       if (!el || !cv || !cv.height || !el.offsetHeight) return;
+      if (document.body.classList.contains("is-mobile")) { el.style.top = ""; return; }
       if (getComputedStyle(el).position !== "absolute") { el.style.top = ""; return; }
       var row = s.tile * cv.offsetHeight / cv.height;            // one cell, as shown
       var miner = cv.offsetTop + (s.playerY - s.camY) * row;
@@ -108,6 +126,9 @@
       entry.className = "log-entry " + (cls || "");
       entry.innerHTML = '<span class="log-sym" style="color:' + (cls === "crush-log" ? "var(--red)" : cls === "combo-log" ? "var(--orange)" : cls === "powerup-log" ? "var(--cyan)" : "#8a90a0") + '">' + icon + '</span><span class="log-name">' + text + '</span>';
       log.insertBefore(entry, log.firstChild);
+      // phones: the latest line also shows in the strip under the mine when it is free
+      var idle = document.getElementById("band-idle");
+      if (idle) idle.innerHTML = '<span class="bi-ico">' + icon + '</span><span class="bi-txt">' + String(text).replace(/<(?!\/?(strong|em)\b)[^>]*>/g, "") + '</span>';
     },
 
     updateHUD: function() {
@@ -228,8 +249,8 @@
       void panel.offsetWidth;
       panel.classList.add("flash");
       // Phones: the side panel is below the fold, so show the fact as a slip
-      // over the top of the mine instead of scrolling the mine away. Tapping it
-      // pauses the dig and opens that element's notebook page.
+      // in the strip under the mine instead of scrolling the mine away. Tapping
+      // it pauses the dig and opens that element's notebook page.
       var toast = document.getElementById("fact-toast");
       if (toast && document.body.classList.contains("is-mobile")) {
         toast.innerHTML = '<span class="ft-sym" style="background:' + (Game.ui._ptGroupColor[Game.ui._ptGroupMap[elem.symbol] || "transition"] || "#4a9ee8") + '">' + elem.symbol + '</span>' +
@@ -242,7 +263,7 @@
         toast.classList.add("visible");
         toast.style.top = ""; Game.ui.placeOverMine(toast);
         clearTimeout(Game.ui._toastTimeout);
-        Game.ui._toastTimeout = setTimeout(function() { toast.classList.remove("visible"); }, 7000);
+        Game.ui._toastTimeout = setTimeout(function() { toast.classList.remove("visible"); }, 6000);
       }
     },
 
@@ -1168,4 +1189,18 @@
   else s.reducedFx = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   applyReducedFx();
   window.resetPTProgress = function() { Game.ui.resetPTProgress(); };
+
+  // ─── Touch screens: D-pad on or off, and how close the camera sits (kept by camera.js) ───
+  Game.ui.syncTouchButtons = function() {
+    var on = Game.camera.dpadShown(), zoom = Game.camera.zoomName();
+    var b = document.getElementById("dpad-btn");
+    if (b) b.textContent = "🎮 D-pad: " + (on ? "On" : "Off");
+    var pb = document.getElementById("pause-dpad-btn");
+    if (pb) pb.textContent = "🎮 D-PAD: " + (on ? "ON" : "OFF");
+    var pz = document.getElementById("pause-zoom-btn");
+    if (pz) pz.textContent = "🔍 ZOOM: " + zoom.toUpperCase();
+    var hz = document.getElementById("mh-zoom");
+    if (hz) { hz.setAttribute("aria-label", "Zoom: " + zoom); hz.title = "Zoom: " + zoom; }
+  };
+  Game.ui.syncTouchButtons();
 })();

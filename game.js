@@ -45,6 +45,8 @@
     var now = Date.now();
     if (usedTool || (s.mineWaiting && now - s.hintHoldFrom >= HINT_MIN_HOLD_MS)) s.hintHoldUntil = 0;
     s.lastActionAt = now;
+    // a full-size hint folds down to its strip under the mine once play goes on
+    if (Game.ui && Game.ui.minerActed) Game.ui.minerActed();
   }
 
   function syncPlayerVisualPosition(x, y) {
@@ -124,6 +126,8 @@
   //  - The first step is taken at once; the second only after a slightly longer
   //    pause (moveFirstRepeatMs), like keyboard auto-repeat. A tap therefore
   //    always means exactly one tile, even if the key is held a moment too long.
+  //    A finger on a touch screen rests longer than a key is struck, so a touch
+  //    waits longer still (touchFirstRepeatMs) before it repeats.
   //  - After that, steps repeat at the running pace.
   //  - Changing direction mid-run takes effect at the next tile boundary; it
   //    never cuts the current step short.
@@ -164,7 +168,7 @@
     movePlayer(move.dx, move.dy);
     s.lastStepAt = now;
     s.moveStreak = (s.moveStreak || 0) + 1;
-    s.moveCooldownUntil = now + (s.moveStreak === 1 ? s.moveFirstRepeatMs : s.moveRepeatMs);
+    s.moveCooldownUntil = now + (s.moveStreak === 1 ? (s.touchHeld ? s.touchFirstRepeatMs : s.moveFirstRepeatMs) : s.moveRepeatMs);
   }
 
   function usePowerup(slot) {
@@ -1211,6 +1215,7 @@
     if (pauseOv) pauseOv.classList.add("hidden");
     SFX.stopMenuMusic();
     document.getElementById("collection-log").innerHTML = '<div class="log-entry log-empty">Dig through earth to find minerals...</div>';
+    var bandIdle = document.getElementById("band-idle"); if (bandIdle) bandIdle.textContent = "";
     document.getElementById("ep-empty").style.display = "";
     document.getElementById("ep-content").style.display = "none";
     document.getElementById("elem-panel").classList.remove("has-elem", "flash");
@@ -1384,7 +1389,15 @@
       retryPartButton() +
       '<button class="overlay-btn secondary" data-action="requestRestart">&#8635; RESTART</button>' +
       '<button class="overlay-btn secondary" data-action="quitToMenu">MENU</button>' +
-      '</div><span class="pause-keys">Press <kbd>P</kbd>, or click anywhere else, to resume</span>';
+      '</div>' + touchSettingsHtml() + '<span class="pause-keys">Press <kbd>P</kbd>, or click anywhere else, to resume</span>';
+  }
+  // Touch screens: the D-pad and the zoom can be changed without leaving the mine
+  function touchSettingsHtml() {
+    if (!document.body.classList.contains("is-touch") || !Game.camera.dpadShown) return '';
+    return '<div class="pause-btns pause-touch">' +
+      '<button class="overlay-btn secondary" data-action="toggleDpad" id="pause-dpad-btn">&#127918; D-PAD: ' + (Game.camera.dpadShown() ? 'ON' : 'OFF') + '</button>' +
+      '<button class="overlay-btn secondary" data-action="cycleZoom" id="pause-zoom-btn">&#128269; ZOOM: ' + Game.camera.zoomName().toUpperCase() + '</button>' +
+      '</div>';
   }
   function restartHtml() {
     var lesson = s.mode === "tutorial";

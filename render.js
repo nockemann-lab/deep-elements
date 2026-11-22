@@ -856,6 +856,21 @@
   }
 
   // ─── Player sprite ───
+  // Touch screens: a soft outline on the cell the finger is steering the miner into
+  function drawTouchAim() {
+    var aim = s.touchAim;
+    if (!aim || aim.x < 0 || aim.y < 0 || aim.x >= COLS || aim.y >= ROWS) return;
+    var ax = (aim.x - camTileX) * TILE, ay = (aim.y - camTileY) * TILE, inset = S(2.5);
+    ctx.save();
+    ctx.strokeStyle = "rgba(232,184,75,0.75)"; ctx.lineWidth = S(2);
+    ctx.fillStyle = "rgba(232,184,75,0.10)";
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(ax + inset, ay + inset, TILE - inset * 2, TILE - inset * 2, S(5));
+    else ctx.rect(ax + inset, ay + inset, TILE - inset * 2, TILE - inset * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
   function drawMiner() {
     if (playerX >= camTileX - 1 && playerX < camTileX + viewCols + 1 && playerY >= camTileY - 1 && playerY < camTileY + viewRows + 1) {
       var plpx = (playerX - camTileX) * TILE, plpy = (playerY - camTileY) * TILE;
@@ -1554,9 +1569,11 @@
   // ─── Minimap ───
   function drawMinimap() {
     if (COLS > VP_COLS || ROWS > VP_ROWS) {
-      var mmS = Math.max(1, Math.min(3, Math.floor(100 / COLS)));
+      // in screen pixels: a phone's canvas has two canvas pixels to each of them
+      var dens = canvas.clientWidth ? Math.max(1, Math.round(canvas.width / canvas.clientWidth)) : 1;
+      var mmS = Math.max(1, Math.min(3, Math.floor(100 / COLS))) * dens;
       var mmW = COLS * mmS, mmH = ROWS * mmS;
-      var mmX = canvas.width - mmW - 8, mmY = 8;
+      var mmX = canvas.width - mmW - 8 * dens, mmY = 8 * dens;
       ctx.fillStyle = "rgba(6,8,16,0.85)"; ctx.fillRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
       ctx.strokeStyle = "rgba(255,255,255,0.15)"; ctx.lineWidth = 1; ctx.strokeRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
       for (var my = 0; my < ROWS; my++) for (var mx = 0; mx < COLS; mx++) {
@@ -1606,6 +1623,7 @@
       drawTunnelBorers();
       drawShaftLifts();
       drawQuizQuestion();
+      drawTouchAim();
       drawFog();
       drawDigParticles();
       drawExplosions();

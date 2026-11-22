@@ -1220,12 +1220,58 @@
             setTimeout(function() {
               btn.dispatchEvent(new PointerEvent("pointerup", { pointerId: 3, pointerType: "touch", bubbles: true }));
               check("holding the D-pad keeps walking", x0 - s.playerX >= 3, x0 - s.playerX);
-              done();
+              touchMine(done);
             }, 450);
           }, 120);
         });
       });
     } catch (e) { check("timed input tests", false, e); done(); }
+    }
+    // Touch on the mine: a finger some cells to the right of the miner
+    function touchMine(done) {
+      try {
+        var cv = s.canvas;
+        function fingerAt(cellsRight) {
+          var r = cv.getBoundingClientRect(), cell = cv.clientWidth / (cv.width / s.tile);
+          return {
+            clientX: r.left + cv.clientLeft + (s.playerX + cellsRight + 0.5 - s.camSmoothX) * cell,
+            clientY: r.top + cv.clientTop + (s.playerY + 0.5 - s.camSmoothY) * cell
+          };
+        }
+        function touch(type, at) {
+          cv.dispatchEvent(new PointerEvent(type, { pointerId: 7, pointerType: "touch", bubbles: true, cancelable: true, clientX: at.clientX, clientY: at.clientY }));
+        }
+        frame();
+        var x0 = s.playerX, at = fingerAt(3);
+        touch("pointerdown", at);
+        // a finger rests far longer than a key is struck: still one step
+        setTimeout(function() {
+          touch("pointerup", at);
+          check("a tap beside the miner is exactly one step, however far away", s.playerX === x0 + 1, s.playerX - x0);
+          setTimeout(function() {
+            frame();
+            var x1 = s.playerX, at2 = fingerAt(4);
+            touch("pointerdown", at2);
+            setTimeout(function() {
+              touch("pointerup", at2);
+              var x2 = s.playerX;
+              check("holding beside the miner keeps walking", x2 - x1 >= 4, x2 - x1);
+              check("the touch outline is gone once the finger lifts", s.touchAim === null);
+              setTimeout(function() {
+                check("and the miner stops when the finger lifts", s.playerX === x2, s.playerX - x2);
+                frame();
+                var x3 = s.playerX, onMiner = fingerAt(0);
+                touch("pointerdown", onMiner);
+                setTimeout(function() {
+                  touch("pointerup", onMiner);
+                  check("a touch on the miner itself takes no step", s.playerX === x3 && s.playerY === 3, s.playerX - x3);
+                  done();
+                }, 400);
+              }, 300);
+            }, 1400);
+          }, 200);
+        }, 230);
+      } catch (e) { check("touch tests", false, e); done(); }
     }
   }
 
