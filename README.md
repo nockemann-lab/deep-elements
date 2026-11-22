@@ -129,7 +129,8 @@ Found a factual error? It is treated as a bug - please open an issue.
 - Source: https://github.com/nockemann-lab/deep-elements
 - DOI: https://doi.org/10.5281/zenodo.24346235 (Zenodo). This "concept" DOI always points
   to the latest version; each GitHub release is archived by Zenodo automatically and also
-  gets its own version DOI (v1.0.0: 10.5281/zenodo.24346236). The record's metadata comes
+  gets its own version DOI (v1.0.0: 10.5281/zenodo.24346236; v1.1.0:
+  10.5281/zenodo.24446032). The record's metadata comes
   from `.zenodo.json` (which Zenodo reads in preference to `CITATION.cff`).
 - For a new version: update `version` and `date-released` in `CITATION.cff` and `version`
   in `.zenodo.json`, then create a GitHub release with a new tag (e.g. `v1.1.0`).
